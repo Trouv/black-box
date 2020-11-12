@@ -11,7 +11,7 @@ use amethyst::{
     utils::application_root_dir,
 };
 
-mod state;
+mod black_state;
 
 fn main() -> amethyst::Result<()> {
     amethyst::start_logger(Default::default());
@@ -38,7 +38,7 @@ fn main() -> amethyst::Result<()> {
                 .with_plugin(RenderFlat2D::default()),
         )?;
 
-    let mut game = Application::new(resources, state::MyState, game_data)?;
+    let mut game = Application::new(resources, black_state::BlackState, game_data)?;
     game.run();
 
     Ok(())
