@@ -17,9 +17,9 @@ impl<'a> System<'a> for ButtonRender {
 
     fn run(&mut self, (mut sprites, buttons): Self::SystemData) {
         for (sprite, button) in (&mut sprites, &buttons).join() {
-            if button.pressed {
+            if button.just_pressed {
                 sprite.sprite_number = 1;
-            } else {
+            } else if button.just_unpressed {
                 sprite.sprite_number = 0;
             }
         }
@@ -36,9 +36,13 @@ impl<'a> System<'a> for ButtonPush {
 
     fn run(&mut self, (mut buttons, input): Self::SystemData) {
         for (mut button,) in (&mut buttons,).join() {
+            let last_pressed = button.last_pressed;
+            button.last_pressed = button.pressed;
             button.pressed = input
                 .action_is_down(components::BUTTON_NUMS[button.num])
                 .unwrap();
+            button.just_pressed = button.pressed && !button.last_pressed;
+            button.just_unpressed = !button.pressed && button.last_pressed;
         }
     }
 }

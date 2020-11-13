@@ -187,10 +187,7 @@ fn init_buttons(world: &mut World, button_sprite: SpriteRender) {
             .create_entity()
             .with(button_sprite.clone())
             .with(transform)
-            .with(components::Button {
-                pressed,
-                num: i as usize,
-            })
+            .with(components::Button::new(i as usize))
             .build();
     }
 }
