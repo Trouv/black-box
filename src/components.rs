@@ -1,3 +1,4 @@
+use amethyst::ecs::Entity;
 use amethyst::ecs::{Component, DenseVecStorage};
 use amethyst::input::VirtualKeyCode;
 
@@ -29,4 +30,13 @@ impl Button {
         button.action = action;
         button
     }
+}
+
+pub struct BlackBox {
+    pub state: BoxState,
+    pub buttons: Vec<Entity>,
+}
+
+impl Component for BlackBox {
+    type Storage = DenseVecStorage<Self>;
 }

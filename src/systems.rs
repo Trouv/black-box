@@ -46,3 +46,25 @@ impl<'a> System<'a> for ButtonPush {
         }
     }
 }
+
+pub struct BoxStateSystem;
+
+impl<'a> System<'a> for BoxStateSystem {
+    type SystemData = (
+        WriteStorage<'a, components::BlackBox>,
+        ReadStorage<'a, components::Button>,
+    );
+
+    fn run(&mut self, (mut boxes, buttons): Self::SystemData) {
+        for (mut box_,) in (&mut boxes,).join() {
+            let mut state = box_.state;
+            for b in &box_.buttons {
+                let button = buttons.get(*b).unwrap();
+                if button.just_pressed {
+                    state = button.action.unwrap()(state);
+                }
+            }
+            box_.state = state;
+        }
+    }
+}

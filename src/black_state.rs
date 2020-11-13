@@ -1,6 +1,7 @@
 use amethyst::{
     assets::{AssetStorage, Loader},
     core::transform::Transform,
+    ecs::Entity,
     input::{get_key, is_close_requested, is_key_down, VirtualKeyCode},
     prelude::*,
     renderer::{Camera, ImageFormat, SpriteRender, SpriteSheet, SpriteSheetFormat, Texture},
@@ -47,8 +48,8 @@ impl SimpleState for BlackState {
         // Load our sprites and display them
         let button_sprites = load_button_sprites(world);
         let box_sprite = load_box_sprite(world);
-        init_buttons(world, button_sprites);
-        init_box(world, box_sprite);
+        let buttons = init_buttons(world, button_sprites);
+        init_box(world, box_sprite, buttons);
 
         //create_ui_example(world);
     }
@@ -168,13 +169,10 @@ fn load_box_sprite(world: &mut World) -> SpriteRender {
 
 /// Creates an entity in the `world` for each of the provided `sprites`.
 /// They are individually placed around the center of the screen.
-fn init_buttons(world: &mut World, button_sprite: SpriteRender) {
+fn init_buttons(world: &mut World, button_sprite: SpriteRender) -> Vec<Entity> {
     let button_count = 3;
 
-    fn one(s: components::BoxState) -> components::BoxState {
-        println!("Button one pressed!");
-        s
-    }
+    let mut transforms = Vec::<Transform>::new();
 
     for i in 0..button_count {
         // Center our sprites around the center of the window
@@ -182,23 +180,48 @@ fn init_buttons(world: &mut World, button_sprite: SpriteRender) {
         let y = 65.;
         let mut transform = Transform::default();
         transform.set_translation_xyz(x, y, 0.);
+        transforms.push(transform)
+    }
+    fn inc(s: components::BoxState) -> components::BoxState {
+        let mut s = s.clone();
+        s[0] += 1.;
+        s
+    }
 
-        let pressed = i % 2 == 0;
+    fn dec(s: components::BoxState) -> components::BoxState {
+        let mut s = s.clone();
+        s[0] -= 1.;
+        s
+    }
 
-        // Create an entity for each sprite and attach the `SpriteRender` as
-        // well as the transform. If you want to add behaviour to your sprites,
-        // you'll want to add a custom `Component` that will identify them, and a
-        // `System` that will iterate over them. See https://book.amethyst.rs/stable/concepts/system.html
+    fn out(s: components::BoxState) -> components::BoxState {
+        println!("{}", s[0]);
+        s
+    }
+
+    vec![
         world
             .create_entity()
             .with(button_sprite.clone())
-            .with(transform)
-            .with(components::Button::new(i as usize, Some(one)))
-            .build();
-    }
+            .with(transforms.pop().unwrap())
+            .with(components::Button::new(0, Some(inc)))
+            .build(),
+        world
+            .create_entity()
+            .with(button_sprite.clone())
+            .with(transforms.pop().unwrap())
+            .with(components::Button::new(1, Some(out)))
+            .build(),
+        world
+            .create_entity()
+            .with(button_sprite.clone())
+            .with(transforms.pop().unwrap())
+            .with(components::Button::new(2, Some(dec)))
+            .build(),
+    ]
 }
 
-fn init_box(world: &mut World, box_sprite: SpriteRender) {
+fn init_box(world: &mut World, box_sprite: SpriteRender, buttons: Vec<Entity>) {
     let mut transform = Transform::default();
     transform.set_translation_xyz(WIDTH / 2., 50., -1.);
 
@@ -210,6 +233,10 @@ fn init_box(world: &mut World, box_sprite: SpriteRender) {
         .create_entity()
         .with(box_sprite.clone())
         .with(transform)
+        .with(components::BlackBox {
+            state: [0., 0., 0., 0., 0., 0., 0., 0.],
+            buttons,
+        })
         .build();
 }
 
