@@ -170,6 +170,12 @@ fn load_box_sprite(world: &mut World) -> SpriteRender {
 /// They are individually placed around the center of the screen.
 fn init_buttons(world: &mut World, button_sprite: SpriteRender) {
     let button_count = 3;
+
+    fn one(s: components::BoxState) -> components::BoxState {
+        println!("Button one pressed!");
+        s
+    }
+
     for i in 0..button_count {
         // Center our sprites around the center of the window
         let x = (i as f32 + 1.) * (WIDTH / (1. + button_count as f32));
@@ -187,7 +193,7 @@ fn init_buttons(world: &mut World, button_sprite: SpriteRender) {
             .create_entity()
             .with(button_sprite.clone())
             .with(transform)
-            .with(components::Button::new(i as usize))
+            .with(components::Button::new(i as usize, Some(one)))
             .build();
     }
 }

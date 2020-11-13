@@ -8,6 +8,7 @@ pub struct Button {
     pub just_pressed: bool,
     pub just_unpressed: bool,
     pub num: usize,
+    pub action: Option<ButtonAction>,
 }
 
 impl Component for Button {
@@ -19,18 +20,13 @@ pub const BUTTON_NUMS: [&str; 6] = [
 ];
 
 pub type BoxState = [f32; 8];
-struct ButtonAction<F: Fn(BoxState) -> BoxState>(F);
-
-impl<F: Fn(BoxState) -> BoxState> Default for ButtonAction<F> {
-    fn default() -> ButtonAction<F> {
-        ButtonAction(|state| state)
-    }
-}
+pub type ButtonAction = fn(BoxState) -> BoxState;
 
 impl Button {
-    pub fn new(num: usize) -> Self {
+    pub fn new(num: usize, action: Option<ButtonAction>) -> Self {
         let mut button = Button::default();
         button.num = num;
+        button.action = action;
         button
     }
 }
