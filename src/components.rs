@@ -18,6 +18,15 @@ pub const BUTTON_NUMS: [&str; 6] = [
     "button_0", "button_1", "button_2", "button_3", "button_4", "button_5",
 ];
 
+pub type BoxState = [f32; 8];
+struct ButtonAction<F: Fn(BoxState) -> BoxState>(F);
+
+impl<F: Fn(BoxState) -> BoxState> Default for ButtonAction<F> {
+    fn default() -> ButtonAction<F> {
+        ButtonAction(|state| state)
+    }
+}
+
 impl Button {
     pub fn new(num: usize) -> Self {
         let mut button = Button::default();
