@@ -70,7 +70,7 @@ impl SimpleState for BlackState {
 
             // Listen to any key events
             if let Some(event) = get_key(&event) {
-                info!("handling key event: {:?}", event);
+                //info!("handling key event: {:?}", event);
             }
 
             // If you're looking for a more sophisticated event handling solution,
@@ -204,7 +204,7 @@ fn init_buttons(world: &mut World, button_sprite: SpriteRender) -> Vec<Entity> {
             .create_entity()
             .with(button_sprite.clone())
             .with(transforms.pop().unwrap())
-            .with(components::Button::new(0, Some(inc)))
+            .with(components::Button::new(2, Some(inc)))
             .build(),
         world
             .create_entity()
@@ -216,7 +216,7 @@ fn init_buttons(world: &mut World, button_sprite: SpriteRender) -> Vec<Entity> {
             .create_entity()
             .with(button_sprite.clone())
             .with(transforms.pop().unwrap())
-            .with(components::Button::new(2, Some(dec)))
+            .with(components::Button::new(0, Some(dec)))
             .build(),
     ]
 }
