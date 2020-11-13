@@ -11,6 +11,7 @@ use amethyst::{
     window::ScreenDimensions,
 };
 
+use crate::components;
 use amethyst::core::math::base::Vector3;
 
 use log::info;
@@ -176,6 +177,8 @@ fn init_buttons(world: &mut World, button_sprite: SpriteRender) {
         let mut transform = Transform::default();
         transform.set_translation_xyz(x, y, 0.);
 
+        let pressed = i % 2 == 0;
+
         // Create an entity for each sprite and attach the `SpriteRender` as
         // well as the transform. If you want to add behaviour to your sprites,
         // you'll want to add a custom `Component` that will identify them, and a
@@ -184,6 +187,10 @@ fn init_buttons(world: &mut World, button_sprite: SpriteRender) {
             .create_entity()
             .with(button_sprite.clone())
             .with(transform)
+            .with(components::Button {
+                pressed,
+                num: i as usize,
+            })
             .build();
     }
 }

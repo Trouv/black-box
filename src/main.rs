@@ -12,6 +12,8 @@ use amethyst::{
 };
 
 mod black_state;
+pub mod components;
+pub mod systems;
 
 fn main() -> amethyst::Result<()> {
     amethyst::start_logger(Default::default());
@@ -36,7 +38,9 @@ fn main() -> amethyst::Result<()> {
                 )
                 .with_plugin(RenderUi::default())
                 .with_plugin(RenderFlat2D::default()),
-        )?;
+        )?
+        .with(systems::ButtonPush, "button_push", &["input_system"])
+        .with(systems::ButtonRender, "button_render", &["button_push"]);
 
     let mut game = Application::new(resources, black_state::BlackState, game_data)?;
     game.run();
