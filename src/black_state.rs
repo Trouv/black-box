@@ -48,7 +48,8 @@ impl SimpleState for BlackState {
         let button_sprites = load_button_sprites(world);
         let box_sprite = load_box_sprite(world);
         let buttons = init_buttons(world, button_sprites);
-        init_box(world, box_sprite, buttons);
+        let box_ = init_box(world, box_sprite, buttons);
+        init_progress(world, box_);
 
         //create_ui_example(world);
     }
@@ -219,7 +220,7 @@ fn init_buttons(world: &mut World, button_sprite: SpriteRender) -> Vec<Entity> {
     ]
 }
 
-fn init_box(world: &mut World, box_sprite: SpriteRender, buttons: Vec<Entity>) {
+fn init_box(world: &mut World, box_sprite: SpriteRender, buttons: Vec<Entity>) -> Entity {
     let mut transform = Transform::default();
     transform.set_translation_xyz(WIDTH / 2., 50., -1.);
 
@@ -232,6 +233,25 @@ fn init_box(world: &mut World, box_sprite: SpriteRender, buttons: Vec<Entity>) {
         .with(box_sprite.clone())
         .with(transform)
         .with(components::BlackBox::new(buttons))
+        .build()
+}
+
+fn init_progress(world: &mut World, box_: Entity) {
+    world
+        .create_entity()
+        .with(components::BoxProgress::new(
+            vec![
+                components::BoxOut::Int(0),
+                components::BoxOut::Int(2),
+                components::BoxOut::Int(1),
+                components::BoxOut::Int(3),
+                components::BoxOut::Int(-3),
+                components::BoxOut::Int(-1),
+                components::BoxOut::Int(-2),
+                components::BoxOut::Int(0),
+            ],
+            box_,
+        ))
         .build();
 }
 

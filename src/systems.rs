@@ -5,7 +5,7 @@ use amethyst::{
     SystemDesc,
 };
 
-use crate::components::{BlackBox, Button, BUTTON_NUMS};
+use crate::components::{BlackBox, BoxProgress, Button, BUTTON_NUMS};
 
 #[derive(SystemDesc)]
 pub struct ButtonRender;
@@ -60,12 +60,32 @@ impl<'a> System<'a> for BoxStateSystem {
                     let (new_state, out) = button.action.unwrap()(state);
                     state = new_state;
                     if let Some(o) = out {
-                        box_.history.push(o);
-                        println!("{:?}", box_.history);
+                        box_.output_queue.push_back(o);
                     }
                 }
             }
             box_.state = state;
+        }
+    }
+}
+
+pub struct BoxProgressSystem;
+
+impl<'a> System<'a> for BoxProgressSystem {
+    type SystemData = (WriteStorage<'a, BoxProgress>, WriteStorage<'a, BlackBox>);
+
+    fn run(&mut self, (mut progresses, mut boxes): Self::SystemData) {
+        for (mut progress,) in (&mut progresses,).join() {
+            let box_ = boxes.get_mut(progress.box_.unwrap()).unwrap();
+            while let Some(out) = box_.output_queue.pop_front() {
+                if out == progress.prompt[progress.index] {
+                    progress.index += 1;
+                } else {
+                    progress.index = 0;
+                }
+                println!("{:?}", progress.prompt);
+                println!("{}", progress.index);
+            }
         }
     }
 }

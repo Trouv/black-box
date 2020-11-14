@@ -1,4 +1,5 @@
 use amethyst::ecs::{Component, DenseVecStorage, Entity};
+use std::collections::VecDeque;
 
 #[derive(Default)]
 pub struct Button {
@@ -16,7 +17,7 @@ pub const BUTTON_NUMS: [&str; 6] = [
     "button_0", "button_1", "button_2", "button_3", "button_4", "button_5",
 ];
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub enum BoxOut {
     Int(i32),
     Flt(f32),
@@ -39,7 +40,7 @@ impl Button {
 pub struct BlackBox {
     pub state: BoxState,
     pub buttons: Vec<Entity>,
-    pub history: Vec<BoxOut>,
+    pub output_queue: VecDeque<BoxOut>,
 }
 
 impl Component for BlackBox {
@@ -51,7 +52,28 @@ impl BlackBox {
         BlackBox {
             state: BoxState::default(),
             buttons,
-            history: Vec::new(),
+            output_queue: VecDeque::new(),
+        }
+    }
+}
+
+#[derive(Default)]
+pub struct BoxProgress {
+    pub prompt: Vec<BoxOut>,
+    pub box_: Option<Entity>,
+    pub index: usize,
+}
+
+impl Component for BoxProgress {
+    type Storage = DenseVecStorage<Self>;
+}
+
+impl BoxProgress {
+    pub fn new(prompt: Vec<BoxOut>, box_: Entity) -> BoxProgress {
+        BoxProgress {
+            prompt,
+            box_: Some(box_),
+            index: 0,
         }
     }
 }
