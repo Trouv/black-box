@@ -1,14 +1,10 @@
-use amethyst::ecs::Entity;
-use amethyst::ecs::{Component, DenseVecStorage};
-use amethyst::input::VirtualKeyCode;
+use amethyst::ecs::{Component, DenseVecStorage, Entity};
 
 #[derive(Default)]
 pub struct Button {
     pub pressed: bool,
-    pub last_pressed: bool,
     pub just_pressed: bool,
     pub just_unpressed: bool,
-    pub num: usize,
     pub action: Option<ButtonAction>,
 }
 
@@ -24,14 +20,14 @@ pub type BoxState = [f32; 8];
 pub type ButtonAction = fn(BoxState) -> BoxState;
 
 impl Button {
-    pub fn new(num: usize, action: Option<ButtonAction>) -> Self {
+    pub fn new(action: Option<ButtonAction>) -> Self {
         let mut button = Button::default();
-        button.num = num;
         button.action = action;
         button
     }
 }
 
+#[derive(Default)]
 pub struct BlackBox {
     pub state: BoxState,
     pub buttons: Vec<Entity>,
@@ -39,4 +35,13 @@ pub struct BlackBox {
 
 impl Component for BlackBox {
     type Storage = DenseVecStorage<Self>;
+}
+
+impl BlackBox {
+    pub fn new(buttons: Vec<Entity>) -> BlackBox {
+        BlackBox {
+            state: BoxState::default(),
+            buttons,
+        }
+    }
 }

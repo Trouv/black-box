@@ -1,6 +1,6 @@
 use amethyst::{
     assets::{AssetStorage, Loader},
-    core::transform::Transform,
+    core::{math::base::Vector3, transform::Transform},
     ecs::Entity,
     input::{get_key, is_close_requested, is_key_down, VirtualKeyCode},
     prelude::*,
@@ -13,7 +13,6 @@ use amethyst::{
 };
 
 use crate::components;
-use amethyst::core::math::base::Vector3;
 
 use log::info;
 
@@ -203,20 +202,20 @@ fn init_buttons(world: &mut World, button_sprite: SpriteRender) -> Vec<Entity> {
         world
             .create_entity()
             .with(button_sprite.clone())
-            .with(transforms.pop().unwrap())
-            .with(components::Button::new(2, Some(inc)))
+            .with(transforms.remove(0))
+            .with(components::Button::new(Some(dec)))
             .build(),
         world
             .create_entity()
             .with(button_sprite.clone())
-            .with(transforms.pop().unwrap())
-            .with(components::Button::new(1, Some(out)))
+            .with(transforms.remove(0))
+            .with(components::Button::new(Some(out)))
             .build(),
         world
             .create_entity()
             .with(button_sprite.clone())
-            .with(transforms.pop().unwrap())
-            .with(components::Button::new(0, Some(dec)))
+            .with(transforms.remove(0))
+            .with(components::Button::new(Some(inc)))
             .build(),
     ]
 }
@@ -233,10 +232,7 @@ fn init_box(world: &mut World, box_sprite: SpriteRender, buttons: Vec<Entity>) {
         .create_entity()
         .with(box_sprite.clone())
         .with(transform)
-        .with(components::BlackBox {
-            state: [0., 0., 0., 0., 0., 0., 0., 0.],
-            buttons,
-        })
+        .with(components::BlackBox::new(buttons))
         .build();
 }
 

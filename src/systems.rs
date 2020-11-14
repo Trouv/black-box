@@ -1,19 +1,17 @@
-use amethyst::ecs::{Join, System, SystemData};
-use amethyst::ecs::{Read, ReadStorage, WriteStorage};
-use amethyst::input::{InputHandler, StringBindings};
-use amethyst::renderer::SpriteRender;
-use amethyst::SystemDesc;
+use amethyst::{
+    ecs::{Join, Read, ReadStorage, System, SystemData, WriteStorage},
+    input::{InputHandler, StringBindings},
+    renderer::SpriteRender,
+    SystemDesc,
+};
 
-use crate::components;
+use crate::components::{BlackBox, Button, BUTTON_NUMS};
 
 #[derive(SystemDesc)]
 pub struct ButtonRender;
 
 impl<'a> System<'a> for ButtonRender {
-    type SystemData = (
-        WriteStorage<'a, SpriteRender>,
-        ReadStorage<'a, components::Button>,
-    );
+    type SystemData = (WriteStorage<'a, SpriteRender>, ReadStorage<'a, Button>);
 
     fn run(&mut self, (mut sprites, buttons): Self::SystemData) {
         for (sprite, button) in (&mut sprites, &buttons).join() {
@@ -30,19 +28,20 @@ pub struct ButtonPush;
 
 impl<'a> System<'a> for ButtonPush {
     type SystemData = (
-        WriteStorage<'a, components::Button>,
+        WriteStorage<'a, Button>,
+        ReadStorage<'a, BlackBox>,
         Read<'a, InputHandler<StringBindings>>,
     );
 
-    fn run(&mut self, (mut buttons, input): Self::SystemData) {
-        for (mut button,) in (&mut buttons,).join() {
-            let last_pressed = button.last_pressed;
-            button.last_pressed = button.pressed;
-            button.pressed = input
-                .action_is_down(components::BUTTON_NUMS[button.num])
-                .unwrap();
-            button.just_pressed = button.pressed && !button.last_pressed;
-            button.just_unpressed = !button.pressed && button.last_pressed;
+    fn run(&mut self, (mut buttons, boxes, input): Self::SystemData) {
+        for (box_,) in (&boxes,).join() {
+            for (i, b) in box_.buttons.iter().enumerate() {
+                let button = buttons.get_mut(*b).unwrap();
+                let last_pressed = button.pressed;
+                button.pressed = input.action_is_down(BUTTON_NUMS[i]).unwrap();
+                button.just_pressed = button.pressed && !last_pressed;
+                button.just_unpressed = !button.pressed && last_pressed;
+            }
         }
     }
 }
@@ -50,10 +49,7 @@ impl<'a> System<'a> for ButtonPush {
 pub struct BoxStateSystem;
 
 impl<'a> System<'a> for BoxStateSystem {
-    type SystemData = (
-        WriteStorage<'a, components::BlackBox>,
-        ReadStorage<'a, components::Button>,
-    );
+    type SystemData = (WriteStorage<'a, BlackBox>, ReadStorage<'a, Button>);
 
     fn run(&mut self, (mut boxes, buttons): Self::SystemData) {
         for (mut box_,) in (&mut boxes,).join() {
