@@ -181,21 +181,20 @@ fn init_buttons(world: &mut World, button_sprite: SpriteRender) -> Vec<Entity> {
         transform.set_translation_xyz(x, y, 0.);
         transforms.push(transform)
     }
-    fn inc(s: components::BoxState) -> components::BoxState {
+    fn inc(s: components::BoxState) -> components::BoxResult {
         let mut s = s.clone();
         s[0] += 1.;
-        s
+        (s, None)
     }
 
-    fn dec(s: components::BoxState) -> components::BoxState {
+    fn dec(s: components::BoxState) -> components::BoxResult {
         let mut s = s.clone();
         s[0] -= 1.;
-        s
+        (s, None)
     }
 
-    fn out(s: components::BoxState) -> components::BoxState {
-        println!("{}", s[0]);
-        s
+    fn out(s: components::BoxState) -> components::BoxResult {
+        (s, Some(components::BoxOut::Int(s[0] as i32)))
     }
 
     vec![

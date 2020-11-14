@@ -57,7 +57,12 @@ impl<'a> System<'a> for BoxStateSystem {
             for b in &box_.buttons {
                 let button = buttons.get(*b).unwrap();
                 if button.just_pressed {
-                    state = button.action.unwrap()(state);
+                    let (new_state, out) = button.action.unwrap()(state);
+                    state = new_state;
+                    if let Some(o) = out {
+                        box_.history.push(o);
+                        println!("{:?}", box_.history);
+                    }
                 }
             }
             box_.state = state;
