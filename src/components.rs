@@ -17,7 +17,7 @@ pub const BUTTON_NUMS: [&str; 6] = [
     "button_0", "button_1", "button_2", "button_3", "button_4", "button_5",
 ];
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 pub enum BoxOut {
     Int(i32),
     Flt(f32),
@@ -58,22 +58,22 @@ impl BlackBox {
 }
 
 #[derive(Default)]
-pub struct BoxProgress {
+pub struct Progression {
     pub prompt: Vec<BoxOut>,
     pub box_: Option<Entity>,
-    pub index: usize,
+    pub answer: Vec<BoxOut>,
 }
 
-impl Component for BoxProgress {
+impl Component for Progression {
     type Storage = DenseVecStorage<Self>;
 }
 
-impl BoxProgress {
-    pub fn new(prompt: Vec<BoxOut>, box_: Entity) -> BoxProgress {
-        BoxProgress {
+impl Progression {
+    pub fn new(prompt: Vec<BoxOut>, box_: Entity) -> Progression {
+        Progression {
             prompt,
             box_: Some(box_),
-            index: 0,
+            answer: Vec::new(),
         }
     }
 }

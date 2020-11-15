@@ -239,15 +239,15 @@ fn init_box(world: &mut World, box_sprite: SpriteRender, buttons: Vec<Entity>) -
 fn init_progress(world: &mut World, box_: Entity) {
     world
         .create_entity()
-        .with(components::BoxProgress::new(
+        .with(components::Progression::new(
             vec![
                 components::BoxOut::Int(0),
                 components::BoxOut::Int(2),
                 components::BoxOut::Int(1),
+                components::BoxOut::Int(0),
+                components::BoxOut::Int(2),
                 components::BoxOut::Int(3),
-                components::BoxOut::Int(-3),
                 components::BoxOut::Int(-1),
-                components::BoxOut::Int(-2),
                 components::BoxOut::Int(0),
             ],
             box_,
