@@ -1,7 +1,10 @@
 use amethyst::{
     assets::{AssetStorage, Loader},
-    core::{math::base::Vector3, transform::Transform},
-    ecs::Entity,
+    core::{
+        math::base::Vector3,
+        transform::{Parent, Transform},
+    },
+    ecs::{storage::InsertResult, Entity, World, WorldExt},
     input::{get_key, is_close_requested, is_key_down, VirtualKeyCode},
     prelude::*,
     renderer::{Camera, ImageFormat, SpriteRender, SpriteSheet, SpriteSheetFormat, Texture},
@@ -176,10 +179,10 @@ fn init_buttons(world: &mut World, button_sprite: SpriteRender) -> Vec<Entity> {
 
     for i in 0..button_count {
         // Center our sprites around the center of the window
-        let x = (i as f32 + 1.) * (WIDTH / (1. + button_count as f32));
-        let y = 65.;
+        let x = (i as f32 - 1.) * (100. / (1. + button_count as f32));
+        let y = 15.;
         let mut transform = Transform::default();
-        transform.set_translation_xyz(x, y, 0.);
+        transform.set_translation_xyz(x, y, 1.);
         transforms.push(transform)
     }
     fn inc(s: components::BoxState) -> components::BoxResult {
@@ -224,16 +227,27 @@ fn init_box(world: &mut World, box_sprite: SpriteRender, buttons: Vec<Entity>) -
     let mut transform = Transform::default();
     transform.set_translation_xyz(WIDTH / 2., 50., -1.);
 
-    let scale = WIDTH / 100.;
+    //let scale = WIDTH / 100.;
 
-    transform.set_scale(Vector3::new(scale, scale, 1.));
+    //transform.set_scale(Vector3::new(scale, scale, 1.));
 
-    world
+    let buttons_clone = buttons.clone();
+    let world_entity = world
         .create_entity()
         .with(box_sprite.clone())
         .with(transform)
         .with(components::BlackBox::new(buttons))
-        .build()
+        .build();
+
+    let mut parent_storage = world.write_storage::<Parent>();
+
+    for button in buttons_clone {
+        parent_storage
+            .insert(button, Parent::new(world_entity))
+            .unwrap();
+    }
+
+    world_entity
 }
 
 fn init_progress(world: &mut World, box_: Entity) {
