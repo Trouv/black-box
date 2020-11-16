@@ -43,15 +43,16 @@ impl SimpleState for BlackState {
         // Get the screen dimensions so we can initialize the camera and
         // place our sprites correctly later. We'll clone this since we'll
         // pass the world mutably to the following functions.
+        let dimensions = (*world.read_resource::<ScreenDimensions>()).clone();
 
         // Place the camera
-        init_camera(world);
+        init_camera(world, &dimensions);
 
         // Load our sprites and display them
         let button_sprites = load_button_sprites(world);
         let box_sprite = load_box_sprite(world);
         let buttons = init_buttons(world, button_sprites);
-        let box_ = init_box(world, box_sprite, buttons);
+        let box_ = init_box(world, box_sprite, buttons, &dimensions);
         init_progress(world, box_);
 
         //create_ui_example(world);
@@ -90,13 +91,13 @@ impl SimpleState for BlackState {
 ///
 /// The `dimensions` are used to center the camera in the middle
 /// of the screen, as well as make it cover the entire screen.
-fn init_camera(world: &mut World) {
+fn init_camera(world: &mut World, dimensions: &ScreenDimensions) {
     let mut transform = Transform::default();
-    transform.set_translation_xyz(WIDTH * 0.5, HEIGHT * 0.5, 1.);
+    transform.set_translation_xyz(dimensions.width() * 0.5, dimensions.height() * 0.5, 1.);
 
     world
         .create_entity()
-        .with(Camera::standard_2d(WIDTH, HEIGHT))
+        .with(Camera::standard_2d(dimensions.width(), dimensions.height()))
         .with(transform)
         .build();
 }
@@ -180,7 +181,7 @@ fn init_buttons(world: &mut World, button_sprite: SpriteRender) -> Vec<Entity> {
     for i in 0..button_count {
         // Center our sprites around the center of the window
         let x = (i as f32 - 1.) * (100. / (1. + button_count as f32));
-        let y = 15.;
+        let y = 0.;
         let mut transform = Transform::default();
         transform.set_translation_xyz(x, y, 1.);
         transforms.push(transform)
@@ -223,24 +224,76 @@ fn init_buttons(world: &mut World, button_sprite: SpriteRender) -> Vec<Entity> {
     ]
 }
 
-fn init_box(world: &mut World, box_sprite: SpriteRender, buttons: Vec<Entity>) -> Entity {
+fn init_box(
+    world: &mut World,
+    box_sprite: SpriteRender,
+    buttons: Vec<Entity>,
+    dimensions: &ScreenDimensions,
+) -> Entity {
+    let pixel = dimensions.width() / 100.;
+
     let mut transform = Transform::default();
-    transform.set_translation_xyz(WIDTH / 2., 50., -1.);
+    transform.set_translation_xyz(dimensions.width() / 2., dimensions.width() / 2., -1.);
+    transform.set_scale(Vector3::new(pixel, pixel, 1.));
 
     //let scale = WIDTH / 100.;
 
     //transform.set_scale(Vector3::new(scale, scale, 1.));
+    let font: FontHandle = world.read_resource::<Loader>().load(
+        "fonts/Bangers-Regular.ttf",
+        TtfFormat,
+        (),
+        &world.read_resource(),
+    );
 
     let buttons_clone = buttons.clone();
+
+    let display = world
+        .create_entity()
+        .with(UiTransform::new(
+            "display".to_string(),
+            Anchor::Middle,
+            Anchor::Middle,
+            0.,
+            pixel * 30.,
+            0.,
+            pixel * 30.,
+            pixel * 10.,
+        ))
+        .with(UiText::new(
+            font,
+            "test".to_string(),
+            [0.5, 1.0, 0.5, 1.0],
+            pixel * 10.,
+            LineMode::Single,
+            Anchor::Middle,
+        ))
+        //.with(components::BoxDisplay)
+        .build();
+
+    let ui_transform = UiTransform::new(
+        "box".to_string(),
+        Anchor::BottomMiddle,
+        Anchor::BottomMiddle,
+        0.,
+        pixel * 50.,
+        0.,
+        pixel * 100.,
+        pixel * 100.,
+    );
     let world_entity = world
         .create_entity()
         .with(box_sprite.clone())
         .with(transform)
-        .with(components::BlackBox::new(buttons))
+        .with(components::BlackBox::new(buttons, Some(display)))
+        .with(ui_transform)
         .build();
 
     let mut parent_storage = world.write_storage::<Parent>();
 
+    parent_storage
+        .insert(display, Parent::new(world_entity))
+        .unwrap();
     for button in buttons_clone {
         parent_storage
             .insert(button, Parent::new(world_entity))

@@ -1,4 +1,4 @@
-use amethyst::ecs::{Component, DenseVecStorage, Entity};
+use amethyst::ecs::{Component, DenseVecStorage, Entity, NullStorage};
 use std::collections::VecDeque;
 
 #[derive(Default)]
@@ -24,6 +24,12 @@ pub enum BoxOut {
     Str(String),
 }
 
+impl Default for BoxOut {
+    fn default() -> Self {
+        BoxOut::Int(0)
+    }
+}
+
 pub type BoxState = [f32; 8];
 pub type BoxResult = (BoxState, Option<BoxOut>);
 pub type ButtonAction = fn(BoxState) -> BoxResult;
@@ -40,6 +46,7 @@ impl Button {
 pub struct BlackBox {
     pub state: BoxState,
     pub buttons: Vec<Entity>,
+    pub display: Option<Entity>,
     pub output_queue: VecDeque<BoxOut>,
 }
 
@@ -48,10 +55,11 @@ impl Component for BlackBox {
 }
 
 impl BlackBox {
-    pub fn new(buttons: Vec<Entity>) -> BlackBox {
+    pub fn new(buttons: Vec<Entity>, display: Option<Entity>) -> BlackBox {
         BlackBox {
             state: BoxState::default(),
             buttons,
+            display,
             output_queue: VecDeque::new(),
         }
     }
@@ -76,4 +84,18 @@ impl Progression {
             answer: Vec::new(),
         }
     }
+}
+
+#[derive(Default)]
+pub struct ProgressionPiece(BoxOut);
+
+impl Component for ProgressionPiece {
+    type Storage = DenseVecStorage<Self>;
+}
+
+#[derive(Default)]
+pub struct BoxDisplay;
+
+impl Component for BoxDisplay {
+    type Storage = NullStorage<Self>;
 }

@@ -2,6 +2,7 @@ use amethyst::{
     ecs::{Join, Read, ReadStorage, System, SystemData, WriteStorage},
     input::{InputHandler, StringBindings},
     renderer::SpriteRender,
+    ui::UiText,
     SystemDesc,
 };
 
@@ -49,18 +50,23 @@ impl<'a> System<'a> for ButtonPush {
 pub struct BoxStateSystem;
 
 impl<'a> System<'a> for BoxStateSystem {
-    type SystemData = (WriteStorage<'a, BlackBox>, ReadStorage<'a, Button>);
+    type SystemData = (
+        WriteStorage<'a, BlackBox>,
+        WriteStorage<'a, UiText>,
+        ReadStorage<'a, Button>,
+    );
 
-    fn run(&mut self, (mut boxes, buttons): Self::SystemData) {
+    fn run(&mut self, (mut boxes, mut texts, buttons): Self::SystemData) {
         for (mut box_,) in (&mut boxes,).join() {
             let mut state = box_.state;
             for b in &box_.buttons {
                 let button = buttons.get(*b).unwrap();
-                if button.just_pressed {
+                if button.just_unpressed {
                     let (new_state, out) = button.action.unwrap()(state);
                     state = new_state;
                     if let Some(o) = out {
-                        box_.output_queue.push_back(o);
+                        box_.output_queue.push_back(o.clone());
+                        texts.get_mut(box_.display.unwrap()).unwrap().text = format!("{:?}", o)
                     }
                 }
             }
