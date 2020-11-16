@@ -66,7 +66,7 @@ impl<'a> System<'a> for BoxStateSystem {
                     state = new_state;
                     if let Some(o) = out {
                         box_.output_queue.push_back(o.clone());
-                        texts.get_mut(box_.display.unwrap()).unwrap().text = format!("{:?}", o)
+                        texts.get_mut(box_.display.unwrap()).unwrap().text = o.to_string();
                     }
                 }
             }
@@ -92,7 +92,6 @@ impl<'a> System<'a> for BoxProgressSystem {
                 {
                     progress.answer.remove(0);
                 }
-                println!("{:?}", progress.answer);
             }
         }
     }

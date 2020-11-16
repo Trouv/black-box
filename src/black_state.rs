@@ -255,7 +255,7 @@ fn init_box(
             Anchor::Middle,
             Anchor::Middle,
             0.,
-            pixel * 30.,
+            pixel * 36.,
             0.,
             pixel * 30.,
             pixel * 10.,
@@ -276,7 +276,7 @@ fn init_box(
         Anchor::BottomMiddle,
         Anchor::BottomMiddle,
         0.,
-        pixel * 50.,
+        0.,
         0.,
         pixel * 100.,
         pixel * 100.,
@@ -303,7 +303,7 @@ fn init_box(
     world_entity
 }
 
-fn init_progress(world: &mut World, box_: Entity) {
+fn init_progress(world: &mut World, box_: Entity, dimensions: &ScreenDimensions) {
     world
         .create_entity()
         .with(components::Progression::new(

@@ -1,5 +1,5 @@
 use amethyst::ecs::{Component, DenseVecStorage, Entity, NullStorage};
-use std::collections::VecDeque;
+use std::{collections::VecDeque, fmt};
 
 #[derive(Default)]
 pub struct Button {
@@ -22,6 +22,16 @@ pub enum BoxOut {
     Int(i32),
     Flt(f32),
     Str(String),
+}
+
+impl fmt::Display for BoxOut {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match self {
+            BoxOut::Int(o) => write!(f, "{}", o),
+            BoxOut::Flt(o) => write!(f, "{}", o),
+            BoxOut::Str(o) => write!(f, "{}", o),
+        }
+    }
 }
 
 impl Default for BoxOut {
@@ -70,6 +80,7 @@ pub struct Progression {
     pub prompt: Vec<BoxOut>,
     pub box_: Option<Entity>,
     pub answer: Vec<BoxOut>,
+    pub pieces: Vec<Entity>,
 }
 
 impl Component for Progression {
@@ -82,6 +93,7 @@ impl Progression {
             prompt,
             box_: Some(box_),
             answer: Vec::new(),
+            pieces: Vec::new(),
         }
     }
 }
