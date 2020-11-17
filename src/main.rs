@@ -50,6 +50,11 @@ fn main() -> amethyst::Result<()> {
             systems::BoxProgressSystem,
             "box_progress_system",
             &["box_state_system"],
+        )
+        .with(
+            systems::RenderProgressionSystem,
+            "render_progression_system",
+            &["box_progress_system"],
         );
 
     let mut game = Application::new(resources, black_state::BlackState, game_data)?;

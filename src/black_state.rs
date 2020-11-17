@@ -53,7 +53,7 @@ impl SimpleState for BlackState {
         let box_sprite = load_box_sprite(world);
         let buttons = init_buttons(world, button_sprites);
         let box_ = init_box(world, box_sprite, buttons, &dimensions);
-        init_progress(world, box_);
+        init_progress(world, box_, &dimensions);
 
         //create_ui_example(world);
     }
@@ -240,7 +240,7 @@ fn init_box(
 
     //transform.set_scale(Vector3::new(scale, scale, 1.));
     let font: FontHandle = world.read_resource::<Loader>().load(
-        "fonts/Bangers-Regular.ttf",
+        "fonts/rainyhearts.ttf",
         TtfFormat,
         (),
         &world.read_resource(),
@@ -264,7 +264,7 @@ fn init_box(
             font,
             "test".to_string(),
             [0.5, 1.0, 0.5, 1.0],
-            pixel * 10.,
+            pixel * 13.9,
             LineMode::Single,
             Anchor::Middle,
         ))
@@ -304,22 +304,74 @@ fn init_box(
 }
 
 fn init_progress(world: &mut World, box_: Entity, dimensions: &ScreenDimensions) {
-    world
+    let pixel = dimensions.width() / 100.;
+
+    let prompt = vec![
+        components::BoxOut::Int(0),
+        components::BoxOut::Int(2),
+        components::BoxOut::Int(1),
+        components::BoxOut::Int(0),
+        components::BoxOut::Int(2),
+        components::BoxOut::Int(3),
+        components::BoxOut::Int(-1),
+        components::BoxOut::Int(0),
+    ];
+
+    let font: FontHandle = world.read_resource::<Loader>().load(
+        "fonts/rainyhearts.ttf",
+        TtfFormat,
+        (),
+        &world.read_resource(),
+    );
+
+    let progression = world
         .create_entity()
-        .with(components::Progression::new(
-            vec![
-                components::BoxOut::Int(0),
-                components::BoxOut::Int(2),
-                components::BoxOut::Int(1),
-                components::BoxOut::Int(0),
-                components::BoxOut::Int(2),
-                components::BoxOut::Int(3),
-                components::BoxOut::Int(-1),
-                components::BoxOut::Int(0),
-            ],
-            box_,
+        .with(components::Progression::new(box_))
+        .with(UiTransform::new(
+            "progression_1".to_string(),
+            Anchor::TopMiddle,
+            Anchor::TopMiddle,
+            0.,
+            0.,
+            0.,
+            pixel * 100.,
+            pixel * 8.,
         ))
         .build();
+
+    let mut pieces = Vec::<Entity>::new();
+    for (i, piece) in prompt.iter().enumerate() {
+        pieces.push(
+            world
+                .create_entity()
+                .with(UiTransform::new(
+                    format!("prog_piece_{}", i),
+                    Anchor::Middle,
+                    Anchor::Middle,
+                    pixel * ((-4. * (prompt.len() as f32 - 1.)) + (8. * i as f32)),
+                    0.,
+                    0.,
+                    8. * pixel,
+                    8. * pixel,
+                ))
+                .with(UiText::new(
+                    font.clone(),
+                    piece.to_string(),
+                    [0.3, 0.3, 0.3, 1.],
+                    pixel * 6.9,
+                    LineMode::Single,
+                    Anchor::Middle,
+                ))
+                .with(UiImage::SolidColor([0.9, 0.9, 0.9, 1.]))
+                .with(Parent::new(progression))
+                .with(components::ProgressionPiece(piece.clone()))
+                .build(),
+        );
+    }
+
+    let mut prog_storage = world.write_storage::<components::Progression>();
+
+    prog_storage.get_mut(progression).unwrap().prompt = pieces;
 }
 
 /// Creates a simple UI background and a UI text label

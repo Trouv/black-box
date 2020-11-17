@@ -2,11 +2,11 @@ use amethyst::{
     ecs::{Join, Read, ReadStorage, System, SystemData, WriteStorage},
     input::{InputHandler, StringBindings},
     renderer::SpriteRender,
-    ui::UiText,
+    ui::{UiImage, UiText},
     SystemDesc,
 };
 
-use crate::components::{BlackBox, BoxOut, Button, Progression, BUTTON_NUMS};
+use crate::components::{BlackBox, BoxOut, Button, Progression, ProgressionPiece, BUTTON_NUMS};
 
 #[derive(SystemDesc)]
 pub struct ButtonRender;
@@ -78,9 +78,13 @@ impl<'a> System<'a> for BoxStateSystem {
 pub struct BoxProgressSystem;
 
 impl<'a> System<'a> for BoxProgressSystem {
-    type SystemData = (WriteStorage<'a, Progression>, WriteStorage<'a, BlackBox>);
+    type SystemData = (
+        WriteStorage<'a, Progression>,
+        WriteStorage<'a, BlackBox>,
+        ReadStorage<'a, ProgressionPiece>,
+    );
 
-    fn run(&mut self, (mut progresses, mut boxes): Self::SystemData) {
+    fn run(&mut self, (mut progresses, mut boxes, pieces): Self::SystemData) {
         for (progress,) in (&mut progresses,).join() {
             let box_ = boxes.get_mut(progress.box_.unwrap()).unwrap();
 
@@ -88,10 +92,34 @@ impl<'a> System<'a> for BoxProgressSystem {
                 progress.answer.push(out);
 
                 while progress.answer.len() > 0
-                    && !progress.prompt.starts_with(progress.answer.as_slice())
+                    && !progress
+                        .prompt
+                        .iter()
+                        .map(|p| pieces.get(*p).unwrap().0.clone())
+                        .collect::<Vec<BoxOut>>()
+                        .starts_with(progress.answer.as_slice())
                 {
                     progress.answer.remove(0);
                 }
+            }
+        }
+    }
+}
+
+pub struct RenderProgressionSystem;
+
+impl<'a> System<'a> for RenderProgressionSystem {
+    type SystemData = (WriteStorage<'a, UiImage>, ReadStorage<'a, Progression>);
+
+    fn run(&mut self, (mut images, progresses): Self::SystemData) {
+        for (progress,) in (&progresses,).join() {
+            for (i, piece) in progress.prompt.iter().enumerate() {
+                let color = if i < progress.answer.len() {
+                    [0.5, 1.0, 0.5, 1.0]
+                } else {
+                    [0.9, 0.9, 0.9, 1.0]
+                };
+                *images.get_mut(*piece).unwrap() = UiImage::SolidColor(color);
             }
         }
     }

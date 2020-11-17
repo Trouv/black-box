@@ -1,4 +1,7 @@
-use amethyst::ecs::{Component, DenseVecStorage, Entity, NullStorage};
+use amethyst::{
+    ecs::{Component, DenseVecStorage, Entity, NullStorage, World},
+    ui::{Anchor, UiImage, UiText, UiTransform},
+};
 use std::{collections::VecDeque, fmt};
 
 #[derive(Default)]
@@ -77,10 +80,9 @@ impl BlackBox {
 
 #[derive(Default)]
 pub struct Progression {
-    pub prompt: Vec<BoxOut>,
+    pub prompt: Vec<Entity>,
     pub box_: Option<Entity>,
     pub answer: Vec<BoxOut>,
-    pub pieces: Vec<Entity>,
 }
 
 impl Component for Progression {
@@ -88,18 +90,17 @@ impl Component for Progression {
 }
 
 impl Progression {
-    pub fn new(prompt: Vec<BoxOut>, box_: Entity) -> Progression {
+    pub fn new(box_: Entity) -> Progression {
         Progression {
-            prompt,
+            prompt: Vec::new(),
             box_: Some(box_),
             answer: Vec::new(),
-            pieces: Vec::new(),
         }
     }
 }
 
 #[derive(Default)]
-pub struct ProgressionPiece(BoxOut);
+pub struct ProgressionPiece(pub BoxOut);
 
 impl Component for ProgressionPiece {
     type Storage = DenseVecStorage<Self>;
