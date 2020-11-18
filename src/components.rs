@@ -60,7 +60,6 @@ impl Button {
 pub struct BlackBox {
     pub state: BoxState,
     pub buttons: Vec<Entity>,
-    pub display: Option<Entity>,
     pub output_channel: EventChannel<BoxOut>,
 }
 
@@ -69,11 +68,10 @@ impl Component for BlackBox {
 }
 
 impl BlackBox {
-    pub fn new(buttons: Vec<Entity>, display: Option<Entity>) -> BlackBox {
+    pub fn new(buttons: Vec<Entity>) -> BlackBox {
         BlackBox {
             state: BoxState::default(),
             buttons,
-            display,
             output_channel: EventChannel::new(),
         }
     }
@@ -82,24 +80,11 @@ impl BlackBox {
 #[derive(Default)]
 pub struct Progression {
     pub prompt: Vec<Entity>,
-    pub box_: Option<Entity>,
-    pub reader_id: Option<ReaderId<BoxOut>>,
     pub answer: Vec<BoxOut>,
 }
 
 impl Component for Progression {
     type Storage = DenseVecStorage<Self>;
-}
-
-impl Progression {
-    pub fn new(box_: Entity, reader_id: ReaderId<BoxOut>) -> Progression {
-        Progression {
-            prompt: Vec::new(),
-            box_: Some(box_),
-            reader_id: Some(reader_id),
-            answer: Vec::new(),
-        }
-    }
 }
 
 #[derive(Default)]
@@ -110,8 +95,20 @@ impl Component for ProgressionPiece {
 }
 
 #[derive(Default)]
-pub struct BoxDisplay;
+pub struct BoxReader {
+    pub box_: Option<Entity>,
+    pub reader_id: Option<ReaderId<BoxOut>>,
+}
 
-impl Component for BoxDisplay {
-    type Storage = NullStorage<Self>;
+impl Component for BoxReader {
+    type Storage = DenseVecStorage<Self>;
+}
+
+impl BoxReader {
+    pub fn new(box_: Entity, reader_id: ReaderId<BoxOut>) -> BoxReader {
+        BoxReader {
+            box_: Some(box_),
+            reader_id: Some(reader_id),
+        }
+    }
 }

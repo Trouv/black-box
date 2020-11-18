@@ -249,6 +249,28 @@ fn init_box(
 
     let buttons_clone = buttons.clone();
 
+    let ui_transform = UiTransform::new(
+        "box".to_string(),
+        Anchor::BottomMiddle,
+        Anchor::BottomMiddle,
+        0.,
+        0.,
+        0.,
+        pixel * 100.,
+        pixel * 100.,
+    );
+
+    let mut box_ = components::BlackBox::new(buttons);
+    let reader_id = box_.output_channel.register_reader();
+
+    let box_ = world
+        .create_entity()
+        .with(box_sprite.clone())
+        .with(transform)
+        .with(box_)
+        .with(ui_transform)
+        .build();
+
     let display = world
         .create_entity()
         .with(UiTransform::new(
@@ -269,39 +291,18 @@ fn init_box(
             LineMode::Single,
             Anchor::Middle,
         ))
+        .with(components::BoxReader::new(box_, reader_id))
+        .with(Parent::new(box_))
         //.with(components::BoxDisplay)
-        .build();
-
-    let ui_transform = UiTransform::new(
-        "box".to_string(),
-        Anchor::BottomMiddle,
-        Anchor::BottomMiddle,
-        0.,
-        0.,
-        0.,
-        pixel * 100.,
-        pixel * 100.,
-    );
-    let world_entity = world
-        .create_entity()
-        .with(box_sprite.clone())
-        .with(transform)
-        .with(components::BlackBox::new(buttons, Some(display)))
-        .with(ui_transform)
         .build();
 
     let mut parent_storage = world.write_storage::<Parent>();
 
-    parent_storage
-        .insert(display, Parent::new(world_entity))
-        .unwrap();
     for button in buttons_clone {
-        parent_storage
-            .insert(button, Parent::new(world_entity))
-            .unwrap();
+        parent_storage.insert(button, Parent::new(box_)).unwrap();
     }
 
-    world_entity
+    box_
 }
 
 fn init_progress(world: &mut World, box_: Entity, dimensions: &ScreenDimensions) {
@@ -334,7 +335,7 @@ fn init_progress(world: &mut World, box_: Entity, dimensions: &ScreenDimensions)
 
     let progression = world
         .create_entity()
-        .with(components::Progression::new(box_, prog_reader))
+        .with(components::Progression::default())
         .with(UiTransform::new(
             "progression_1".to_string(),
             Anchor::TopMiddle,
@@ -345,6 +346,7 @@ fn init_progress(world: &mut World, box_: Entity, dimensions: &ScreenDimensions)
             pixel * 100.,
             pixel * 8.,
         ))
+        .with(components::BoxReader::new(box_, prog_reader))
         .build();
 
     let mut pieces = Vec::<Entity>::new();

@@ -6,7 +6,9 @@ use amethyst::{
     SystemDesc,
 };
 
-use crate::components::{BlackBox, BoxOut, Button, Progression, ProgressionPiece, BUTTON_NUMS};
+use crate::components::{
+    BlackBox, BoxOut, BoxReader, Button, Progression, ProgressionPiece, BUTTON_NUMS,
+};
 
 #[derive(SystemDesc)]
 pub struct ButtonRender;
@@ -50,13 +52,9 @@ impl<'a> System<'a> for ButtonPush {
 pub struct BoxStateSystem;
 
 impl<'a> System<'a> for BoxStateSystem {
-    type SystemData = (
-        WriteStorage<'a, BlackBox>,
-        WriteStorage<'a, UiText>,
-        ReadStorage<'a, Button>,
-    );
+    type SystemData = (WriteStorage<'a, BlackBox>, ReadStorage<'a, Button>);
 
-    fn run(&mut self, (mut boxes, mut texts, buttons): Self::SystemData) {
+    fn run(&mut self, (mut boxes, buttons): Self::SystemData) {
         for (mut box_,) in (&mut boxes,).join() {
             let mut state = box_.state;
             for b in &box_.buttons {
@@ -66,11 +64,34 @@ impl<'a> System<'a> for BoxStateSystem {
                     state = new_state;
                     if let Some(o) = out {
                         box_.output_channel.single_write(o.clone());
-                        texts.get_mut(box_.display.unwrap()).unwrap().text = o.to_string();
                     }
                 }
             }
             box_.state = state;
+        }
+    }
+}
+
+pub struct DisplayRenderSystem;
+
+impl<'a> System<'a> for DisplayRenderSystem {
+    type SystemData = (
+        WriteStorage<'a, UiText>,
+        WriteStorage<'a, BoxReader>,
+        ReadStorage<'a, BlackBox>,
+    );
+
+    fn run(&mut self, (mut texts, mut readers, boxes): Self::SystemData) {
+        for (reader, mut text) in (&mut readers, &mut texts).join() {
+            if let Some(out) = boxes
+                .get(reader.box_.unwrap())
+                .unwrap()
+                .output_channel
+                .read(reader.reader_id.as_mut().unwrap())
+                .last()
+            {
+                text.text = out.to_string();
+            }
         }
     }
 }
@@ -80,18 +101,16 @@ pub struct BoxProgressSystem;
 impl<'a> System<'a> for BoxProgressSystem {
     type SystemData = (
         WriteStorage<'a, Progression>,
+        WriteStorage<'a, BoxReader>,
         WriteStorage<'a, BlackBox>,
         ReadStorage<'a, ProgressionPiece>,
     );
 
-    fn run(&mut self, (mut progresses, mut boxes, pieces): Self::SystemData) {
-        for (progress,) in (&mut progresses,).join() {
-            let box_ = boxes.get_mut(progress.box_.unwrap()).unwrap();
+    fn run(&mut self, (mut progresses, mut readers, mut boxes, pieces): Self::SystemData) {
+        for (progress, reader) in (&mut progresses, &mut readers).join() {
+            let box_ = boxes.get_mut(reader.box_.unwrap()).unwrap();
 
-            for out in box_
-                .output_channel
-                .read(progress.reader_id.as_mut().unwrap())
-            {
+            for out in box_.output_channel.read(reader.reader_id.as_mut().unwrap()) {
                 progress.answer.push(out.clone());
 
                 while progress.answer.len() > 0

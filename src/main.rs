@@ -42,6 +42,7 @@ fn main() -> amethyst::Result<()> {
         .with(systems::ButtonPush, "button_push", &["input_system"])
         .with(systems::ButtonRender, "button_render", &[])
         .with(systems::BoxStateSystem, "box_state_system", &[])
+        .with(systems::DisplayRenderSystem, "display_render_system", &[])
         .with(systems::BoxProgressSystem, "box_progress_system", &[])
         .with(
             systems::RenderProgressionSystem,
