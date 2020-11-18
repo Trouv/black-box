@@ -2,6 +2,7 @@ use amethyst::{
     assets::{AssetStorage, Loader},
     core::{
         math::base::Vector3,
+        shrev::{EventChannel, ReaderId},
         transform::{Parent, Transform},
     },
     ecs::{storage::InsertResult, Entity, World, WorldExt},
@@ -324,9 +325,16 @@ fn init_progress(world: &mut World, box_: Entity, dimensions: &ScreenDimensions)
         &world.read_resource(),
     );
 
+    let prog_reader = world
+        .write_storage::<components::BlackBox>()
+        .get_mut(box_)
+        .unwrap()
+        .output_channel
+        .register_reader();
+
     let progression = world
         .create_entity()
-        .with(components::Progression::new(box_))
+        .with(components::Progression::new(box_, prog_reader))
         .with(UiTransform::new(
             "progression_1".to_string(),
             Anchor::TopMiddle,

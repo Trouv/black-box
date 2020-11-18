@@ -1,4 +1,5 @@
 use amethyst::{
+    core::shrev::{EventChannel, ReaderId},
     ecs::{Component, DenseVecStorage, Entity, NullStorage, World},
     ui::{Anchor, UiImage, UiText, UiTransform},
 };
@@ -60,7 +61,7 @@ pub struct BlackBox {
     pub state: BoxState,
     pub buttons: Vec<Entity>,
     pub display: Option<Entity>,
-    pub output_queue: VecDeque<BoxOut>,
+    pub output_channel: EventChannel<BoxOut>,
 }
 
 impl Component for BlackBox {
@@ -73,7 +74,7 @@ impl BlackBox {
             state: BoxState::default(),
             buttons,
             display,
-            output_queue: VecDeque::new(),
+            output_channel: EventChannel::new(),
         }
     }
 }
@@ -82,6 +83,7 @@ impl BlackBox {
 pub struct Progression {
     pub prompt: Vec<Entity>,
     pub box_: Option<Entity>,
+    pub reader_id: Option<ReaderId<BoxOut>>,
     pub answer: Vec<BoxOut>,
 }
 
@@ -90,10 +92,11 @@ impl Component for Progression {
 }
 
 impl Progression {
-    pub fn new(box_: Entity) -> Progression {
+    pub fn new(box_: Entity, reader_id: ReaderId<BoxOut>) -> Progression {
         Progression {
             prompt: Vec::new(),
             box_: Some(box_),
+            reader_id: Some(reader_id),
             answer: Vec::new(),
         }
     }

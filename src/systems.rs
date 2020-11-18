@@ -65,7 +65,7 @@ impl<'a> System<'a> for BoxStateSystem {
                     let (new_state, out) = button.action.unwrap()(state);
                     state = new_state;
                     if let Some(o) = out {
-                        box_.output_queue.push_back(o.clone());
+                        box_.output_channel.single_write(o.clone());
                         texts.get_mut(box_.display.unwrap()).unwrap().text = o.to_string();
                     }
                 }
@@ -88,8 +88,11 @@ impl<'a> System<'a> for BoxProgressSystem {
         for (progress,) in (&mut progresses,).join() {
             let box_ = boxes.get_mut(progress.box_.unwrap()).unwrap();
 
-            while let Some(out) = box_.output_queue.pop_front() {
-                progress.answer.push(out);
+            for out in box_
+                .output_channel
+                .read(progress.reader_id.as_mut().unwrap())
+            {
+                progress.answer.push(out.clone());
 
                 while progress.answer.len() > 0
                     && !progress
