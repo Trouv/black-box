@@ -40,21 +40,13 @@ fn main() -> amethyst::Result<()> {
                 .with_plugin(RenderFlat2D::default()),
         )?
         .with(systems::ButtonPush, "button_push", &["input_system"])
-        .with(systems::ButtonRender, "button_render", &["button_push"])
-        .with(
-            systems::BoxStateSystem,
-            "box_state_system",
-            &["button_push"],
-        )
-        .with(
-            systems::BoxProgressSystem,
-            "box_progress_system",
-            &["box_state_system"],
-        )
+        .with(systems::ButtonRender, "button_render", &[])
+        .with(systems::BoxStateSystem, "box_state_system", &[])
+        .with(systems::BoxProgressSystem, "box_progress_system", &[])
         .with(
             systems::RenderProgressionSystem,
             "render_progression_system",
-            &["box_progress_system"],
+            &[],
         );
 
     let mut game = Application::new(resources, black_state::BlackState, game_data)?;
