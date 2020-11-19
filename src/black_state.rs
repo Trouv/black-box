@@ -2,29 +2,20 @@ use amethyst::{
     assets::{AssetStorage, Loader},
     core::{
         math::base::Vector3,
-        shrev::{EventChannel, ReaderId},
         transform::{Parent, Transform},
     },
-    ecs::{storage::InsertResult, Entity, World, WorldExt},
-    input::{get_key, is_close_requested, is_key_down, VirtualKeyCode},
+    ecs::{Entity, World, WorldExt},
+    input::{is_close_requested, is_key_down, VirtualKeyCode},
     prelude::*,
     renderer::{Camera, ImageFormat, SpriteRender, SpriteSheet, SpriteSheetFormat, Texture},
-    ui::{
-        Anchor, FontHandle, LineMode, Stretch, TtfFormat, UiButtonBuilder, UiImage, UiText,
-        UiTransform,
-    },
+    ui::{Anchor, FontHandle, LineMode, TtfFormat, UiImage, UiText, UiTransform},
     window::ScreenDimensions,
 };
 
 use crate::components;
 
-use log::info;
-
 /// A dummy game state that shows 3 sprites.
 pub struct BlackState;
-
-const WIDTH: f32 = 100.;
-const HEIGHT: f32 = 150.;
 
 impl SimpleState for BlackState {
     // Here, we define hooks that will be called throughout the lifecycle of our game state.
@@ -74,9 +65,9 @@ impl SimpleState for BlackState {
             }
 
             // Listen to any key events
-            if let Some(event) = get_key(&event) {
-                //info!("handling key event: {:?}", event);
-            }
+            //if let Some(event) = get_key(&event) {
+            ////info!("handling key event: {:?}", event);
+            //}
 
             // If you're looking for a more sophisticated event handling solution,
             // including key bindings and gamepad support, please have a look at
@@ -271,7 +262,7 @@ fn init_box(
         .with(ui_transform)
         .build();
 
-    let display = world
+    world
         .create_entity()
         .with(UiTransform::new(
             "display".to_string(),
@@ -382,57 +373,4 @@ fn init_progress(world: &mut World, box_: Entity, dimensions: &ScreenDimensions)
     let mut prog_storage = world.write_storage::<components::Progression>();
 
     prog_storage.get_mut(progression).unwrap().prompt = pieces;
-}
-
-/// Creates a simple UI background and a UI text label
-/// This is the pure code only way to create UI with amethyst.
-pub fn create_ui_example(world: &mut World) {
-    // this creates the simple gray background UI element.
-    let ui_background = world
-        .create_entity()
-        .with(UiImage::SolidColor([0.6, 0.1, 0.2, 1.0]))
-        .with(UiTransform::new(
-            "".to_string(),
-            Anchor::TopLeft,
-            Anchor::TopLeft,
-            30.0,
-            -30.,
-            0.,
-            250.,
-            50.,
-        ))
-        .build();
-
-    // This simply loads a font from the asset folder and puts it in the world as a resource,
-    // we also get a ref to the font that we then can pass to the text label we crate later.
-    let font: FontHandle = world.read_resource::<Loader>().load(
-        "fonts/Bangers-Regular.ttf",
-        TtfFormat,
-        (),
-        &world.read_resource(),
-    );
-
-    // This creates the actual label and places it on the screen.
-    // Take note of the z position given, this ensures the label gets rendered above the background UI element.
-    world
-        .create_entity()
-        .with(UiTransform::new(
-            "".to_string(),
-            Anchor::TopLeft,
-            Anchor::TopLeft,
-            40.0,
-            -40.,
-            1.,
-            200.,
-            50.,
-        ))
-        .with(UiText::new(
-            font,
-            "Hello, Amethyst UI!".to_string(),
-            [1., 1., 1., 1.],
-            30.,
-            LineMode::Single,
-            Anchor::TopLeft,
-        ))
-        .build();
 }

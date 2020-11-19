@@ -1,9 +1,8 @@
 use amethyst::{
     core::shrev::{EventChannel, ReaderId},
-    ecs::{Component, DenseVecStorage, Entity, NullStorage, World},
-    ui::{Anchor, UiImage, UiText, UiTransform},
+    ecs::{Component, DenseVecStorage, Entity},
 };
-use std::{collections::VecDeque, fmt};
+use std::fmt;
 
 #[derive(Default)]
 pub struct Button {
