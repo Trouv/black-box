@@ -11,6 +11,7 @@ use amethyst::{
     utils::application_root_dir,
 };
 
+pub mod actions;
 mod black_state;
 pub mod components;
 pub mod systems;

@@ -4,6 +4,8 @@ use amethyst::{
 };
 use std::fmt;
 
+use crate::actions::Action;
+
 #[derive(Default)]
 pub struct Button {
     pub pressed: bool,
