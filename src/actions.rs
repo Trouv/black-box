@@ -9,7 +9,7 @@ pub enum Action {
 }
 
 impl Action {
-    pub fn evaluate<'a>(&self, state: &mut BoxState) -> Option<BoxOut> {
+    pub fn evaluate(&self, state: &mut BoxState) -> Option<BoxOut> {
         match self {
             Action::Set(val, i) => {
                 state[*i] = val.evaluate(state);

@@ -11,7 +11,7 @@ pub struct Button {
     pub pressed: bool,
     pub just_pressed: bool,
     pub just_unpressed: bool,
-    pub action: Option<ButtonAction>,
+    pub action: Vec<Action>,
 }
 
 impl Component for Button {
@@ -50,7 +50,7 @@ pub type BoxResult = (BoxState, Option<BoxOut>);
 pub type ButtonAction = fn(BoxState) -> BoxResult;
 
 impl Button {
-    pub fn new(action: Option<ButtonAction>) -> Self {
+    pub fn new(action: Vec<Action>) -> Self {
         let mut button = Button::default();
         button.action = action;
         button

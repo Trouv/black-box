@@ -12,7 +12,10 @@ use amethyst::{
     window::ScreenDimensions,
 };
 
-use crate::components;
+use crate::{
+    actions::{Action, Val},
+    components,
+};
 
 /// A dummy game state that shows 3 sprites.
 pub struct BlackState;
@@ -178,40 +181,25 @@ fn init_buttons(world: &mut World, button_sprite: SpriteRender) -> Vec<Entity> {
         transform.set_translation_xyz(x, y, 1.);
         transforms.push(transform)
     }
-    fn inc(s: components::BoxState) -> components::BoxResult {
-        let mut s = s.clone();
-        s[0] += 1.;
-        (s, None)
-    }
-
-    fn dec(s: components::BoxState) -> components::BoxResult {
-        let mut s = s.clone();
-        s[0] -= 1.;
-        (s, None)
-    }
-
-    fn out(s: components::BoxState) -> components::BoxResult {
-        (s, Some(components::BoxOut::Int(s[0] as i32)))
-    }
 
     vec![
         world
             .create_entity()
             .with(button_sprite.clone())
             .with(transforms.remove(0))
-            .with(components::Button::new(Some(dec)))
+            .with(components::Button::new(vec![Action::AddEq(Val::C(-1.), 0)]))
             .build(),
         world
             .create_entity()
             .with(button_sprite.clone())
             .with(transforms.remove(0))
-            .with(components::Button::new(Some(out)))
+            .with(components::Button::new(vec![Action::PrintInt(Val::G(0))]))
             .build(),
         world
             .create_entity()
             .with(button_sprite.clone())
             .with(transforms.remove(0))
-            .with(components::Button::new(Some(inc)))
+            .with(components::Button::new(vec![Action::AddEq(Val::C(1.), 0)]))
             .build(),
     ]
 }

@@ -60,10 +60,11 @@ impl<'a> System<'a> for BoxStateSystem {
             for b in &box_.buttons {
                 let button = buttons.get(*b).unwrap();
                 if button.just_unpressed {
-                    let (new_state, out) = button.action.unwrap()(state);
-                    state = new_state;
-                    if let Some(o) = out {
-                        box_.output_channel.single_write(o.clone());
+                    for action in &button.action {
+                        let out = action.evaluate(&mut state);
+                        if let Some(o) = out {
+                            box_.output_channel.single_write(o.clone());
+                        }
                     }
                 }
             }
