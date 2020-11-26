@@ -1,12 +1,18 @@
 use amethyst::{
+    assets::{PrefabData, ProgressCounter},
     core::shrev::{EventChannel, ReaderId},
-    ecs::{Component, DenseVecStorage, Entity},
+    derive::PrefabData,
+    ecs::{Component, DenseVecStorage, Entity, WriteStorage},
+    Error,
 };
+use serde::{Deserialize, Serialize};
 use std::fmt;
 
 use crate::actions::Action;
 
-#[derive(Default)]
+#[derive(Default, Clone, Serialize, Deserialize, PrefabData)]
+#[prefab(Component)]
+#[serde(deny_unknown_fields)]
 pub struct Button {
     pub pressed: bool,
     pub just_pressed: bool,
@@ -22,7 +28,8 @@ pub const BUTTON_NUMS: [&str; 6] = [
     "button_0", "button_1", "button_2", "button_3", "button_4", "button_5",
 ];
 
-#[derive(Debug, PartialEq, Clone)]
+#[derive(Debug, PartialEq, Clone, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
 pub enum BoxOut {
     Int(i32),
     Flt(f32),
@@ -57,11 +64,26 @@ impl Button {
     }
 }
 
-#[derive(Default)]
+#[derive(Default, Serialize, Deserialize, PrefabData)]
+#[prefab(Component)]
+#[serde(default)]
+#[serde(deny_unknown_fields)]
 pub struct BlackBox {
     pub state: BoxState,
+    #[serde(skip)]
     pub buttons: Vec<Entity>,
+    #[serde(skip)]
     pub output_channel: EventChannel<BoxOut>,
+}
+
+impl Clone for BlackBox {
+    fn clone(&self) -> Self {
+        BlackBox {
+            state: self.state.clone(),
+            buttons: self.buttons.clone(),
+            output_channel: EventChannel::new(),
+        }
+    }
 }
 
 impl Component for BlackBox {
@@ -78,8 +100,12 @@ impl BlackBox {
     }
 }
 
-#[derive(Default)]
+#[derive(Default, Clone, Serialize, Deserialize, PrefabData)]
+#[prefab(Component)]
+#[serde(default)]
+#[serde(deny_unknown_fields)]
 pub struct Progression {
+    #[serde(skip)]
     pub prompt: Vec<Entity>,
     pub answer: Vec<BoxOut>,
 }
@@ -88,17 +114,33 @@ impl Component for Progression {
     type Storage = DenseVecStorage<Self>;
 }
 
-#[derive(Default)]
+#[derive(Default, Clone, Serialize, Deserialize, PrefabData)]
+#[prefab(Component)]
+#[serde(deny_unknown_fields)]
 pub struct ProgressionPiece(pub BoxOut);
 
 impl Component for ProgressionPiece {
     type Storage = DenseVecStorage<Self>;
 }
 
-#[derive(Default)]
+#[derive(Default, Serialize, Deserialize, PrefabData)]
+#[prefab(Component)]
+#[serde(default)]
+#[serde(deny_unknown_fields)]
 pub struct BoxReader {
+    #[serde(skip)]
     pub box_: Option<Entity>,
+    #[serde(skip)]
     pub reader_id: Option<ReaderId<BoxOut>>,
+}
+
+impl Clone for BoxReader {
+    fn clone(&self) -> Self {
+        BoxReader {
+            box_: self.box_.clone(),
+            reader_id: None,
+        }
+    }
 }
 
 impl Component for BoxReader {

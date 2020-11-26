@@ -14,6 +14,7 @@ use amethyst::{
 pub mod actions;
 mod black_state;
 pub mod components;
+pub mod prefabs;
 pub mod systems;
 
 fn main() -> amethyst::Result<()> {

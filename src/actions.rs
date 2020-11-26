@@ -1,5 +1,14 @@
 use crate::components::{BoxOut, BoxState};
+use amethyst::{
+    assets::{PrefabData, ProgressCounter},
+    derive::PrefabData,
+    ecs::Entity,
+    Error,
+};
+use serde::{Deserialize, Serialize};
 
+#[derive(Clone, Copy, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
 pub enum Action {
     Set(Val, usize),
     Add(Val, Val, usize),
@@ -29,7 +38,8 @@ impl Action {
     }
 }
 
-#[derive(Clone, Copy)]
+#[derive(Clone, Copy, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
 pub enum Val {
     C(f32),
     G(usize),
