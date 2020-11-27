@@ -1,10 +1,4 @@
 use crate::components::{BoxOut, BoxState};
-use amethyst::{
-    assets::{PrefabData, ProgressCounter},
-    derive::PrefabData,
-    ecs::Entity,
-    Error,
-};
 use serde::{Deserialize, Serialize};
 
 #[derive(Clone, Copy, Serialize, Deserialize)]

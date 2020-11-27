@@ -14,8 +14,11 @@ use crate::actions::Action;
 #[prefab(Component)]
 #[serde(deny_unknown_fields)]
 pub struct Button {
+    #[serde(skip)]
     pub pressed: bool,
+    #[serde(skip)]
     pub just_pressed: bool,
+    #[serde(skip)]
     pub just_unpressed: bool,
     pub action: Vec<Action>,
 }
