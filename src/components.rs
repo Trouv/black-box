@@ -59,8 +59,8 @@ pub type BoxState = [f32; 8];
 pub type BoxResult = (BoxState, Option<BoxOut>);
 pub type ButtonAction = fn(BoxState) -> BoxResult;
 
-impl Button {
-    pub fn new(action: Vec<Action>) -> Self {
+impl From<Vec<Action>> for Button {
+    fn from(action: Vec<Action>) -> Self {
         let mut button = Button::default();
         button.action = action;
         button

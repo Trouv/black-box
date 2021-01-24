@@ -187,19 +187,22 @@ fn init_buttons(world: &mut World, button_sprite: SpriteRender) -> Vec<Entity> {
             .create_entity()
             .with(button_sprite.clone())
             .with(transforms.remove(0))
-            .with(components::Button::new(vec![Action::AddEq(Val::C(-1.), 0)]))
+            .with(components::Button::from(vec![Action::AddEq(
+                Val::C(-1.),
+                0,
+            )]))
             .build(),
         world
             .create_entity()
             .with(button_sprite.clone())
             .with(transforms.remove(0))
-            .with(components::Button::new(vec![Action::PrintInt(Val::G(0))]))
+            .with(components::Button::from(vec![Action::PrintInt(Val::G(0))]))
             .build(),
         world
             .create_entity()
             .with(button_sprite.clone())
             .with(transforms.remove(0))
-            .with(components::Button::new(vec![Action::AddEq(Val::C(1.), 0)]))
+            .with(components::Button::from(vec![Action::AddEq(Val::C(1.), 0)]))
             .build(),
     ]
 }
