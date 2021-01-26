@@ -10,7 +10,7 @@ use std::fmt;
 
 use crate::actions::Action;
 
-#[derive(Default, Clone, Serialize, Deserialize, PrefabData)]
+#[derive(Default, Clone, Serialize, Deserialize, PrefabData, Debug)]
 #[prefab(Component)]
 #[serde(deny_unknown_fields)]
 pub struct Button {
