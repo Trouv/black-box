@@ -16,6 +16,8 @@ use serde::{Deserialize, Serialize};
 use std::convert::TryFrom;
 use std::io;
 
+pub const LEVEL_ORDER: [&str; 2] = ["dec_inc.ron", "counter.ron"];
+
 #[derive(Serialize, Deserialize, Default, Clone, Debug)]
 #[serde(deny_unknown_fields)]
 struct ButtonData {
@@ -43,7 +45,12 @@ impl TryFrom<&str> for LevelData {
 }
 
 impl LevelData {
-    fn init_progress(&self, world: &mut World, box_: Entity, dimensions: &ScreenDimensions) {
+    fn init_progress(
+        &self,
+        world: &mut World,
+        box_: Entity,
+        dimensions: &ScreenDimensions,
+    ) -> Entity {
         let pixel = dimensions.width() / 100.;
 
         let font: FontHandle = world.read_resource::<Loader>().load(
@@ -109,6 +116,8 @@ impl LevelData {
         let mut prog_storage = world.write_storage::<Progression>();
 
         prog_storage.get_mut(progression).unwrap().prompt = pieces;
+
+        progression
     }
 
     fn init_box(
@@ -205,7 +214,7 @@ impl LevelData {
         button_entities
     }
 
-    pub fn init(&self, world: &mut World) {
+    pub fn init(&self, world: &mut World) -> (Entity, Entity) {
         let dimensions = (*world.read_resource::<ScreenDimensions>()).clone();
 
         let button_sprites = load_button_sprites(world);
@@ -213,7 +222,8 @@ impl LevelData {
 
         let buttons = self.init_buttons(world, button_sprites);
         let box_ = self.init_box(world, box_sprite, buttons, &dimensions);
-        self.init_progress(world, box_, &dimensions);
+        let progress = self.init_progress(world, box_, &dimensions);
+        (box_, progress)
     }
 }
 

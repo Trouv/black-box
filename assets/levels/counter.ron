@@ -1,0 +1,33 @@
+LevelData(
+    prompt: [
+        Int(1),
+        Int(3),
+        Int(2),
+        Int(1),
+        Int(15),
+        Int(0),
+    ],
+    buttons: [
+        (
+            button: (
+                action: [
+                    AddEq(C(1), 0),
+                ],
+            ),
+            transform: (
+                translation: (-15., 0., 1.),
+            ),
+        ),
+        (
+            button: (
+                action: [
+                    PrintInt(G(0)),
+                    Set(C(0), 0),
+                ],
+            ),
+            transform: (
+                translation: (15., 0., 1.),
+            ),
+        ),
+    ],
+)

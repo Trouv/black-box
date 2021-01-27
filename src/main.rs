@@ -52,7 +52,7 @@ fn main() -> amethyst::Result<()> {
             &[],
         );
 
-    let mut game = Application::new(resources, black_state::BlackState, game_data)?;
+    let mut game = Application::new(resources, black_state::BlackState::from(0), game_data)?;
     game.run();
 
     Ok(())
