@@ -1,7 +1,4 @@
-use crate::{
-    actions::{Action, Val},
-    components::{BlackBox, BoxOut, BoxReader, Button, Progression, ProgressionPiece},
-};
+use crate::components::{BlackBox, BoxOut, BoxReader, Button, Progression, ProgressionPiece};
 use amethyst::{
     assets::{AssetStorage, Loader},
     core::{
@@ -9,9 +6,8 @@ use amethyst::{
         transform::{Parent, Transform},
     },
     ecs::{Entity, World, WorldExt},
-    input::{is_close_requested, is_key_down, VirtualKeyCode},
-    prelude::*,
-    renderer::{Camera, ImageFormat, SpriteRender, SpriteSheet, SpriteSheetFormat, Texture},
+    prelude::Builder,
+    renderer::{ImageFormat, SpriteRender, SpriteSheet, SpriteSheetFormat, Texture},
     ui::{Anchor, FontHandle, LineMode, TtfFormat, UiImage, UiText, UiTransform},
     window::ScreenDimensions,
 };
@@ -128,9 +124,6 @@ impl LevelData {
         transform.set_translation_xyz(dimensions.width() / 2., dimensions.width() / 2., -1.);
         transform.set_scale(Vector3::new(pixel, pixel, 1.));
 
-        //let scale = WIDTH / 100.;
-
-        //transform.set_scale(Vector3::new(scale, scale, 1.));
         let font: FontHandle = world.read_resource::<Loader>().load(
             "fonts/rainyhearts.ttf",
             TtfFormat,
@@ -156,7 +149,7 @@ impl LevelData {
 
         let box_ = world
             .create_entity()
-            .with(box_sprite.clone())
+            .with(box_sprite)
             .with(transform)
             .with(box_)
             .with(ui_transform)
@@ -184,7 +177,6 @@ impl LevelData {
             ))
             .with(BoxReader::new(box_, reader_id))
             .with(Parent::new(box_))
-            //.with(components::BoxDisplay)
             .build();
 
         let mut parent_storage = world.write_storage::<Parent>();
@@ -197,8 +189,6 @@ impl LevelData {
     }
 
     fn init_buttons(&self, world: &mut World, button_sprite: SpriteRender) -> Vec<Entity> {
-        let button_count = 3;
-
         let mut button_entities = Vec::new();
 
         for button in &self.buttons {
@@ -216,12 +206,8 @@ impl LevelData {
     }
 
     pub fn init(&self, world: &mut World) {
-        // Get the screen dimensions so we can initialize the camera and
-        // place our sprites correctly later. We'll clone this since we'll
-        // pass the world mutably to the following functions.
         let dimensions = (*world.read_resource::<ScreenDimensions>()).clone();
 
-        // Load our sprites and display them
         let button_sprites = load_button_sprites(world);
         let box_sprite = load_box_sprite(world);
 
@@ -231,14 +217,7 @@ impl LevelData {
     }
 }
 
-/// Loads and splits the `logo.png` image asset into 3 sprites,
-/// which will then be assigned to entities for rendering them.
-///
-/// The provided `world` is used to retrieve the resource loader.
 fn load_button_sprites(world: &mut World) -> SpriteRender {
-    // Load the texture for our sprites. We'll later need to
-    // add a handle to this texture to our `SpriteRender`s, so
-    // we need to keep a reference to it.
     let texture_handle = {
         let loader = world.read_resource::<Loader>();
         let texture_storage = world.read_resource::<AssetStorage<Texture>>();
@@ -250,8 +229,6 @@ fn load_button_sprites(world: &mut World) -> SpriteRender {
         )
     };
 
-    // Load the spritesheet definition file, which contains metadata on our
-    // spritesheet texture.
     let sheet_handle = {
         let loader = world.read_resource::<Loader>();
         let sheet_storage = world.read_resource::<AssetStorage<SpriteSheet>>();
@@ -263,11 +240,8 @@ fn load_button_sprites(world: &mut World) -> SpriteRender {
         )
     };
 
-    // Create our sprite renders. Each will have a handle to the texture
-    // that it renders from. The handle is safe to clone, since it just
-    // references the asset.
     SpriteRender {
-        sprite_sheet: sheet_handle.clone(),
+        sprite_sheet: sheet_handle,
         sprite_number: 0,
     }
 }
@@ -295,7 +269,7 @@ fn load_box_sprite(world: &mut World) -> SpriteRender {
     };
 
     SpriteRender {
-        sprite_sheet: sheet_handle.clone(),
+        sprite_sheet: sheet_handle,
         sprite_number: 0,
     }
 }

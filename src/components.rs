@@ -1,5 +1,5 @@
 use amethyst::{
-    assets::{PrefabData, ProgressCounter},
+    assets::PrefabData,
     core::shrev::{EventChannel, ReaderId},
     derive::PrefabData,
     ecs::{Component, DenseVecStorage, Entity, WriteStorage},
@@ -82,7 +82,7 @@ pub struct BlackBox {
 impl Clone for BlackBox {
     fn clone(&self) -> Self {
         BlackBox {
-            state: self.state.clone(),
+            state: self.state,
             buttons: self.buttons.clone(),
             output_channel: EventChannel::new(),
         }
@@ -140,7 +140,7 @@ pub struct BoxReader {
 impl Clone for BoxReader {
     fn clone(&self) -> Self {
         BoxReader {
-            box_: self.box_.clone(),
+            box_: self.box_,
             reader_id: None,
         }
     }

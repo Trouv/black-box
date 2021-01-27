@@ -114,7 +114,7 @@ impl<'a> System<'a> for BoxProgressSystem {
             for out in box_.output_channel.read(reader.reader_id.as_mut().unwrap()) {
                 progress.answer.push(out.clone());
 
-                while progress.answer.len() > 0
+                while !progress.answer.is_empty()
                     && !progress
                         .prompt
                         .iter()
