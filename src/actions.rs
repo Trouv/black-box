@@ -8,6 +8,7 @@ pub enum Action {
     Add(Val, Val, usize),
     AddEq(Val, usize),
     Mult(Val, Val, usize),
+    Mod(Val, Val, usize),
     PrintInt(Val),
 }
 
@@ -25,6 +26,11 @@ impl Action {
             Action::AddEq(a, i) => Action::Add(*a, Val::G(*i), *i).evaluate(state),
             Action::Mult(a, b, i) => {
                 state[*i] = a.evaluate(state) * b.evaluate(state);
+                None
+            }
+            Action::Mod(a, b, i) => {
+                state[*i] = ((a.evaluate(state) % b.evaluate(state)) + b.evaluate(state))
+                    % b.evaluate(state);
                 None
             }
             Action::PrintInt(val) => Some(BoxOut::Int(val.evaluate(state) as i32)),

@@ -1,0 +1,66 @@
+LevelData(
+    prompt: [
+        Int(1),
+        Int(2),
+        Int(3),
+        Int(4),
+        Int(5),
+        Int(3),
+        Int(5),
+        Int(1),
+        Int(4),
+        Int(2),
+    ],
+    buttons: [
+        (
+            button: (
+                action: [
+                    PrintInt(C(3)),
+                ],
+            ),
+            transform: (
+                translation: (-40., 25., 1.),
+            ),
+        ),
+        (
+            button: (
+                action: [
+                    PrintInt(C(5)),
+                ],
+            ),
+            transform: (
+                translation: (-20., 15., 1.),
+            ),
+        ),
+        (
+            button: (
+                action: [
+                    PrintInt(C(1)),
+                ],
+            ),
+            transform: (
+                translation: (0., 5., 1.),
+            ),
+        ),
+        (
+            button: (
+                action: [
+                    PrintInt(C(2)),
+                ],
+            ),
+            transform: (
+                translation: (20., -5., 1.),
+            ),
+        ),
+        (
+            button: (
+                action: [
+                    PrintInt(C(4)),
+                ],
+            ),
+            transform: (
+                translation: (40., -15., 1.),
+            ),
+        ),
+    ],
+)

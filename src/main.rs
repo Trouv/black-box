@@ -11,6 +11,8 @@ use amethyst::{
     utils::application_root_dir,
 };
 
+use std::env;
+
 pub mod actions;
 mod black_state;
 pub mod components;
@@ -52,7 +54,14 @@ fn main() -> amethyst::Result<()> {
             &[],
         );
 
-    let mut game = Application::new(resources, black_state::BlackState::from(0), game_data)?;
+    let args: Vec<String> = env::args().collect();
+    let level = if args.len() >= 2 {
+        args[1].parse::<usize>()?
+    } else {
+        0
+    };
+
+    let mut game = Application::new(resources, black_state::BlackState::from(level), game_data)?;
     game.run();
 
     Ok(())
