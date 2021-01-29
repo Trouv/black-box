@@ -16,7 +16,7 @@ use serde::{Deserialize, Serialize};
 use std::convert::TryFrom;
 use std::io;
 
-pub const LEVEL_ORDER: [&str; 7] = [
+pub const LEVEL_ORDER: [&str; 10] = [
     "pin_pad.ron",
     "pin_pad2.ron",
     "counter.ron",
@@ -24,6 +24,9 @@ pub const LEVEL_ORDER: [&str; 7] = [
     "dec_inc.ron",
     "inc_dec.ron",
     "mod_minus_counter.ron",
+    "two_toggles.ron",
+    "toggle_neg_pos.ron",
+    "toggle_negout_pos.ron",
 ];
 
 #[derive(Serialize, Deserialize, Default, Clone, Debug)]

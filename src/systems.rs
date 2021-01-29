@@ -66,6 +66,7 @@ impl<'a> System<'a> for BoxStateSystem {
                             box_.output_channel.single_write(o.clone());
                         }
                     }
+                    println!("{:?}", state);
                 }
             }
             box_.state = state;

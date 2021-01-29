@@ -1,0 +1,43 @@
+(
+    prompt: [
+        Int(-1),
+        Int(2),
+        Int(1),
+        Int(2),
+        Int(3),
+    ],
+    buttons: [
+        (
+            button: (
+                action: [
+                    IfElse(G(0), C(1), C(-1), 1),
+                    Add(G(1), G(2), 2),
+                ],
+            ),
+            transform: (
+                translation: (-25., 5., 1.),
+            ),
+        ),
+        (
+            button: (
+                action: [
+                    PrintInt(G(2)),
+                ],
+            ),
+            transform: (
+                translation: (0., -5., 1.),
+            ),
+        ),
+        (
+            button: (
+                action: [
+                    AddEq(C(1), 0),
+                    Mod(G(0), C(2), 0),
+                ],
+            ),
+            transform: (
+                translation: (25., 15., 1.),
+            ),
+        ),
+    ],
+)
