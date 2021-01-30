@@ -16,7 +16,7 @@ use serde::{Deserialize, Serialize};
 use std::convert::TryFrom;
 use std::io;
 
-pub const LEVEL_ORDER: [&str; 10] = [
+pub const LEVEL_ORDER: [&str; 12] = [
     "pin_pad.ron",
     "pin_pad2.ron",
     "counter.ron",
@@ -27,6 +27,8 @@ pub const LEVEL_ORDER: [&str; 10] = [
     "two_toggles.ron",
     "toggle_neg_pos.ron",
     "toggle_negout_pos.ron",
+    "toggle_rot.ron",
+    "binary.ron",
 ];
 
 #[derive(Serialize, Deserialize, Default, Clone, Debug)]
@@ -103,10 +105,10 @@ impl LevelData {
                         format!("prog_piece_{}", i),
                         Anchor::Middle,
                         Anchor::Middle,
-                        pixel * ((-4. * (self.prompt.len() as f32 - 1.)) + (8. * i as f32)),
+                        pixel * ((-3. * (self.prompt.len() as f32 - 1.)) + (6. * i as f32)),
                         0.,
                         0.,
-                        8. * pixel,
+                        6. * pixel,
                         8. * pixel,
                     ))
                     .with(UiText::new(

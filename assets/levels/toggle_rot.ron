@@ -1,48 +1,56 @@
 LevelData(
     prompt: [
-        Int(0),
-        Int(0),
-        Int(-1),
-        Int(-2),
-        Int(-1),
-        Int(-1),
-        Int(0),
+        Int(1),
+        Int(2),
+        Int(3),
+        Int(4),
+        Int(5),
+        Int(4),
+        Int(3),
         Int(2),
         Int(1),
-        Int(0),
+        Int(3),
+        Int(5),
         Int(1),
-        Int(1),
+        Int(4),
+        Int(2),
     ],
     buttons: [
         (
             button: (
                 action: [
-                    IfElseDo(
-                        G(0),
-                        [
-                            PrintInt(G(1)),
-                            AddEq(C(-1), 1),
-                        ],
-                        [
-                            AddEq(C(1), 1),
-                        ],
-                    )
-                            
+                    Mod(G(0), C(3), 1),
+                    Mult(G(1), C(2), 1),
+                    AddEq(C(1), 1),
+                    PrintInt(G(1)),
                 ],
             ),
             transform: (
-                translation: (0., -5., 1.),
+                translation: (-25., 15., 1.),
             ),
         ),
         (
             button: (
                 action: [
                     AddEq(C(1), 0),
-                    Mod(G(0), C(2), 0),
+                    Mod(G(0), C(6), 0),
                 ],
             ),
             transform: (
-                translation: (0., 15., 1.),
+                translation: (0., 5., 1.),
+            ),
+        ),
+        (
+            button: (
+                action: [
+                    Mod(G(0), C(2), 1),
+                    Mult(G(1), C(2), 1),
+                    AddEq(C(2), 1),
+                    PrintInt(G(1)),
+                ],
+            ),
+            transform: (
+                translation: (25., -5., 1.),
             ),
         ),
     ],
