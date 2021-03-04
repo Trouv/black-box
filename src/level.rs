@@ -64,7 +64,7 @@ impl LevelData {
         box_: Entity,
         dimensions: &ScreenDimensions,
     ) -> Entity {
-        let pixel = dimensions.width() / 100.;
+        let pixel = 1.;
 
         let font: FontHandle = world.read_resource::<Loader>().load(
             "fonts/rainyhearts.ttf",
@@ -140,10 +140,10 @@ impl LevelData {
         buttons: Vec<Entity>,
         dimensions: &ScreenDimensions,
     ) -> Entity {
-        let pixel = dimensions.width() / 100.;
+        let pixel = 1.;
 
         let mut transform = Transform::default();
-        transform.set_translation_xyz(dimensions.width() / 2., dimensions.width() / 2., -1.);
+        transform.set_translation_xyz(213., 50., -1.);
         transform.set_scale(Vector3::new(pixel, pixel, 1.));
 
         let font: FontHandle = world.read_resource::<Loader>().load(
@@ -174,7 +174,7 @@ impl LevelData {
             .with(box_sprite)
             .with(transform)
             .with(box_)
-            .with(ui_transform)
+            //.with(ui_transform)
             .build();
 
         world
