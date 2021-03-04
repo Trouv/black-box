@@ -91,7 +91,7 @@ impl LevelData {
                 0.,
                 0.,
                 pixel * 100.,
-                pixel * 8.,
+                pixel * 64.,
             ))
             .with(BoxReader::new(box_, prog_reader))
             .build();
@@ -105,17 +105,17 @@ impl LevelData {
                         format!("prog_piece_{}", i),
                         Anchor::Middle,
                         Anchor::Middle,
-                        pixel * ((-3. * (self.prompt.len() as f32 - 1.)) + (6. * i as f32)),
+                        pixel * ((-24. * (self.prompt.len() as f32 - 1.)) + (48. * i as f32)),
                         0.,
                         0.,
-                        6. * pixel,
-                        8. * pixel,
+                        48. * pixel,
+                        64. * pixel,
                     ))
                     .with(UiText::new(
                         font.clone(),
                         piece.to_string(),
                         [0.3, 0.3, 0.3, 1.],
-                        pixel * 6.9,
+                        pixel * 56.,
                         LineMode::Single,
                         Anchor::Middle,
                     ))
@@ -174,7 +174,7 @@ impl LevelData {
             .with(box_sprite)
             .with(transform)
             .with(box_)
-            //.with(ui_transform)
+            .with(ui_transform)
             .build();
 
         world
@@ -184,7 +184,7 @@ impl LevelData {
                 Anchor::Middle,
                 Anchor::Middle,
                 0.,
-                pixel * 36.,
+                pixel * 80.,
                 0.,
                 pixel * 30.,
                 pixel * 10.,
