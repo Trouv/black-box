@@ -102,16 +102,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "amethyst-starter-2d"
-version = "0.2.0"
-dependencies = [
- "amethyst",
- "log",
- "ron 0.6.4",
- "serde",
-]
-
-[[package]]
 name = "amethyst_animation"
 version = "0.15.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -544,6 +534,16 @@ name = "bitflags"
 version = "1.2.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "cf1de2fe8c75bc145a2f577add951f8134889b4795d47466a54a5c846d691693"
+
+[[package]]
+name = "black-box"
+version = "0.1.0"
+dependencies = [
+ "amethyst",
+ "log",
+ "ron 0.6.4",
+ "serde",
+]
 
 [[package]]
 name = "blake2b_simd"

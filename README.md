@@ -1,3 +1,5 @@
+![Screenshot](screenshot.png)
+
 # Black Box
 Black Box is, so far, a very a simple puzzle game, written using rust+amethyst.
 I have no intentions to keep it simple, but as it stands now, it's a prototype.
