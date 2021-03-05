@@ -64,7 +64,8 @@ impl LevelData {
         box_: Entity,
         dimensions: &ScreenDimensions,
     ) -> Entity {
-        let pixel = 1.;
+        let pixel_x = dimensions.width() / 426.;
+        let pixel_y = dimensions.height() / 240.;
 
         let font: FontHandle = world.read_resource::<Loader>().load(
             "fonts/rainyhearts.ttf",
@@ -90,8 +91,8 @@ impl LevelData {
                 0.,
                 0.,
                 0.,
-                pixel * 100.,
-                pixel * 64.,
+                pixel_x * 100.,
+                pixel_y * 16.,
             ))
             .with(BoxReader::new(box_, prog_reader))
             .build();
@@ -105,17 +106,17 @@ impl LevelData {
                         format!("prog_piece_{}", i),
                         Anchor::Middle,
                         Anchor::Middle,
-                        pixel * ((-24. * (self.prompt.len() as f32 - 1.)) + (48. * i as f32)),
+                        pixel_x * ((-6. * (self.prompt.len() as f32 - 1.)) + (12. * i as f32)),
                         0.,
                         0.,
-                        48. * pixel,
-                        64. * pixel,
+                        12. * pixel_x,
+                        16. * pixel_y,
                     ))
                     .with(UiText::new(
                         font.clone(),
                         piece.to_string(),
                         [0.3, 0.3, 0.3, 1.],
-                        pixel * 56.,
+                        pixel_y * 14.,
                         LineMode::Single,
                         Anchor::Middle,
                     ))
@@ -140,11 +141,11 @@ impl LevelData {
         buttons: Vec<Entity>,
         dimensions: &ScreenDimensions,
     ) -> Entity {
-        let pixel = 1.;
+        let pixel_x = dimensions.width() / 426.;
+        let pixel_y = dimensions.height() / 240.;
 
         let mut transform = Transform::default();
         transform.set_translation_xyz(213., 50., -1.);
-        transform.set_scale(Vector3::new(pixel, pixel, 1.));
 
         let font: FontHandle = world.read_resource::<Loader>().load(
             "fonts/rainyhearts.ttf",
@@ -162,8 +163,8 @@ impl LevelData {
             0.,
             0.,
             0.,
-            pixel * 100.,
-            pixel * 100.,
+            pixel_x * 100.,
+            pixel_y * 100.,
         );
 
         let mut box_ = BlackBox::new(buttons);
@@ -184,16 +185,16 @@ impl LevelData {
                 Anchor::Middle,
                 Anchor::Middle,
                 0.,
-                pixel * 80.,
+                pixel_y * 36.,
                 0.,
-                pixel * 30.,
-                pixel * 10.,
+                pixel_x * 30.,
+                pixel_y * 10.,
             ))
             .with(UiText::new(
                 font,
                 "test".to_string(),
                 [0.5, 1.0, 0.5, 1.0],
-                pixel * 13.9,
+                pixel_y * 13.,
                 LineMode::Single,
                 Anchor::Middle,
             ))
