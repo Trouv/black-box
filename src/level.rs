@@ -192,7 +192,7 @@ impl LevelData {
             ))
             .with(UiText::new(
                 font,
-                "test".to_string(),
+                "".to_string(),
                 [0.5, 1.0, 0.5, 1.0],
                 pixel_y * 13.,
                 LineMode::Single,
