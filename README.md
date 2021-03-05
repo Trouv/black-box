@@ -1,58 +1,24 @@
-<img src="repo/splash.png" alt="Amethyst 2D starter template" />
+# Black Box
+Black Box is, so far, a very a simple puzzle game, written using rust+amethyst.
+I have no intentions to keep it simple, it's just very early in development.
+This will probably become gradually weirder and more artsy, but as it stands
+now, it's a prototype.
 
-This project template will get you from 0 to drawing something on the screen in no time. If you're looking for a more in-depth introduction to the engine, please have a look at [our book](https://book.amethyst.rs/stable/)!
+The basic idea is that the player is given a box with buttons on it, but not
+given any instructions for using it or an explanation of what the buttons do.
+On every level, the player must figure out how the new box works, and then use
+that knowledge to perform a desired output.
 
-This project template also includes a small example of how to draw UI, see in state.rs for create_ui_example().
-<img src="repo/screenshot.png" alt="Amethyst 2D starter template" height="300px" />
+### Plans
+As typical for me, this project is fairly ambitious, but I've learend from past
+mistakes and tried to limit the scope somewhat.
+I also don't want to give too many plans away here to avoid spoilers.
+I will say that I hope to...
+- make it 3d
+- make it polished
+- make it accessible
+- make it weird and artsy
+- give it a story
 
-## Quickstart
-
-- Clone the repository
-
-```bash
-git clone https://github.com/amethyst/amethyst-starter-2d.git
-cd amethyst-starter-2d
-```
-
-- Build and run the project
-
-```bash
-cargo run
-```
-
-#### For Mac Users
-
-This starter uses vulkan as a renderer by default. You'll want to change the backend to use `metal`, which can be done by opening the `Cargo.toml` file and changing
-
-```toml
-[features]
-default = ["vulkan"]
-```
-
-to
-
-```toml
-[features]
-default = ["metal"]
-```
-
-If using OSX and Metal you will require full XCode installed from the Appstore in order to compile metal shaders.
-After install you may be required to run this command `sudo xcode-select --switch /Applications/Xcode.app/Contents/Developer` [reference gfx-rs issue](https://github.com/gfx-rs/gfx/issues/2472)
-
-#### For Linux Users
-
-You might need to install some dependencies. Please refer to [this section](https://github.com/amethyst/amethyst#dependencies) of the README for more details.
-
-## Features
-
-This project contains the minimum amount of code needed to draw sprites to the screen. Here's a small summary of what you'll find in the source files:
-
-- `resources/display_config.ron`  
-  Contains the window configuration (size, title).
-
-- `src/main.rs`  
-  Creates the render graph, adds the required bundles, builds the game data with our own state and finally, starts the game's main event loop.
-
-- `src/state.rs`  
-  Implements the main game state. In the `on_start` hook, the camera is initialized, and the sprites that will be drawn are loaded and their entities created.  
-   In the `handle_event` hook, we print any keys that were pressed and close the window if the user presses escape or the OS requests that we quit.
+And, if legion ever gets merged to amethyst...
+- port it to legion
