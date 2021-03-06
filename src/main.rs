@@ -58,7 +58,7 @@ fn main() -> amethyst::Result<()> {
     let level = if args.len() >= 2 {
         args[1].parse::<usize>()?
     } else {
-        0
+        1
     };
 
     let mut game = Application::new(resources, black_state::BlackState::from(level), game_data)?;

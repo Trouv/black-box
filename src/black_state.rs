@@ -37,7 +37,8 @@ impl SimpleState for BlackState {
 
         init_camera(world);
 
-        let level = LevelData::try_from(LEVEL_ORDER[self.level_num % LEVEL_ORDER.len()]).unwrap();
+        let level =
+            LevelData::try_from(LEVEL_ORDER[(self.level_num - 1) % LEVEL_ORDER.len()]).unwrap();
         let (box_, progression) = level.init(world);
         self.box_ = Some(box_);
         self.progression = Some(progression);
