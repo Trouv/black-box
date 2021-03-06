@@ -16,9 +16,8 @@ use ron::de::from_reader;
 use serde::{Deserialize, Serialize};
 use std::convert::TryFrom;
 
-pub const LEVEL_ORDER: [&str; 11] = [
+pub const LEVEL_ORDER: [&str; 10] = [
     "pin_pad.ron",
-    "pin_pad2.ron",
     "counter.ron",
     "mod_counter.ron",
     "dec_inc.ron",
