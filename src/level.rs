@@ -41,6 +41,8 @@ struct ButtonData {
 pub struct LevelData {
     prompt: Vec<BoxOut>,
     buttons: Vec<ButtonData>,
+    #[serde(skip)]
+    pub entities: Vec<Entity>,
 }
 
 impl TryFrom<&str> for LevelData {
@@ -58,7 +60,7 @@ impl LevelData {
         world: &mut World,
         box_: Entity,
         dimensions: &ScreenDimensions,
-    ) -> Entity {
+    ) -> (Entity, Vec<Entity>) {
         let pixel_x = dimensions.width() / CAM_RES_X;
         let pixel_y = dimensions.height() / CAM_RES_Y;
 
@@ -124,9 +126,9 @@ impl LevelData {
 
         let mut prog_storage = world.write_storage::<Progression>();
 
-        prog_storage.get_mut(progression).unwrap().prompt = pieces;
+        prog_storage.get_mut(progression).unwrap().prompt = pieces.clone();
 
-        progression
+        (progression, pieces)
     }
 
     fn init_box(
@@ -135,7 +137,7 @@ impl LevelData {
         box_sprite: SpriteRender,
         buttons: Vec<Entity>,
         dimensions: &ScreenDimensions,
-    ) -> Entity {
+    ) -> (Entity, Entity) {
         let pixel_x = dimensions.width() / CAM_RES_X;
         let pixel_y = dimensions.height() / CAM_RES_Y;
 
@@ -173,7 +175,7 @@ impl LevelData {
             .with(ui_transform)
             .build();
 
-        world
+        let display = world
             .create_entity()
             .with(UiTransform::new(
                 "display".to_string(),
@@ -203,7 +205,7 @@ impl LevelData {
             parent_storage.insert(button, Parent::new(box_)).unwrap();
         }
 
-        box_
+        (box_, display)
     }
 
     fn init_buttons(&self, world: &mut World, button_sprite: SpriteRender) -> Vec<Entity> {
@@ -223,15 +225,62 @@ impl LevelData {
         button_entities
     }
 
-    pub fn init(&self, world: &mut World) -> (Entity, Entity) {
+    fn init_level_counter(
+        &self,
+        world: &mut World,
+        dimensions: &ScreenDimensions,
+        level_num: usize,
+    ) -> Entity {
+        let pixel_x = dimensions.width() / CAM_RES_X;
+        let pixel_y = dimensions.height() / CAM_RES_Y;
+
+        let font: FontHandle = world.read_resource::<Loader>().load(
+            "fonts/rainyhearts.ttf",
+            TtfFormat,
+            (),
+            &world.read_resource(),
+        );
+
+        world
+            .create_entity()
+            .with(UiTransform::new(
+                "level_counter".to_string(),
+                Anchor::TopRight,
+                Anchor::TopRight,
+                pixel_x * -3.,
+                0.,
+                0.,
+                20. * pixel_x,
+                16. * pixel_y,
+            ))
+            .with(UiText::new(
+                font.clone(),
+                format!("{}/{}", level_num, LEVEL_ORDER.len()),
+                [0.1, 0.1, 0.1, 1.],
+                pixel_x * 10.,
+                LineMode::Single,
+                Anchor::MiddleRight,
+            ))
+            .build()
+    }
+
+    pub fn init(&mut self, world: &mut World, level_num: usize) -> (Entity, Entity) {
         let dimensions = (*world.read_resource::<ScreenDimensions>()).clone();
 
         let button_sprites = load_button_sprites(world);
         let box_sprite = load_box_sprite(world);
 
+        let level_counter = self.init_level_counter(world, &dimensions, level_num);
         let buttons = self.init_buttons(world, button_sprites);
-        let box_ = self.init_box(world, box_sprite, buttons, &dimensions);
-        let progress = self.init_progress(world, box_, &dimensions);
+        let (box_, display) = self.init_box(world, box_sprite, buttons.clone(), &dimensions);
+        let (progress, pieces) = self.init_progress(world, box_, &dimensions);
+
+        self.entities.push(level_counter);
+        self.entities.extend(buttons);
+        self.entities.push(box_);
+        self.entities.push(display);
+        self.entities.push(progress);
+        self.entities.extend(pieces);
         (box_, progress)
     }
 }

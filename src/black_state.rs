@@ -15,6 +15,7 @@ use std::convert::TryFrom;
 
 pub struct BlackState {
     level_num: usize,
+    level_data: Option<LevelData>,
     progression: Option<Entity>,
     box_: Option<Entity>,
 }
@@ -23,6 +24,7 @@ impl From<usize> for BlackState {
     fn from(level_num: usize) -> BlackState {
         BlackState {
             level_num,
+            level_data: None,
             progression: None,
             box_: None,
             // This sort of thing would probably be handled better by resources, but I'm planning
@@ -37,9 +39,11 @@ impl SimpleState for BlackState {
 
         init_camera(world);
 
-        let level =
+        let mut level_data =
             LevelData::try_from(LEVEL_ORDER[(self.level_num - 1) % LEVEL_ORDER.len()]).unwrap();
-        let (box_, progression) = level.init(world);
+        let (box_, progression) = level_data.init(world, self.level_num);
+
+        self.level_data = Some(level_data);
         self.box_ = Some(box_);
         self.progression = Some(progression);
     }
@@ -74,47 +78,13 @@ impl SimpleState for BlackState {
     }
 
     fn on_stop(&mut self, data: StateData<'_, GameData<'_, '_>>) {
-        if let Some(box_) = self.box_ {
-            if data.world.delete_entity(box_).is_ok() {
-                self.box_ = None
+        if let Some(level_data) = &self.level_data {
+            for entity in &level_data.entities {
+                data.world
+                    .delete_entity(*entity)
+                    .expect("Failed to delete entity");
             }
         }
-
-        if let Some(progression) = self.progression {
-            if data.world.delete_entity(progression).is_ok() {
-                self.progression = None
-            }
-        }
-
-        let buttons = (&data.world.entities(), &data.world.read_storage::<Button>())
-            .join()
-            .map(|(entity, _button)| entity)
-            .collect::<Vec<Entity>>();
-        data.world
-            .delete_entities(&buttons)
-            .expect("failed to delete all buttons");
-
-        let prog_pieces = (
-            &data.world.entities(),
-            &data.world.read_storage::<ProgressionPiece>(),
-        )
-            .join()
-            .map(|(entity, _prog_piece)| entity)
-            .collect::<Vec<Entity>>();
-        data.world
-            .delete_entities(&prog_pieces)
-            .expect("failed to delete all prog_pieces");
-
-        let box_readers = (
-            &data.world.entities(),
-            &data.world.read_storage::<BoxReader>(),
-        )
-            .join()
-            .map(|(entity, _box_reader)| entity)
-            .collect::<Vec<Entity>>();
-        data.world
-            .delete_entities(&box_readers)
-            .expect("failed to delete all box_readers");
     }
 }
 
