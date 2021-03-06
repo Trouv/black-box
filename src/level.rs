@@ -9,12 +9,12 @@ use amethyst::{
     prelude::Builder,
     renderer::{ImageFormat, SpriteRender, SpriteSheet, SpriteSheetFormat, Texture},
     ui::{Anchor, FontHandle, LineMode, TtfFormat, UiImage, UiText, UiTransform},
+    utils::application_root_dir,
     window::ScreenDimensions,
 };
 use ron::de::from_reader;
 use serde::{Deserialize, Serialize};
 use std::convert::TryFrom;
-use std::io;
 
 pub const LEVEL_ORDER: [&str; 11] = [
     "pin_pad.ron",
@@ -45,14 +45,11 @@ pub struct LevelData {
 }
 
 impl TryFrom<&str> for LevelData {
-    type Error = io::Error;
-    fn try_from(path: &str) -> io::Result<LevelData> {
-        let input_path = format!("{}/assets/levels/{}", env!("CARGO_MANIFEST_DIR"), path);
+    type Error = amethyst::Error;
+    fn try_from(path: &str) -> amethyst::Result<LevelData> {
+        let input_path = application_root_dir()?.join("assets/levels").join(path);
         let f = std::fs::File::open(&input_path)?;
-        match from_reader(f) {
-            Ok(l) => Ok(l),
-            Err(e) => Err(io::Error::new(io::ErrorKind::InvalidData, e)),
-        }
+        Ok(from_reader(f)?)
     }
 }
 
