@@ -111,7 +111,7 @@ impl LevelData {
                         font.clone(),
                         piece.to_string(),
                         [0.3, 0.3, 0.3, 1.],
-                        pixel_y * 14.,
+                        pixel_x * 10.,
                         LineMode::Single,
                         Anchor::Middle,
                     ))
