@@ -4,7 +4,6 @@ use amethyst::{
     input::{is_close_requested, is_key_down, VirtualKeyCode},
     prelude::*,
     renderer::Camera,
-    window::ScreenDimensions,
 };
 
 use crate::{
@@ -36,8 +35,7 @@ impl SimpleState for BlackState {
     fn on_start(&mut self, data: StateData<'_, GameData<'_, '_>>) {
         let world = data.world;
 
-        let dimensions = (*world.read_resource::<ScreenDimensions>()).clone();
-        init_camera(world, &dimensions);
+        init_camera(world);
 
         let level = LevelData::try_from(LEVEL_ORDER[self.level_num % LEVEL_ORDER.len()]).unwrap();
         let (box_, progression) = level.init(world);
@@ -119,13 +117,16 @@ impl SimpleState for BlackState {
     }
 }
 
-fn init_camera(world: &mut World, dimensions: &ScreenDimensions) {
+pub const CAM_RES_X: f32 = 426.;
+pub const CAM_RES_Y: f32 = 240.;
+
+fn init_camera(world: &mut World) {
     let mut transform = Transform::default();
-    transform.set_translation_xyz(213., 120., 1.);
+    transform.set_translation_xyz(CAM_RES_X / 2., CAM_RES_Y / 2., 1.);
 
     world
         .create_entity()
-        .with(Camera::standard_2d(426., 240.))
+        .with(Camera::standard_2d(CAM_RES_X, CAM_RES_Y))
         .with(transform)
         .build();
 }

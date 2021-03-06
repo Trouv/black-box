@@ -1,10 +1,10 @@
-use crate::components::{BlackBox, BoxOut, BoxReader, Button, Progression, ProgressionPiece};
+use crate::{
+    black_state::{CAM_RES_X, CAM_RES_Y},
+    components::{BlackBox, BoxOut, BoxReader, Button, Progression, ProgressionPiece},
+};
 use amethyst::{
     assets::{AssetStorage, Loader},
-    core::{
-        math::base::Vector3,
-        transform::{Parent, Transform},
-    },
+    core::transform::{Parent, Transform},
     ecs::{Entity, World, WorldExt},
     prelude::Builder,
     renderer::{ImageFormat, SpriteRender, SpriteSheet, SpriteSheetFormat, Texture},
@@ -63,8 +63,8 @@ impl LevelData {
         box_: Entity,
         dimensions: &ScreenDimensions,
     ) -> Entity {
-        let pixel_x = dimensions.width() / 426.;
-        let pixel_y = dimensions.height() / 240.;
+        let pixel_x = dimensions.width() / CAM_RES_X;
+        let pixel_y = dimensions.height() / CAM_RES_Y;
 
         let font: FontHandle = world.read_resource::<Loader>().load(
             "fonts/rainyhearts.ttf",
@@ -140,8 +140,8 @@ impl LevelData {
         buttons: Vec<Entity>,
         dimensions: &ScreenDimensions,
     ) -> Entity {
-        let pixel_x = dimensions.width() / 426.;
-        let pixel_y = dimensions.height() / 240.;
+        let pixel_x = dimensions.width() / CAM_RES_X;
+        let pixel_y = dimensions.height() / CAM_RES_Y;
 
         let mut transform = Transform::default();
         transform.set_translation_xyz(213., 50., -1.);
