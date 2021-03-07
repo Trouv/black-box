@@ -22,3 +22,15 @@ I will say that I hope to...
 
 And, if legion ever gets merged to amethyst...
 - port it to legion
+
+### How to play
+To play the most recent early release of black-box, download the most recent
+release for your OS (here)[https://github.com/Trouv/black-box/releases], and
+run the binary/executable inside.
+Or, if you want to run an even more bleeding-edge version, install rust, clone
+this repository, `cd` into the directory, and run `cargo run --release`.
+
+To play, use the number-keys to press buttons and... that's it!
+If you want to select a specific level, run the application from the console
+and provide a level number, so to play level 7: 
+```black-box.exe 7```
