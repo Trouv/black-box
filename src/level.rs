@@ -254,8 +254,8 @@ impl LevelData {
                 16. * pixel_y,
             ))
             .with(UiText::new(
-                font.clone(),
-                format!("{}/{}", level_num, LEVEL_ORDER.len()),
+                font,
+                format!("{}/{}", ((level_num - 1) % 10) + 1, LEVEL_ORDER.len()),
                 [0.1, 0.1, 0.1, 1.],
                 pixel_x * 10.,
                 LineMode::Single,
