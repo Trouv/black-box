@@ -7,7 +7,7 @@ use amethyst::{
 };
 
 use crate::{
-    components::{BoxReader, Button, Progression, ProgressionPiece},
+    components::Progression,
     level::{LevelData, LEVEL_ORDER},
 };
 
@@ -16,8 +16,7 @@ use std::convert::TryFrom;
 pub struct BlackState {
     level_num: usize,
     level_data: Option<LevelData>,
-    progression: Option<Entity>,
-    box_: Option<Entity>,
+    progress: Option<Entity>,
 }
 
 impl From<usize> for BlackState {
@@ -25,8 +24,7 @@ impl From<usize> for BlackState {
         BlackState {
             level_num,
             level_data: None,
-            progression: None,
-            box_: None,
+            progress: None,
             // This sort of thing would probably be handled better by resources, but I'm planning
             // on having many boxes in one scene so this is a temporary solution
         }
@@ -37,15 +35,15 @@ impl SimpleState for BlackState {
     fn on_start(&mut self, data: StateData<'_, GameData<'_, '_>>) {
         let world = data.world;
 
-        init_camera(world);
+        if (&world.read_storage::<Camera>(),).join().count() == 0 {
+            init_camera(world);
+        }
 
         let mut level_data =
             LevelData::try_from(LEVEL_ORDER[(self.level_num - 1) % LEVEL_ORDER.len()]).unwrap();
-        let (box_, progression) = level_data.init(world, self.level_num);
 
+        self.progress = Some(level_data.init(world, self.level_num));
         self.level_data = Some(level_data);
-        self.box_ = Some(box_);
-        self.progression = Some(progression);
     }
 
     fn handle_event(
@@ -66,7 +64,7 @@ impl SimpleState for BlackState {
         let world = _data.world;
 
         let prog_storage = world.read_storage::<Progression>();
-        if let Some(prog_entity) = self.progression {
+        if let Some(prog_entity) = self.progress {
             if let Some(progression) = prog_storage.get(prog_entity) {
                 if progression.answer.len() >= progression.prompt.len() {
                     return Trans::Switch(Box::new(BlackState::from(self.level_num + 1)));

@@ -264,7 +264,7 @@ impl LevelData {
             .build()
     }
 
-    pub fn init(&mut self, world: &mut World, level_num: usize) -> (Entity, Entity) {
+    pub fn init(&mut self, world: &mut World, level_num: usize) -> Entity {
         let dimensions = (*world.read_resource::<ScreenDimensions>()).clone();
 
         let button_sprites = load_button_sprites(world);
@@ -281,7 +281,7 @@ impl LevelData {
         self.entities.push(display);
         self.entities.push(progress);
         self.entities.extend(pieces);
-        (box_, progress)
+        progress
     }
 }
 
