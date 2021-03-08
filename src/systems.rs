@@ -1,4 +1,5 @@
 use amethyst::{
+    core::timing::Time,
     ecs::{Join, Read, ReadStorage, System, SystemData, WriteStorage},
     input::{InputHandler, StringBindings},
     renderer::SpriteRender,
@@ -81,9 +82,10 @@ impl<'a> System<'a> for DisplayRenderSystem {
         WriteStorage<'a, UiText>,
         WriteStorage<'a, BoxReader>,
         ReadStorage<'a, BlackBox>,
+        Read<'a, Time>,
     );
 
-    fn run(&mut self, (mut texts, mut readers, boxes): Self::SystemData) {
+    fn run(&mut self, (mut texts, mut readers, boxes, time): Self::SystemData) {
         for (reader, mut text) in (&mut readers, &mut texts).join() {
             if let Some(out) = boxes
                 .get(reader.box_.unwrap())
@@ -95,7 +97,7 @@ impl<'a> System<'a> for DisplayRenderSystem {
                 text.text = out.to_string();
                 text.color[3] = 1.;
             } else {
-                text.color[3] = (text.color[3] - 0.04).max(0.4);
+                text.color[3] = (text.color[3] - (2. * time.delta_seconds())).max(0.4);
             }
         }
     }
