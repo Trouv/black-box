@@ -1,7 +1,7 @@
 #!/bin/bash
 NAME=$(grep ^name Cargo.toml | sed -r s/^[^\"]*\"\([^\"]*\)\"/\\1/)
 VERSION=$(grep ^version Cargo.toml | sed -r s/^[^\"]*\"\([^\"]*\)\"/\\1/)
-DIR="target/full-release/$VERSION/$NAME-$VERSION-$1"
+DIR="target/full-release/$VERSION/$1"
 mkdir -p $DIR
 
 cargo build --release --target "$@"
