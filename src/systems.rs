@@ -93,6 +93,9 @@ impl<'a> System<'a> for DisplayRenderSystem {
                 .last()
             {
                 text.text = out.to_string();
+                text.color[3] = 1.;
+            } else {
+                text.color[3] = (text.color[3] - 0.04).max(0.4);
             }
         }
     }
