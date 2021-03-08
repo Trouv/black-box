@@ -16,7 +16,3 @@ default = ["vulkan"]
 empty = ["amethyst/empty"]
 metal = ["amethyst/metal"]
 vulkan = ["amethyst/vulkan"]
-
-[[bin]]
-name = "black-box"
-path = "src/main.rs"
