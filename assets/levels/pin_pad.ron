@@ -49,7 +49,7 @@ LevelData(
         (
             button: (
                 action: [
-                    PrintInt(C(5)),
+                    PrintInt(C(4)),
                 ],
             ),
             transform: (
@@ -59,7 +59,7 @@ LevelData(
         (
             button: (
                 action: [
-                    PrintInt(C(4)),
+                    PrintInt(C(5)),
                 ],
             ),
             transform: (
