@@ -95,7 +95,7 @@ fn init_camera(world: &mut World) {
 
     world
         .create_entity()
-        .with(Camera::standard_2d(CAM_RES_X, CAM_RES_Y))
+        .with(Camera::standard_3d(CAM_RES_X, CAM_RES_Y))
         .with(transform)
         .build();
 }
