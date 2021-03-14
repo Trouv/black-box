@@ -1,9 +1,13 @@
 use amethyst::{
-    core::transform::Transform,
+    core::{math::Vector3, transform::Transform},
     ecs::{Entity, Join, World, WorldExt},
     input::{is_close_requested, is_key_down, VirtualKeyCode},
     prelude::*,
-    renderer::Camera,
+    renderer::{
+        light::{Light, PointLight},
+        palette::rgb::Rgb,
+        Camera,
+    },
 };
 
 use crate::{
@@ -86,16 +90,28 @@ impl SimpleState for BlackState {
     }
 }
 
-pub const CAM_RES_X: f32 = 426.;
-pub const CAM_RES_Y: f32 = 240.;
+pub const CAM_RES_X: f32 = 1920.;
+pub const CAM_RES_Y: f32 = 1080.;
 
 fn init_camera(world: &mut World) {
     let mut transform = Transform::default();
-    transform.set_translation_xyz(CAM_RES_X / 2., CAM_RES_Y / 2., 1.);
+    transform.set_translation_xyz(0., -1., 1.);
+    transform.face_towards(Vector3::new(0.0, 0.0, 0.0), Vector3::new(0.0, 0.0, 1.0));
 
     world
         .create_entity()
         .with(Camera::standard_3d(CAM_RES_X, CAM_RES_Y))
         .with(transform)
         .build();
+
+    let light: Light = PointLight {
+        intensity: 10.0,
+        color: Rgb::new(1.0, 0.9, 0.9),
+        ..PointLight::default()
+    }
+    .into();
+    let mut transform = Transform::default();
+    transform.set_translation_xyz(5., 5., 5.);
+
+    world.create_entity().with(light).with(transform).build();
 }

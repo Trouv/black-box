@@ -143,10 +143,9 @@ impl LevelData {
         let pixel_y = dimensions.height() / CAM_RES_Y;
 
         let mut transform = Transform::default();
-        transform.set_translation_xyz(213., 50., -1.);
-        let loader = world.read_resource::<Loader>();
+        transform.set_translation_xyz(0., 0., 0.);
 
-        let font: FontHandle = loader.load(
+        let font: FontHandle = world.read_resource::<Loader>().load(
             "fonts/rainyhearts.ttf",
             TtfFormat,
             (),
@@ -168,9 +167,16 @@ impl LevelData {
 
         let mut box_ = BlackBox::new(buttons);
         let reader_id = box_.output_channel.register_reader();
-        let gltf_storage = world.read_resource::<AssetStorage<GltfSceneAsset>>();
+        let gltf_handle = {
+            let gltf_storage = &world.read_resource::<AssetStorage<GltfSceneAsset>>();
 
-        let gltf_handle = loader.load("models/box.glb", GltfSceneFormat, (), &gltf_storage);
+            world.read_resource::<Loader>().load(
+                "models/box.glb",
+                GltfSceneFormat::default(),
+                (),
+                gltf_storage,
+            )
+        };
         //let gltf_handle = world
         //.read_resource::<DefaultLoader>()
         //.unwrap()

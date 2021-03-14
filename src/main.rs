@@ -33,7 +33,7 @@ fn main() -> amethyst::Result<()> {
         .with_system_desc(
             GltfSceneLoaderSystemDesc::default(),
             "gltf_loader",
-            &["scene_loader"], // This is important so that entity instantiation is performed in a single frame.
+            &[], // This is important so that entity instantiation is performed in a single frame.
         )
         .with_bundle(TransformBundle::new())?
         .with_bundle(
