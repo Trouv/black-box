@@ -4,7 +4,7 @@ use amethyst::{
     input::{InputBundle, StringBindings},
     prelude::*,
     renderer::{
-        plugins::{RenderFlat3D, RenderToWindow},
+        plugins::{RenderShaded3D, RenderToWindow},
         types::DefaultBackend,
         RenderingBundle,
     },
@@ -47,7 +47,7 @@ fn main() -> amethyst::Result<()> {
                         .with_clear([0.34, 0.36, 0.52, 1.0]),
                 )
                 .with_plugin(RenderUi::default())
-                .with_plugin(RenderFlat3D::default()),
+                .with_plugin(RenderShaded3D::default()),
         )?
         .with(systems::ButtonPush, "button_push", &["input_system"])
         .with(systems::ButtonRender, "button_render", &[])
