@@ -177,10 +177,6 @@ impl LevelData {
                 gltf_storage,
             )
         };
-        //let gltf_handle = world
-        //.read_resource::<DefaultLoader>()
-        //.unwrap()
-        //.load("models/box.glb");
 
         let box_ = world
             .create_entity()
@@ -226,11 +222,22 @@ impl LevelData {
     fn init_buttons(&self, world: &mut World, button_sprite: SpriteRender) -> Vec<Entity> {
         let mut button_entities = Vec::new();
 
+        let gltf_handle = {
+            let gltf_storage = &world.read_resource::<AssetStorage<GltfSceneAsset>>();
+
+            world.read_resource::<Loader>().load(
+                "models/button.glb",
+                GltfSceneFormat::default(),
+                (),
+                gltf_storage,
+            )
+        };
+
         for button in &self.buttons {
             button_entities.push(
                 world
                     .create_entity()
-                    .with(button_sprite.clone())
+                    .with(gltf_handle.clone())
                     .with(button.transform.clone())
                     .with(button.button.clone())
                     .build(),

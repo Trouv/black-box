@@ -6,7 +6,7 @@ edition = "2018"
 description = "Puzzle game about expirementation."
 
 [dependencies]
-amethyst = {version = "0.15.3", features = ["no-slow-safety-checks", "gltf"]}
+amethyst = {version = "0.15.3", features = ["no-slow-safety-checks", "gltf", "animation"]}
 log = { version = "0.4.8", features = ["serde"] }
 serde = { version = "1.0", features = ["derive"] }
 ron = "0.6.4"

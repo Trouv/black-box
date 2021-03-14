@@ -43,7 +43,7 @@ LevelData(
                 ],
             ),
             transform: (
-                translation: (0., 5., 1.),
+                translation: (0., 0.125, 0.),
             ),
         ),
         (
