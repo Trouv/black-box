@@ -1,5 +1,6 @@
 use amethyst::{
     core::transform::TransformBundle,
+    gltf::GltfSceneLoaderSystemDesc,
     input::{InputBundle, StringBindings},
     prelude::*,
     renderer::{
@@ -29,6 +30,11 @@ fn main() -> amethyst::Result<()> {
     let key_bindings_path = app_root.join("config/input.ron");
 
     let game_data = GameDataBuilder::default()
+        .with_system_desc(
+            GltfSceneLoaderSystemDesc::default(),
+            "gltf_loader",
+            &["scene_loader"], // This is important so that entity instantiation is performed in a single frame.
+        )
         .with_bundle(TransformBundle::new())?
         .with_bundle(
             InputBundle::<StringBindings>::new().with_bindings_from_file(&key_bindings_path)?,

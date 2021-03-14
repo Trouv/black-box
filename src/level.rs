@@ -3,9 +3,10 @@ use crate::{
     components::{BlackBox, BoxOut, BoxReader, Button, Progression, ProgressionPiece},
 };
 use amethyst::{
-    assets::{AssetStorage, Loader},
+    assets::{AssetStorage, Format, Loader, Prefab},
     core::transform::{Parent, Transform},
     ecs::{Entity, World, WorldExt},
+    gltf::{GltfSceneAsset, GltfSceneFormat},
     prelude::Builder,
     renderer::{ImageFormat, SpriteRender, SpriteSheet, SpriteSheetFormat, Texture},
     ui::{Anchor, FontHandle, LineMode, TtfFormat, UiImage, UiText, UiTransform},
@@ -143,8 +144,9 @@ impl LevelData {
 
         let mut transform = Transform::default();
         transform.set_translation_xyz(213., 50., -1.);
+        let loader = world.read_resource::<Loader>();
 
-        let font: FontHandle = world.read_resource::<Loader>().load(
+        let font: FontHandle = loader.load(
             "fonts/rainyhearts.ttf",
             TtfFormat,
             (),
@@ -166,10 +168,17 @@ impl LevelData {
 
         let mut box_ = BlackBox::new(buttons);
         let reader_id = box_.output_channel.register_reader();
+        let gltf_storage = world.read_resource::<AssetStorage<GltfSceneAsset>>();
+
+        let gltf_handle = loader.load("models/box.glb", GltfSceneFormat, (), &gltf_storage);
+        //let gltf_handle = world
+        //.read_resource::<DefaultLoader>()
+        //.unwrap()
+        //.load("models/box.glb");
 
         let box_ = world
             .create_entity()
-            .with(box_sprite)
+            .with(gltf_handle)
             .with(transform)
             .with(box_)
             .with(ui_transform)

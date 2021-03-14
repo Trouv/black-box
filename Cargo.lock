@@ -78,6 +78,7 @@ dependencies = [
  "amethyst_core",
  "amethyst_derive",
  "amethyst_error",
+ "amethyst_gltf",
  "amethyst_input",
  "amethyst_locale",
  "amethyst_network",
@@ -235,6 +236,30 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "5bc703640201c6e9f36938a380801d6904af92f2ab472bde4fd920ec8b6faeb8"
 dependencies = [
  "backtrace",
+]
+
+[[package]]
+name = "amethyst_gltf"
+version = "0.15.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "13dc40721941cbe39fc82170a7708569bbdc8a92f81a9b08f03918970b532c3a"
+dependencies = [
+ "amethyst_animation",
+ "amethyst_assets",
+ "amethyst_core",
+ "amethyst_error",
+ "amethyst_rendy",
+ "base64 0.11.0",
+ "derivative 2.1.1",
+ "err-derive",
+ "fnv",
+ "gltf",
+ "hibitset",
+ "image 0.22.5",
+ "itertools",
+ "log",
+ "mikktspace",
+ "serde",
 ]
 
 [[package]]
@@ -1929,6 +1954,15 @@ dependencies = [
  "foreign-types",
  "log",
  "objc",
+]
+
+[[package]]
+name = "mikktspace"
+version = "0.2.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "e7525a5f1b5c369e17a4b17853a57ca05726575eee26529876d0fd8963a6e1d6"
+dependencies = [
+ "nalgebra",
 ]
 
 [[package]]
