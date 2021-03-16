@@ -21,7 +21,7 @@
                 ],
             ),
             transform: (
-                translation: (-30., 15., 1.),
+                translation: (-0.15, 0.0, -0.10),
             ),
         ),
         (
@@ -32,7 +32,7 @@
                 ],
             ),
             transform: (
-                translation: (-10., 15., 1.),
+                translation: (-0.05, 0.0, -0.10),
             ),
         ),
         (
@@ -43,7 +43,7 @@
                 ],
             ),
             transform: (
-                translation: (10., 15., 1.),
+                translation: (0.05, 0.0, -0.10),
             ),
         ),
         (
@@ -54,7 +54,7 @@
                 ],
             ),
             transform: (
-                translation: (30., 15., 1.),
+                translation: (0.15, 0.0, -0.10),
             ),
         ),
         (
@@ -72,7 +72,7 @@
                 ],
             ),
             transform: (
-                translation: (30., -5., 1.),
+                translation: (0.15, 0.0, 0.10),
             ),
         ),
     ],

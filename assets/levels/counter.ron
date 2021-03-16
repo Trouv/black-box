@@ -15,7 +15,7 @@ LevelData(
                 ],
             ),
             transform: (
-                translation: (-15., 0., 1.),
+                translation: (-0.07, 0.0, 0.05),
             ),
         ),
         (
@@ -26,7 +26,7 @@ LevelData(
                 ],
             ),
             transform: (
-                translation: (15., 0., 1.),
+                translation: (0.07, 0.0, 0.05),
             ),
         ),
     ],

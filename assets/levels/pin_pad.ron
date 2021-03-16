@@ -23,7 +23,7 @@ LevelData(
                 ],
             ),
             transform: (
-                translation: (-0.2, 0., -0.2),
+                translation: (-0.2, 0., 0.2),
             ),
         ),
         (
@@ -33,7 +33,7 @@ LevelData(
                 ],
             ),
             transform: (
-                translation: (-0.1, 0., -0.1),
+                translation: (-0.1, 0., 0.1),
             ),
         ),
         (
@@ -53,7 +53,7 @@ LevelData(
                 ],
             ),
             transform: (
-                translation: (0.1, 0., 0.1),
+                translation: (0.1, 0., -0.1),
             ),
         ),
         (
@@ -63,7 +63,7 @@ LevelData(
                 ],
             ),
             transform: (
-                translation: (0.2, 0., 0.2),
+                translation: (0.2, 0., -0.2),
             ),
         ),
     ],

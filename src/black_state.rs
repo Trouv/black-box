@@ -95,7 +95,7 @@ pub const CAM_RES_Y: f32 = 1080.;
 
 fn init_camera(world: &mut World) {
     let mut transform = Transform::default();
-    transform.set_translation_xyz(-1., 1., 0.);
+    transform.set_translation_xyz(0., 1., 1.);
     transform.face_towards(Vector3::new(0.0, 0.0, 0.0), Vector3::new(0.0, 1.0, 0.));
 
     world
