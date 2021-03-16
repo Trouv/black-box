@@ -17,7 +17,7 @@
                 ],
             ),
             transform: (
-                translation: (-0.12, 0.0, -0.00),
+                translation: (-0.10, 0.0, -0.00),
             ),
         ),
         (
@@ -38,7 +38,7 @@
                 ],
             ),
             transform: (
-                translation: (0.12, 0.0, -0.10),
+                translation: (0.10, 0.0, -0.10),
             ),
         ),
     ],

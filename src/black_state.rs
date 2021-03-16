@@ -90,8 +90,8 @@ impl SimpleState for BlackState {
     }
 }
 
-pub const CAM_RES_X: f32 = 1920.;
-pub const CAM_RES_Y: f32 = 1080.;
+pub const CAM_RES_X: f32 = 426.;
+pub const CAM_RES_Y: f32 = 240.;
 
 fn init_camera(world: &mut World) {
     let mut transform = Transform::default();
