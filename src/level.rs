@@ -3,6 +3,7 @@ use crate::{
     components::{BlackBox, BoxOut, BoxReader, Button, Progression, ProgressionPiece},
 };
 use amethyst::{
+    animation::AnimationControlSet,
     assets::{AssetStorage, Format, Loader, Prefab},
     core::transform::{Parent, Transform},
     ecs::{Entity, World, WorldExt},

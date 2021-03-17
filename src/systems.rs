@@ -1,6 +1,9 @@
 use amethyst::{
-    core::timing::Time,
-    ecs::{Join, Read, ReadStorage, System, SystemData, WriteStorage},
+    animation::{
+        get_animation_set, AnimationCommand, AnimationControlSet, AnimationSet, EndControl,
+    },
+    core::{timing::Time, transform::Transform},
+    ecs::{Entities, Join, Read, ReadStorage, System, SystemData, WriteStorage},
     input::{InputHandler, StringBindings},
     renderer::SpriteRender,
     ui::{UiImage, UiText},
@@ -15,16 +18,43 @@ use crate::components::{
 pub struct ButtonRender;
 
 impl<'a> System<'a> for ButtonRender {
-    type SystemData = (WriteStorage<'a, SpriteRender>, ReadStorage<'a, Button>);
+    type SystemData = (
+        Entities<'a>,
+        ReadStorage<'a, Button>,
+        ReadStorage<'a, AnimationSet<usize, Transform>>,
+        WriteStorage<'a, AnimationControlSet<usize, Transform>>,
+    );
 
-    fn run(&mut self, (mut sprites, buttons): Self::SystemData) {
-        for (sprite, button) in (&mut sprites, &buttons).join() {
-            if button.just_pressed {
-                sprite.sprite_number = 1;
-            } else if button.just_unpressed {
-                sprite.sprite_number = 0;
+    fn run(&mut self, (entities, buttons, sets, mut controls): Self::SystemData) {
+        for (entity, set, button) in (&entities, &sets, &buttons).join() {
+            if let Some(control_set) = get_animation_set(&mut controls, entity) {
+                if button.just_pressed {
+                    control_set.add_animation(
+                        0,
+                        set.get(&0).unwrap(),
+                        EndControl::Stay,
+                        4.0,
+                        AnimationCommand::Start,
+                    );
+                } else if button.just_unpressed {
+                    control_set.add_animation(
+                        1,
+                        set.get(&1).unwrap(),
+                        EndControl::Stay,
+                        4.0,
+                        AnimationCommand::Start,
+                    );
+                }
             }
         }
+
+        //for (sprite, button) in (&mut sprites, &buttons).join() {
+        //if button.just_pressed {
+        //sprite.sprite_number = 1;
+        //} else if button.just_unpressed {
+        //sprite.sprite_number = 0;
+        //}
+        //}
     }
 }
 
