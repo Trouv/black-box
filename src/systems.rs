@@ -5,7 +5,6 @@ use amethyst::{
     core::{timing::Time, transform::Transform},
     ecs::{Entities, Join, Read, ReadStorage, System, SystemData, WriteStorage},
     input::{InputHandler, StringBindings},
-    renderer::SpriteRender,
     ui::{UiImage, UiText},
     SystemDesc,
 };
@@ -47,14 +46,6 @@ impl<'a> System<'a> for ButtonRender {
                 }
             }
         }
-
-        //for (sprite, button) in (&mut sprites, &buttons).join() {
-        //if button.just_pressed {
-        //sprite.sprite_number = 1;
-        //} else if button.just_unpressed {
-        //sprite.sprite_number = 0;
-        //}
-        //}
     }
 }
 
