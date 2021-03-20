@@ -8,8 +8,7 @@ use amethyst::{
     ecs::{Entity, World, WorldExt},
     gltf::{GltfSceneAsset, GltfSceneFormat},
     prelude::Builder,
-    renderer::{ImageFormat, SpriteRender, SpriteSheet, SpriteSheetFormat, Texture},
-    ui::{Anchor, FontHandle, LineMode, ScaleMode, TtfFormat, UiImage, UiText, UiTransform},
+    ui::{Anchor, FontHandle, LineMode, TtfFormat, UiImage, UiText, UiTransform},
     utils::application_root_dir,
     window::ScreenDimensions,
 };
@@ -137,7 +136,6 @@ impl LevelData {
     fn init_box(
         &self,
         world: &mut World,
-        box_sprite: SpriteRender,
         buttons: Vec<Entity>,
         dimensions: &ScreenDimensions,
     ) -> (Entity, Entity) {
@@ -211,7 +209,7 @@ impl LevelData {
         (box_, display)
     }
 
-    fn init_buttons(&self, world: &mut World, button_sprite: SpriteRender) -> Vec<Entity> {
+    fn init_buttons(&self, world: &mut World) -> Vec<Entity> {
         let mut button_entities = Vec::new();
 
         let gltf_handle = {
@@ -281,12 +279,9 @@ impl LevelData {
     pub fn init(&mut self, world: &mut World, level_num: usize) -> Entity {
         let dimensions = (*world.read_resource::<ScreenDimensions>()).clone();
 
-        let button_sprites = load_button_sprites(world);
-        let box_sprite = load_box_sprite(world);
-
         let level_counter = self.init_level_counter(world, &dimensions, level_num);
-        let buttons = self.init_buttons(world, button_sprites);
-        let (box_, display) = self.init_box(world, box_sprite, buttons.clone(), &dimensions);
+        let buttons = self.init_buttons(world);
+        let (box_, display) = self.init_box(world, buttons.clone(), &dimensions);
         let (progress, pieces) = self.init_progress(world, box_, &dimensions);
 
         self.entities.push(level_counter);
@@ -296,62 +291,5 @@ impl LevelData {
         self.entities.push(progress);
         self.entities.extend(pieces);
         progress
-    }
-}
-
-fn load_button_sprites(world: &mut World) -> SpriteRender {
-    let texture_handle = {
-        let loader = world.read_resource::<Loader>();
-        let texture_storage = world.read_resource::<AssetStorage<Texture>>();
-        loader.load(
-            "sprites/button.png",
-            ImageFormat::default(),
-            (),
-            &texture_storage,
-        )
-    };
-
-    let sheet_handle = {
-        let loader = world.read_resource::<Loader>();
-        let sheet_storage = world.read_resource::<AssetStorage<SpriteSheet>>();
-        loader.load(
-            "sprites/button.ron",
-            SpriteSheetFormat(texture_handle),
-            (),
-            &sheet_storage,
-        )
-    };
-
-    SpriteRender {
-        sprite_sheet: sheet_handle,
-        sprite_number: 0,
-    }
-}
-
-fn load_box_sprite(world: &mut World) -> SpriteRender {
-    let texture_handle = {
-        let loader = world.read_resource::<Loader>();
-        let texture_storage = world.read_resource::<AssetStorage<Texture>>();
-        loader.load(
-            "sprites/box.png",
-            ImageFormat::default(),
-            (),
-            &texture_storage,
-        )
-    };
-    let sheet_handle = {
-        let loader = world.read_resource::<Loader>();
-        let sheet_storage = world.read_resource::<AssetStorage<SpriteSheet>>();
-        loader.load(
-            "sprites/box.ron",
-            SpriteSheetFormat(texture_handle),
-            (),
-            &sheet_storage,
-        )
-    };
-
-    SpriteRender {
-        sprite_sheet: sheet_handle,
-        sprite_number: 0,
     }
 }
