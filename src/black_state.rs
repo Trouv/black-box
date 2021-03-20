@@ -40,7 +40,7 @@ impl SimpleState for BlackState {
         let world = data.world;
 
         if (&world.read_storage::<Camera>(),).join().count() == 0 {
-            init_camera(world);
+            init_camera_and_light(world);
         }
 
         let mut level_data =
@@ -93,7 +93,7 @@ impl SimpleState for BlackState {
 pub const CAM_RES_X: f32 = 426.;
 pub const CAM_RES_Y: f32 = 240.;
 
-fn init_camera(world: &mut World) {
+fn init_camera_and_light(world: &mut World) {
     let mut transform = Transform::default();
     transform.set_translation_xyz(0., 1., 0.7);
     transform.face_towards(Vector3::new(0.0, 0.0, -0.5), Vector3::new(0.0, 1.0, 0.));
