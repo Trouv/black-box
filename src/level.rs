@@ -9,7 +9,7 @@ use amethyst::{
     gltf::{GltfSceneAsset, GltfSceneFormat},
     prelude::Builder,
     renderer::{ImageFormat, SpriteRender, SpriteSheet, SpriteSheetFormat, Texture},
-    ui::{Anchor, FontHandle, LineMode, TtfFormat, UiImage, UiText, UiTransform},
+    ui::{Anchor, FontHandle, LineMode, ScaleMode, TtfFormat, UiImage, UiText, UiTransform},
     utils::application_root_dir,
     window::ScreenDimensions,
 };
@@ -54,6 +54,8 @@ impl TryFrom<&str> for LevelData {
         Ok(from_reader(f)?)
     }
 }
+
+pub const GREEN: [f32; 4] = [0.43, 0.57, 0.43, 1.0];
 
 impl LevelData {
     fn init_progress(
@@ -113,7 +115,7 @@ impl LevelData {
                     .with(UiText::new(
                         font.clone(),
                         piece.to_string(),
-                        [0.3, 0.3, 0.3, 1.],
+                        [0.1, 0.1, 0.1, 1.0],
                         pixel_x * 10.,
                         LineMode::Single,
                         Anchor::Middle,
@@ -154,17 +156,6 @@ impl LevelData {
 
         let buttons_clone = buttons.clone();
 
-        let ui_transform = UiTransform::new(
-            "box".to_string(),
-            Anchor::BottomMiddle,
-            Anchor::BottomMiddle,
-            0.,
-            0.,
-            0.,
-            pixel_x * 100.,
-            pixel_y * 100.,
-        );
-
         let mut box_ = BlackBox::new(buttons);
         let reader_id = box_.output_channel.register_reader();
         let gltf_handle = {
@@ -183,31 +174,32 @@ impl LevelData {
             .with(gltf_handle)
             .with(transform)
             .with(box_)
-            .with(ui_transform)
             .build();
 
         let display = world
             .create_entity()
-            .with(UiTransform::new(
-                "display".to_string(),
-                Anchor::Middle,
-                Anchor::Middle,
-                0.,
-                pixel_y * 36.,
-                0.,
-                pixel_x * 30.,
-                pixel_y * 10.,
-            ))
+            .with(
+                UiTransform::new(
+                    "display".to_string(),
+                    Anchor::Middle,
+                    Anchor::Middle,
+                    0.,
+                    0.15,
+                    0.,
+                    100.,
+                    100.,
+                )
+                .into_percent(),
+            )
             .with(UiText::new(
                 font,
                 "".to_string(),
-                [0.5, 1.0, 0.5, 1.0],
-                pixel_y * 13.,
+                GREEN,
+                pixel_y * 60.,
                 LineMode::Single,
                 Anchor::Middle,
             ))
             .with(BoxReader::new(box_, reader_id))
-            .with(Parent::new(box_))
             .build();
 
         let mut parent_storage = world.write_storage::<Parent>();

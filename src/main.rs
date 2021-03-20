@@ -5,7 +5,7 @@ use amethyst::{
     input::{InputBundle, StringBindings},
     prelude::*,
     renderer::{
-        plugins::{RenderShaded3D, RenderToWindow},
+        plugins::{RenderPbr3D, RenderToWindow},
         types::DefaultBackend,
         RenderingBundle,
     },
@@ -51,10 +51,10 @@ fn main() -> amethyst::Result<()> {
             RenderingBundle::<DefaultBackend>::new()
                 .with_plugin(
                     RenderToWindow::from_config_path(display_config)?
-                        .with_clear([0.34, 0.36, 0.52, 1.0]),
+                        .with_clear([0.2, 0.2, 0.25, 1.0]),
                 )
                 .with_plugin(RenderUi::default())
-                .with_plugin(RenderShaded3D::default()),
+                .with_plugin(RenderPbr3D::default()),
         )?
         .with(systems::ButtonPush, "button_push", &["input_system"])
         .with(systems::ButtonRender, "button_render", &[])

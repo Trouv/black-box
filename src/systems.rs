@@ -9,8 +9,9 @@ use amethyst::{
     SystemDesc,
 };
 
-use crate::components::{
-    BlackBox, BoxOut, BoxReader, Button, Progression, ProgressionPiece, BUTTON_NUMS,
+use crate::{
+    components::{BlackBox, BoxOut, BoxReader, Button, Progression, ProgressionPiece, BUTTON_NUMS},
+    level::GREEN,
 };
 
 #[derive(SystemDesc)]
@@ -165,7 +166,7 @@ impl<'a> System<'a> for RenderProgressionSystem {
         for (progress,) in (&progresses,).join() {
             for (i, piece) in progress.prompt.iter().enumerate() {
                 let color = if i < progress.answer.len() {
-                    [0.5, 1.0, 0.5, 1.0]
+                    GREEN
                 } else {
                     [0.9, 0.9, 0.9, 1.0]
                 };
