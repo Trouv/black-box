@@ -14,7 +14,6 @@ As typical for me, this project is fairly ambitious, but I've learned from past
 mistakes and tried to limit the scope somewhat.
 I also don't want to give too many plans away here to avoid spoilers.
 I will say that I hope to...
-- make it 3d
 - make it polished
 - make it accessible
 - make it weird and artsy

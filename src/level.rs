@@ -139,7 +139,6 @@ impl LevelData {
         buttons: Vec<Entity>,
         dimensions: &ScreenDimensions,
     ) -> (Entity, Entity) {
-        let pixel_x = dimensions.width() / CAM_RES_X;
         let pixel_y = dimensions.height() / CAM_RES_Y;
 
         let mut transform = Transform::default();
