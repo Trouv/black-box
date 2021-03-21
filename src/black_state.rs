@@ -37,6 +37,7 @@ impl From<usize> for BlackState {
 
 impl SimpleState for BlackState {
     fn on_start(&mut self, data: StateData<'_, GameData<'_, '_>>) {
+        log::debug!("Starting level...");
         let world = data.world;
 
         if (&world.read_storage::<Camera>(),).join().count() == 0 {

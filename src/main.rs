@@ -51,7 +51,7 @@ fn main() -> amethyst::Result<()> {
             RenderingBundle::<DefaultBackend>::new()
                 .with_plugin(
                     RenderToWindow::from_config_path(display_config)?
-                        .with_clear([0.2, 0.2, 0.25, 1.0]),
+                        .with_clear([0.36, 0.36, 0.63, 1.0]),
                 )
                 .with_plugin(RenderUi::default())
                 .with_plugin(RenderPbr3D::default()),

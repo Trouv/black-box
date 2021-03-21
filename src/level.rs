@@ -54,7 +54,7 @@ impl TryFrom<&str> for LevelData {
     }
 }
 
-pub const GREEN: [f32; 4] = [0.43, 0.57, 0.43, 1.0];
+pub const GREEN: [f32; 4] = [0.36, 0.63, 0.36, 1.0];
 
 impl LevelData {
     fn init_progress(
