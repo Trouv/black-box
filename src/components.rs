@@ -1,17 +1,13 @@
 use amethyst::{
-    assets::PrefabData,
     core::shrev::{EventChannel, ReaderId},
-    derive::PrefabData,
-    ecs::{Component, DenseVecStorage, Entity, WriteStorage},
-    Error,
+    ecs::Entity,
 };
 use serde::{Deserialize, Serialize};
 use std::fmt;
 
 use crate::actions::Action;
 
-#[derive(Default, Clone, Serialize, Deserialize, PrefabData, Debug)]
-#[prefab(Component)]
+#[derive(Default, Clone, Serialize, Deserialize, Debug)]
 #[serde(deny_unknown_fields)]
 pub struct Button {
     #[serde(skip)]
@@ -21,10 +17,6 @@ pub struct Button {
     #[serde(skip)]
     pub just_unpressed: bool,
     pub action: Vec<Action>,
-}
-
-impl Component for Button {
-    type Storage = DenseVecStorage<Self>;
 }
 
 pub const BUTTON_NUMS: [&str; 6] = [
@@ -67,8 +59,7 @@ impl From<Vec<Action>> for Button {
     }
 }
 
-#[derive(Default, Serialize, Deserialize, PrefabData)]
-#[prefab(Component)]
+#[derive(Default, Serialize, Deserialize)]
 #[serde(default)]
 #[serde(deny_unknown_fields)]
 pub struct BlackBox {
@@ -89,10 +80,6 @@ impl Clone for BlackBox {
     }
 }
 
-impl Component for BlackBox {
-    type Storage = DenseVecStorage<Self>;
-}
-
 impl BlackBox {
     pub fn new(buttons: Vec<Entity>) -> BlackBox {
         BlackBox {
@@ -103,8 +90,7 @@ impl BlackBox {
     }
 }
 
-#[derive(Default, Clone, Serialize, Deserialize, PrefabData)]
-#[prefab(Component)]
+#[derive(Default, Clone, Serialize, Deserialize)]
 #[serde(default)]
 #[serde(deny_unknown_fields)]
 pub struct Progression {
@@ -113,21 +99,11 @@ pub struct Progression {
     pub answer: Vec<BoxOut>,
 }
 
-impl Component for Progression {
-    type Storage = DenseVecStorage<Self>;
-}
-
-#[derive(Default, Clone, Serialize, Deserialize, PrefabData)]
-#[prefab(Component)]
+#[derive(Default, Clone, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct ProgressionPiece(pub BoxOut);
 
-impl Component for ProgressionPiece {
-    type Storage = DenseVecStorage<Self>;
-}
-
-#[derive(Default, Serialize, Deserialize, PrefabData)]
-#[prefab(Component)]
+#[derive(Default, Serialize, Deserialize)]
 #[serde(default)]
 #[serde(deny_unknown_fields)]
 pub struct BoxReader {
@@ -144,10 +120,6 @@ impl Clone for BoxReader {
             reader_id: None,
         }
     }
-}
-
-impl Component for BoxReader {
-    type Storage = DenseVecStorage<Self>;
 }
 
 impl BoxReader {

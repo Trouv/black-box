@@ -3,10 +3,9 @@ use amethyst::{
         get_animation_set, AnimationCommand, AnimationControlSet, AnimationSet, EndControl,
     },
     core::{timing::Time, transform::Transform},
-    ecs::{Entities, Join, Read, ReadStorage, System, SystemData, WriteStorage},
-    input::{InputHandler, StringBindings},
+    ecs::{Read, System},
+    input::InputHandler,
     ui::{UiImage, UiText},
-    SystemDesc,
 };
 
 use crate::{
