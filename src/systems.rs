@@ -116,53 +116,64 @@ fn render_display(world: &mut SubWorld, #[resource] time: &Time) {
     }
 }
 
-pub struct BoxProgressSystem;
+#[system]
+#[write_component(Progression)]
+#[read_component(BoxReader)]
+#[read_component(BlackBox)]
+#[read_component(ProgressionPiece)]
+fn update_box_progress(world: &mut SubWorld) {
+    let query = <(Write<Progression>, Read<BoxReader>)>::query();
+    let (mut query_world, sub_world) = world.split_for_query(&query);
+    for (progress, reader) in query.iter_mut(&mut query_world) {
+        let box_ = sub_world
+            .entry_ref(reader.box_.unwrap())
+            .unwrap()
+            .get_component::<BlackBox>()
+            .unwrap();
 
-impl<'a> System<'a> for BoxProgressSystem {
-    type SystemData = (
-        WriteStorage<'a, Progression>,
-        WriteStorage<'a, BoxReader>,
-        WriteStorage<'a, BlackBox>,
-        ReadStorage<'a, ProgressionPiece>,
-    );
+        for out in box_.output_channel.read(reader.reader_id.as_mut().unwrap()) {
+            progress.answer.push(out.clone());
 
-    fn run(&mut self, (mut progresses, mut readers, mut boxes, pieces): Self::SystemData) {
-        for (progress, reader) in (&mut progresses, &mut readers).join() {
-            let box_ = boxes.get_mut(reader.box_.unwrap()).unwrap();
-
-            for out in box_.output_channel.read(reader.reader_id.as_mut().unwrap()) {
-                progress.answer.push(out.clone());
-
-                while !progress.answer.is_empty()
-                    && !progress
-                        .prompt
-                        .iter()
-                        .map(|p| pieces.get(*p).unwrap().0.clone())
-                        .collect::<Vec<BoxOut>>()
-                        .starts_with(progress.answer.as_slice())
-                {
-                    progress.answer.remove(0);
-                }
+            while !progress.answer.is_empty()
+                && !progress
+                    .prompt
+                    .iter()
+                    .map(|p| {
+                        sub_world
+                            .entry_ref(*p)
+                            .unwrap()
+                            .get_component::<ProgressionPiece>()
+                            .unwrap()
+                            .0
+                            .clone()
+                    })
+                    .collect::<Vec<BoxOut>>()
+                    .starts_with(progress.answer.as_slice())
+            {
+                progress.answer.remove(0);
             }
         }
     }
 }
 
-pub struct RenderProgressionSystem;
-
-impl<'a> System<'a> for RenderProgressionSystem {
-    type SystemData = (WriteStorage<'a, UiImage>, ReadStorage<'a, Progression>);
-
-    fn run(&mut self, (mut images, progresses): Self::SystemData) {
-        for (progress,) in (&progresses,).join() {
-            for (i, piece) in progress.prompt.iter().enumerate() {
-                let color = if i < progress.answer.len() {
-                    GREEN
-                } else {
-                    [0.9, 0.9, 0.9, 1.0]
-                };
-                *images.get_mut(*piece).unwrap() = UiImage::SolidColor(color);
-            }
+#[system]
+#[write_component(UiImage)]
+#[read_component(Progression)]
+fn render_progression(world: &mut SubWorld) {
+    let query = <Read<Progression>>::query();
+    let (query_world, mut sub_world) = world.split_for_query(&query);
+    for progress in query.iter(world) {
+        for (i, piece) in progress.prompt.iter().enumerate() {
+            let color = if i < progress.answer.len() {
+                GREEN
+            } else {
+                [0.9, 0.9, 0.9, 1.0]
+            };
+            *sub_world
+                .entry_mut(*piece)
+                .unwrap()
+                .get_component_mut::<UiImage>()
+                .unwrap() = UiImage::SolidColor(color);
         }
     }
 }
