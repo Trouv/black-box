@@ -1,6 +1,6 @@
 use amethyst::{
     core::{math::Vector3, transform::Transform},
-    ecs::{Entity, World},
+    ecs::*,
     input::{is_close_requested, is_key_down, VirtualKeyCode},
     prelude::*,
     renderer::{
@@ -40,7 +40,7 @@ impl SimpleState for BlackState {
         log::debug!("Starting level...");
         let world = data.world;
 
-        if (&world.read_storage::<Camera>(),).join().count() == 0 {
+        if <Read<Camera>>::query().iter(world).count() == 0 {
             init_camera_and_light(world);
         }
 
@@ -68,12 +68,14 @@ impl SimpleState for BlackState {
     fn fixed_update(&mut self, _data: StateData<'_, GameData>) -> SimpleTrans {
         let world = _data.world;
 
-        let prog_storage = world.read_storage::<Progression>();
         if let Some(prog_entity) = self.progress {
-            if let Some(progression) = prog_storage.get(prog_entity) {
-                if progression.answer.len() >= progression.prompt.len() {
-                    return Trans::Switch(Box::new(BlackState::from(self.level_num + 1)));
-                }
+            let progression = world
+                .entry(prog_entity)
+                .unwrap()
+                .get_component::<Progression>()
+                .unwrap();
+            if progression.answer.len() >= progression.prompt.len() {
+                return Trans::Switch(Box::new(BlackState::from(self.level_num + 1)));
             }
         }
 
@@ -83,9 +85,7 @@ impl SimpleState for BlackState {
     fn on_stop(&mut self, data: StateData<'_, GameData>) {
         if let Some(level_data) = &self.level_data {
             for entity in &level_data.entities {
-                data.world
-                    .delete_entity(*entity)
-                    .expect("Failed to delete entity");
+                data.world.remove(*entity);
             }
         }
     }
@@ -99,11 +99,7 @@ fn init_camera_and_light(world: &mut World) {
     transform.set_translation_xyz(0., 1., 0.7);
     transform.face_towards(Vector3::new(0.0, 0.0, -0.5), Vector3::new(0.0, 1.0, 0.));
 
-    world
-        .create_entity()
-        .with(Camera::standard_3d(CAM_RES_X, CAM_RES_Y))
-        .with(transform)
-        .build();
+    world.push((Camera::standard_3d(CAM_RES_X, CAM_RES_Y), transform));
 
     let light: Light = PointLight {
         intensity: 5.0,
@@ -114,5 +110,5 @@ fn init_camera_and_light(world: &mut World) {
     let mut transform = Transform::default();
     transform.set_translation_xyz(-1., 1., 1.);
 
-    world.create_entity().with(light).with(transform).build();
+    world.push((light, transform));
 }
