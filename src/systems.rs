@@ -63,38 +63,32 @@ fn push_button(world: &mut SubWorld, #[resource] input: &InputHandler) {
     }
 }
 
-pub struct BoxStateSystem;
-
-impl<'a> System<'a> for BoxStateSystem {
-    type SystemData = (WriteStorage<'a, BlackBox>, ReadStorage<'a, Button>);
-
-    fn run(&mut self, (mut boxes, buttons): Self::SystemData) {
-        for (mut box_,) in (&mut boxes,).join() {
-            let mut state = box_.state;
-            for b in &box_.buttons {
-                let button = buttons.get(*b).unwrap();
-                if button.just_unpressed {
-                    for action in &button.action {
-                        let out = action.evaluate(&mut state);
-                        if let Some(o) = out {
-                            box_.output_channel.single_write(o.clone());
-                        }
-                    }
-                    log::debug!("Action performed, current state: {:?}", box_.state);
-                }
-            }
-            box_.state = state;
-        }
-    }
-}
-
 #[system]
-#[read_component(Entity)]
 #[write_component(BlackBox)]
 #[read_component(Button)]
 fn update_box_state(world: &mut SubWorld) {
-    let query = <(Entity, Write<BlackBox>)>::query();
+    let query = <Write<BlackBox>>::query();
     let (query_world, sub_world) = world.split_for_query(&query);
+    for mut box_ in query.iter_mut(&mut query_world) {
+        let mut state = box_.state;
+        for b in &box_.buttons {
+            let button = sub_world
+                .entry_ref(*b)
+                .unwrap()
+                .get_component::<Button>()
+                .unwrap();
+            if button.just_unpressed {
+                for action in &button.action {
+                    let out = action.evaluate(&mut state);
+                    if let Some(o) = out {
+                        box_.output_channel.single_write(o.clone());
+                    }
+                }
+                log::debug!("Action performed, current state: {:?}", box_.state);
+            }
+        }
+        box_.state = state;
+    }
 }
 
 pub struct DisplayRenderSystem;
