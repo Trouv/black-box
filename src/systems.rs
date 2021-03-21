@@ -3,7 +3,7 @@ use amethyst::{
         get_animation_set, AnimationCommand, AnimationControlSet, AnimationSet, EndControl,
     },
     core::{timing::Time, transform::Transform},
-    ecs::{Read, System},
+    ecs::*,
     input::InputHandler,
     ui::{UiImage, UiText},
 };
@@ -13,60 +13,52 @@ use crate::{
     level::GREEN,
 };
 
-#[derive(SystemDesc)]
-pub struct ButtonRender;
-
-impl<'a> System<'a> for ButtonRender {
-    type SystemData = (
-        Entities<'a>,
-        ReadStorage<'a, Button>,
-        ReadStorage<'a, AnimationSet<usize, Transform>>,
-        WriteStorage<'a, AnimationControlSet<usize, Transform>>,
-    );
-
-    fn run(&mut self, (entities, buttons, sets, mut controls): Self::SystemData) {
-        for (entity, set, button) in (&entities, &sets, &buttons).join() {
-            if let Some(control_set) = get_animation_set(&mut controls, entity) {
-                if button.just_pressed {
-                    control_set.add_animation(
-                        0,
-                        set.get(&0).unwrap(),
-                        EndControl::Stay,
-                        4.0,
-                        AnimationCommand::Start,
-                    );
-                } else if button.just_unpressed {
-                    control_set.add_animation(
-                        1,
-                        set.get(&1).unwrap(),
-                        EndControl::Stay,
-                        4.0,
-                        AnimationCommand::Start,
-                    );
-                }
+#[system]
+#[read_component(Entity)]
+#[read_component(Button)]
+#[read_component(AnimationSet)]
+#[write_component(AnimationControlSet)]
+fn render_button(world: &mut SubWorld, buffer: &mut CommandBuffer) {
+    let query = <(Entity, Read<Button>, Read<AnimationSet<usize, Transform>>)>::query();
+    let (query_world, mut sub_world) = world.split_for_query(&query);
+    for (entity, button, set) in query.iter(&query_world) {
+        if let Some(control_set) = get_animation_set(&mut sub_world, buffer, *entity) {
+            if button.just_pressed {
+                control_set.add_animation(
+                    0,
+                    set.get(&0).unwrap(),
+                    EndControl::Stay,
+                    4.0,
+                    AnimationCommand::Start,
+                );
+            } else if button.just_unpressed {
+                control_set.add_animation(
+                    1,
+                    set.get(&1).unwrap(),
+                    EndControl::Stay,
+                    4.0,
+                    AnimationCommand::Start,
+                );
             }
         }
     }
 }
 
-pub struct ButtonPush;
-
-impl<'a> System<'a> for ButtonPush {
-    type SystemData = (
-        WriteStorage<'a, Button>,
-        ReadStorage<'a, BlackBox>,
-        Read<'a, InputHandler<StringBindings>>,
-    );
-
-    fn run(&mut self, (mut buttons, boxes, input): Self::SystemData) {
-        for (box_,) in (&boxes,).join() {
-            for (i, b) in box_.buttons.iter().enumerate() {
-                let button = buttons.get_mut(*b).unwrap();
-                let last_pressed = button.pressed;
-                button.pressed = input.action_is_down(BUTTON_NUMS[i]).unwrap();
-                button.just_pressed = button.pressed && !last_pressed;
-                button.just_unpressed = !button.pressed && last_pressed;
-            }
+#[system]
+#[read_component(Entity)]
+#[write_component(Button)]
+#[read_component(BlackBox)]
+fn push_button(world: &mut SubWorld, #[resource] input: &InputHandler) {
+    let query = <(Entity, Read<BlackBox>)>::query(world);
+    let (query_world, sub_world) = query.split_for_world(&world);
+    for (entity, box_) in query.iter(&query_world) {
+        let entry = world.entry(entity);
+        for (i, b) in box_.buttons.iter().enumerate() {
+            let button = entry.get_mut::<Button>().unwrap();
+            let last_pressed = button.pressed;
+            button.pressed = input.action_is_down(BUTTON_NUMS[i]).unwrap();
+            button.just_pressed = button.pressed && !last_pressed;
+            button.just_unpressed = !button.pressed && last_pressed;
         }
     }
 }
