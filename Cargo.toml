@@ -7,6 +7,8 @@ description = "Puzzle game about expirementation."
 
 [dependencies]
 amethyst = { git = "https://github.com/amethyst/amethyst", branch = "main", features = ["ui", "gltf", "animation"] }
+# Need this separately until legion #186 is merged
+legion = { version = "0.3.1" }
 log = { version = "0.4.8", features = ["serde"] }
 serde = { version = "1.0", features = ["derive"] }
 ron = "0.6.4"

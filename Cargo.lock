@@ -569,6 +569,7 @@ name = "black-box"
 version = "0.2.0"
 dependencies = [
  "amethyst",
+ "legion",
  "log",
  "ron",
  "serde",

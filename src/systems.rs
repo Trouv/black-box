@@ -16,8 +16,8 @@ use crate::{
 #[system]
 #[read_component(Entity)]
 #[read_component(Button)]
-#[read_component(AnimationSet)]
-#[write_component(AnimationControlSet)]
+#[read_component(AnimationSet<usize, Transform>)]
+#[write_component(AnimationControlSet<usize, Transform>)]
 fn render_button(world: &mut SubWorld, buffer: &mut CommandBuffer) {
     let query = <(Entity, Read<Button>, Read<AnimationSet<usize, Transform>>)>::query();
     let (query_world, mut sub_world) = world.split_for_query(&query);
@@ -49,12 +49,12 @@ fn render_button(world: &mut SubWorld, buffer: &mut CommandBuffer) {
 #[write_component(Button)]
 #[read_component(BlackBox)]
 fn push_button(world: &mut SubWorld, #[resource] input: &InputHandler) {
-    let query = <(Entity, Read<BlackBox>)>::query(world);
-    let (query_world, sub_world) = query.split_for_world(&world);
+    let query = <(Entity, Read<BlackBox>)>::query();
+    let (query_world, mut sub_world) = world.split_for_query(&query);
     for (entity, box_) in query.iter(&query_world) {
-        let entry = world.entry(entity);
         for (i, b) in box_.buttons.iter().enumerate() {
-            let button = entry.get_mut::<Button>().unwrap();
+            let entry = sub_world.entry_mut(*b).unwrap();
+            let button = entry.get_component_mut::<Button>().unwrap();
             let last_pressed = button.pressed;
             button.pressed = input.action_is_down(BUTTON_NUMS[i]).unwrap();
             button.just_pressed = button.pressed && !last_pressed;
@@ -86,6 +86,15 @@ impl<'a> System<'a> for BoxStateSystem {
             box_.state = state;
         }
     }
+}
+
+#[system]
+#[read_component(Entity)]
+#[write_component(BlackBox)]
+#[read_component(Button)]
+fn update_box_state(world: &mut SubWorld) {
+    let query = <(Entity, Write<BlackBox>)>::query();
+    let (query_world, sub_world) = world.split_for_query(&query);
 }
 
 pub struct DisplayRenderSystem;
