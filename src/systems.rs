@@ -18,7 +18,7 @@ use crate::{
 #[read_component(Button)]
 #[read_component(AnimationSet<usize, Transform>)]
 #[write_component(AnimationControlSet<usize, Transform>)]
-fn render_button(world: &mut SubWorld, buffer: &mut CommandBuffer) {
+pub fn render_button(world: &mut SubWorld, buffer: &mut CommandBuffer) {
     let query = <(Entity, Read<Button>, Read<AnimationSet<usize, Transform>>)>::query();
     let (query_world, mut sub_world) = world.split_for_query(&query);
     for (entity, button, set) in query.iter(&query_world) {
@@ -48,7 +48,7 @@ fn render_button(world: &mut SubWorld, buffer: &mut CommandBuffer) {
 #[read_component(Entity)]
 #[write_component(Button)]
 #[read_component(BlackBox)]
-fn push_button(world: &mut SubWorld, #[resource] input: &InputHandler) {
+pub fn push_button(world: &mut SubWorld, #[resource] input: &InputHandler) {
     let query = <(Entity, Read<BlackBox>)>::query();
     let (query_world, mut sub_world) = world.split_for_query(&query);
     for (entity, box_) in query.iter(&query_world) {
@@ -66,7 +66,7 @@ fn push_button(world: &mut SubWorld, #[resource] input: &InputHandler) {
 #[system]
 #[write_component(BlackBox)]
 #[read_component(Button)]
-fn update_box_state(world: &mut SubWorld) {
+pub fn update_box_state(world: &mut SubWorld) {
     let query = <Write<BlackBox>>::query();
     let (query_world, sub_world) = world.split_for_query(&query);
     for mut box_ in query.iter_mut(&mut query_world) {
@@ -95,7 +95,7 @@ fn update_box_state(world: &mut SubWorld) {
 #[write_component(UiText)]
 #[read_component(BoxReader)]
 #[read_component(BlackBox)]
-fn render_display(world: &mut SubWorld, #[resource] time: &Time) {
+pub fn render_display(world: &mut SubWorld, #[resource] time: &Time) {
     let query = <(Read<BoxReader>, Write<UiText>)>::query();
     let (mut query_world, sub_world) = world.split_for_query(&query);
     for (reader, mut text) in query.iter_mut(&mut query_world) {
@@ -121,7 +121,7 @@ fn render_display(world: &mut SubWorld, #[resource] time: &Time) {
 #[read_component(BoxReader)]
 #[read_component(BlackBox)]
 #[read_component(ProgressionPiece)]
-fn update_box_progress(world: &mut SubWorld) {
+pub fn update_box_progress(world: &mut SubWorld) {
     let query = <(Write<Progression>, Read<BoxReader>)>::query();
     let (mut query_world, sub_world) = world.split_for_query(&query);
     for (progress, reader) in query.iter_mut(&mut query_world) {
@@ -159,7 +159,7 @@ fn update_box_progress(world: &mut SubWorld) {
 #[system]
 #[write_component(UiImage)]
 #[read_component(Progression)]
-fn render_progression(world: &mut SubWorld) {
+pub fn render_progression(world: &mut SubWorld) {
     let query = <Read<Progression>>::query();
     let (query_world, mut sub_world) = world.split_for_query(&query);
     for progress in query.iter(world) {
