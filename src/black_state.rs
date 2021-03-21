@@ -1,6 +1,6 @@
 use amethyst::{
     core::{math::Vector3, transform::Transform},
-    ecs::{Entity, Join, World, WorldExt},
+    ecs::{Entity, World},
     input::{is_close_requested, is_key_down, VirtualKeyCode},
     prelude::*,
     renderer::{
@@ -36,7 +36,7 @@ impl From<usize> for BlackState {
 }
 
 impl SimpleState for BlackState {
-    fn on_start(&mut self, data: StateData<'_, GameData<'_, '_>>) {
+    fn on_start(&mut self, data: StateData<'_, GameData>) {
         log::debug!("Starting level...");
         let world = data.world;
 
@@ -53,7 +53,7 @@ impl SimpleState for BlackState {
 
     fn handle_event(
         &mut self,
-        mut _data: StateData<'_, GameData<'_, '_>>,
+        mut _data: StateData<'_, GameData>,
         event: StateEvent,
     ) -> SimpleTrans {
         if let StateEvent::Window(event) = &event {
@@ -65,7 +65,7 @@ impl SimpleState for BlackState {
         Trans::None
     }
 
-    fn fixed_update(&mut self, _data: StateData<'_, GameData<'_, '_>>) -> SimpleTrans {
+    fn fixed_update(&mut self, _data: StateData<'_, GameData>) -> SimpleTrans {
         let world = _data.world;
 
         let prog_storage = world.read_storage::<Progression>();
@@ -80,7 +80,7 @@ impl SimpleState for BlackState {
         Trans::None
     }
 
-    fn on_stop(&mut self, data: StateData<'_, GameData<'_, '_>>) {
+    fn on_stop(&mut self, data: StateData<'_, GameData>) {
         if let Some(level_data) = &self.level_data {
             for entity in &level_data.entities {
                 data.world

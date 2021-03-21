@@ -1,8 +1,9 @@
 use amethyst::{
     animation::AnimationBundle,
+    assets::LoaderBundle,
     core::transform::{Transform, TransformBundle},
-    gltf::GltfSceneLoaderSystemDesc,
-    input::{InputBundle, StringBindings},
+    gltf::bundle::GltfBundle,
+    input::InputBundle,
     prelude::*,
     renderer::{
         plugins::{RenderPbr3D, RenderToWindow},
@@ -30,24 +31,14 @@ fn main() -> amethyst::Result<()> {
     let display_config = app_root.join("config/display_config.ron");
     let key_bindings_path = app_root.join("config/input.ron");
 
-    let game_data = GameDataBuilder::default()
-        .with_system_desc(
-            GltfSceneLoaderSystemDesc::default(),
-            "gltf_loader",
-            &[], // This is important so that entity instantiation is performed in a single frame.
-        )
-        .with_bundle(
-            AnimationBundle::<usize, Transform>::new("animation_control", "sampler_interpolation")
-                .with_dep(&["gltf_loader"]),
-        )?
-        .with_bundle(
-            TransformBundle::new().with_dep(&["animation_control", "sampler_interpolation"]),
-        )?
-        .with_bundle(
-            InputBundle::<StringBindings>::new().with_bindings_from_file(&key_bindings_path)?,
-        )?
-        .with_bundle(UiBundle::<StringBindings>::new())?
-        .with_bundle(
+    let game_data = DispatcherBuilder::default()
+        .add_bundle(LoaderBundle)
+        .add_bundle(GltfBundle)
+        .add_bundle(TransformBundle::new())?
+        .add_bundle(AnimationBundle::<i32, Transform>::default())?
+        .add_bundle(InputBundle::new().with_bindings_from_file(&key_bindings_path)?)?
+        .add_bundle(UiBundle::new())?
+        .add_bundle(
             RenderingBundle::<DefaultBackend>::new()
                 .with_plugin(
                     RenderToWindow::from_config_path(display_config)?
