@@ -74,8 +74,9 @@ impl SimpleState for BlackState {
             let progression = world
                 .entry(prog_entity)
                 .unwrap()
-                .get_component::<Progression>()
+                .into_component::<Progression>()
                 .unwrap();
+
             if progression.answer.len() >= progression.prompt.len() {
                 return Trans::Switch(Box::new(BlackState::from(self.level_num + 1)));
             }

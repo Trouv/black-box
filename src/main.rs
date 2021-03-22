@@ -32,7 +32,9 @@ fn main() -> amethyst::Result<()> {
     let display_config = app_root.join("config/display_config.ron");
     let key_bindings_path = app_root.join("config/input.ron");
 
-    let dispatcher = DispatcherBuilder::default()
+    let mut dispatcher = DispatcherBuilder::default();
+
+    dispatcher
         .add_bundle(LoaderBundle)
         .add_bundle(GltfBundle)
         .add_bundle(TransformBundle)
@@ -63,7 +65,7 @@ fn main() -> amethyst::Result<()> {
         1
     };
 
-    let game = Application::new(resources, black_state::BlackState::from(level), *dispatcher)?;
+    let game = Application::new(resources, black_state::BlackState::from(level), dispatcher)?;
     game.run();
 
     Ok(())
