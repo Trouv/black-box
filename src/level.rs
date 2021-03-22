@@ -58,14 +58,17 @@ impl LevelData {
     fn init_progress(
         &self,
         world: &mut World,
-        loader: &mut DefaultLoader,
+        resources: &Resources,
         box_: Entity,
         dimensions: &ScreenDimensions,
     ) -> (Entity, Vec<Entity>) {
         let pixel_x = dimensions.width() / CAM_RES_X;
         let pixel_y = dimensions.height() / CAM_RES_Y;
 
-        let font: Handle<FontAsset> = loader.load("fonts/rainyhearts.ttf");
+        let font: Handle<FontAsset> = resources
+            .get::<DefaultLoader>()
+            .unwrap()
+            .load("fonts/rainyhearts.ttf");
 
         let prog_reader = world
             .entry_mut(box_)
@@ -130,7 +133,7 @@ impl LevelData {
     fn init_box(
         &self,
         world: &mut World,
-        loader: &mut DefaultLoader,
+        resources: &Resources,
         buttons: Vec<Entity>,
         dimensions: &ScreenDimensions,
     ) -> (Entity, Entity) {
@@ -139,13 +142,19 @@ impl LevelData {
         let mut transform = Transform::default();
         transform.set_translation_xyz(0., 0., 0.);
 
-        let font: Handle<FontAsset> = loader.load("fonts/rainyhearts.ttf");
+        let font: Handle<FontAsset> = resources
+            .get::<DefaultLoader>()
+            .unwrap()
+            .load("fonts/rainyhearts.ttf");
 
         let buttons_clone = buttons.clone();
 
         let mut box_ = BlackBox::new(buttons);
         let reader_id = box_.output_channel.register_reader();
-        let gltf_handle: Handle<Prefab> = loader.load("models/box.glb");
+        let gltf_handle: Handle<Prefab> = resources
+            .get::<DefaultLoader>()
+            .unwrap()
+            .load("models/box.glb");
 
         let box_ = world.push((gltf_handle, transform, box_));
 
@@ -179,10 +188,13 @@ impl LevelData {
         (box_, display)
     }
 
-    fn init_buttons(&self, world: &mut World, loader: &mut DefaultLoader) -> Vec<Entity> {
+    fn init_buttons(&self, world: &mut World, resources: &Resources) -> Vec<Entity> {
         let mut button_entities = Vec::new();
 
-        let gltf_handle: Handle<Prefab> = loader.load("models/button.glb");
+        let gltf_handle: Handle<Prefab> = resources
+            .get::<DefaultLoader>()
+            .unwrap()
+            .load("models/button.glb");
 
         for button in &self.buttons {
             button_entities.push(world.push((
@@ -198,14 +210,17 @@ impl LevelData {
     fn init_level_counter(
         &self,
         world: &mut World,
-        loader: &mut DefaultLoader,
+        resources: &Resources,
         dimensions: &ScreenDimensions,
         level_num: usize,
     ) -> Entity {
         let pixel_x = dimensions.width() / CAM_RES_X;
         let pixel_y = dimensions.height() / CAM_RES_Y;
 
-        let font: Handle<FontAsset> = loader.load("fonts/rainyhearts.ttf");
+        let font: Handle<FontAsset> = resources
+            .get::<DefaultLoader>()
+            .unwrap()
+            .load("fonts/rainyhearts.ttf");
 
         world.push((
             UiTransform::new(
@@ -229,19 +244,13 @@ impl LevelData {
         ))
     }
 
-    pub fn init(
-        &mut self,
-        world: &mut World,
-        resources: &mut Resources,
-        level_num: usize,
-    ) -> Entity {
+    pub fn init(&mut self, world: &mut World, resources: &Resources, level_num: usize) -> Entity {
         let dimensions = resources.get::<ScreenDimensions>().unwrap().clone();
-        let mut loader = resources.get::<DefaultLoader>().unwrap();
 
-        let level_counter = self.init_level_counter(world, &mut loader, &dimensions, level_num);
-        let buttons = self.init_buttons(world, &mut loader);
-        let (box_, display) = self.init_box(world, &mut loader, buttons.clone(), &dimensions);
-        let (progress, pieces) = self.init_progress(world, &mut loader, box_, &dimensions);
+        let level_counter = self.init_level_counter(world, resources, &dimensions, level_num);
+        let buttons = self.init_buttons(world, resources);
+        let (box_, display) = self.init_box(world, resources, buttons.clone(), &dimensions);
+        let (progress, pieces) = self.init_progress(world, resources, box_, &dimensions);
 
         self.entities.push(level_counter);
         self.entities.extend(buttons);
