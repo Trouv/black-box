@@ -68,16 +68,16 @@ impl LevelData {
         let font: Handle<FontAsset> = loader.load("fonts/rainyhearts.ttf");
 
         let prog_reader = world
-            .write_storage::<BlackBox>()
-            .get_mut(box_)
+            .entry_mut(box_)
+            .unwrap()
+            .get_component_mut::<BlackBox>()
             .unwrap()
             .output_channel
             .register_reader();
 
-        let progression = world
-            .create_entity()
-            .with(Progression::default())
-            .with(UiTransform::new(
+        let progression = world.push((
+            Progression::default(),
+            UiTransform::new(
                 "progression_1".to_string(),
                 Anchor::TopMiddle,
                 Anchor::TopMiddle,
@@ -86,43 +86,43 @@ impl LevelData {
                 0.,
                 pixel_x * 100.,
                 pixel_y * 16.,
-            ))
-            .with(BoxReader::new(box_, prog_reader))
-            .build();
+            ),
+            BoxReader::new(box_, prog_reader),
+        ));
 
         let mut pieces = Vec::<Entity>::new();
         for (i, piece) in self.prompt.iter().enumerate() {
-            pieces.push(
-                world
-                    .create_entity()
-                    .with(UiTransform::new(
-                        format!("prog_piece_{}", i),
-                        Anchor::Middle,
-                        Anchor::Middle,
-                        pixel_x * ((-6. * (self.prompt.len() as f32 - 1.)) + (12. * i as f32)),
-                        0.,
-                        0.,
-                        12. * pixel_x,
-                        16. * pixel_y,
-                    ))
-                    .with(UiText::new(
-                        font.clone(),
-                        piece.to_string(),
-                        [0.1, 0.1, 0.1, 1.0],
-                        pixel_x * 10.,
-                        LineMode::Single,
-                        Anchor::Middle,
-                    ))
-                    .with(UiImage::SolidColor([0.9, 0.9, 0.9, 1.]))
-                    .with(Parent::new(progression))
-                    .with(ProgressionPiece(piece.clone()))
-                    .build(),
-            );
+            pieces.push(world.push((
+                UiTransform::new(
+                    format!("prog_piece_{}", i),
+                    Anchor::Middle,
+                    Anchor::Middle,
+                    pixel_x * ((-6. * (self.prompt.len() as f32 - 1.)) + (12. * i as f32)),
+                    0.,
+                    0.,
+                    12. * pixel_x,
+                    16. * pixel_y,
+                ),
+                UiText::new(
+                    Some(font.clone()),
+                    piece.to_string(),
+                    [0.1, 0.1, 0.1, 1.0],
+                    pixel_x * 10.,
+                    LineMode::Single,
+                    Anchor::Middle,
+                ),
+                UiImage::SolidColor([0.9, 0.9, 0.9, 1.]),
+                Parent(progression),
+                ProgressionPiece(piece.clone()),
+            )));
         }
 
-        let mut prog_storage = world.write_storage::<Progression>();
-
-        prog_storage.get_mut(progression).unwrap().prompt = pieces.clone();
+        world
+            .entry_mut(progression)
+            .unwrap()
+            .get_component_mut::<Progression>()
+            .unwrap()
+            .prompt = pieces.clone();
 
         (progression, pieces)
     }
@@ -147,43 +147,33 @@ impl LevelData {
         let reader_id = box_.output_channel.register_reader();
         let gltf_handle: Handle<Prefab> = loader.load("models/box.glb");
 
-        let box_ = world
-            .create_entity()
-            .with(gltf_handle)
-            .with(transform)
-            .with(box_)
-            .build();
+        let box_ = world.push((gltf_handle, transform, box_));
 
-        let display = world
-            .create_entity()
-            .with(
-                UiTransform::new(
-                    "display".to_string(),
-                    Anchor::Middle,
-                    Anchor::Middle,
-                    0.,
-                    0.15,
-                    0.,
-                    100.,
-                    100.,
-                )
-                .into_percent(),
+        let display = world.push((
+            UiTransform::new(
+                "display".to_string(),
+                Anchor::Middle,
+                Anchor::Middle,
+                0.,
+                0.15,
+                0.,
+                100.,
+                100.,
             )
-            .with(UiText::new(
-                font,
+            .into_percent(),
+            UiText::new(
+                Some(font),
                 "".to_string(),
                 GREEN,
                 pixel_y * 60.,
                 LineMode::Single,
                 Anchor::Middle,
-            ))
-            .with(BoxReader::new(box_, reader_id))
-            .build();
-
-        let mut parent_storage = world.write_storage::<Parent>();
+            ),
+            BoxReader::new(box_, reader_id),
+        ));
 
         for button in buttons_clone {
-            parent_storage.insert(button, Parent::new(box_)).unwrap();
+            world.entry(button).unwrap().add_component(Parent(box_));
         }
 
         (box_, display)
@@ -195,14 +185,11 @@ impl LevelData {
         let gltf_handle: Handle<Prefab> = loader.load("models/button.glb");
 
         for button in &self.buttons {
-            button_entities.push(
-                world
-                    .create_entity()
-                    .with(gltf_handle.clone())
-                    .with(button.transform.clone())
-                    .with(button.button.clone())
-                    .build(),
-            )
+            button_entities.push(world.push((
+                gltf_handle.clone(),
+                button.transform.clone(),
+                button.button.clone(),
+            )));
         }
 
         button_entities
@@ -220,9 +207,8 @@ impl LevelData {
 
         let font: Handle<FontAsset> = loader.load("fonts/rainyhearts.ttf");
 
-        world
-            .create_entity()
-            .with(UiTransform::new(
+        world.push((
+            UiTransform::new(
                 "level_counter".to_string(),
                 Anchor::TopRight,
                 Anchor::TopRight,
@@ -231,16 +217,16 @@ impl LevelData {
                 0.,
                 20. * pixel_x,
                 16. * pixel_y,
-            ))
-            .with(UiText::new(
-                font,
+            ),
+            UiText::new(
+                Some(font),
                 format!("{}/{}", ((level_num - 1) % 10) + 1, LEVEL_ORDER.len()),
                 [0.1, 0.1, 0.1, 1.],
                 pixel_x * 10.,
                 LineMode::Single,
                 Anchor::MiddleRight,
-            ))
-            .build()
+            ),
+        ))
     }
 
     pub fn init(

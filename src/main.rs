@@ -63,7 +63,7 @@ fn main() -> amethyst::Result<()> {
         1
     };
 
-    let mut game = Application::new(resources, black_state::BlackState::from(level), *dispatcher)?;
+    let game = Application::new(resources, black_state::BlackState::from(level), *dispatcher)?;
     game.run();
 
     Ok(())
