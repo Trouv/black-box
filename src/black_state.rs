@@ -38,7 +38,9 @@ impl From<usize> for BlackState {
 impl SimpleState for BlackState {
     fn on_start(&mut self, data: StateData<'_, GameData>) {
         log::debug!("Starting level...");
-        let world = data.world;
+        let StateData {
+            world, resources, ..
+        } = data;
 
         if <Read<Camera>>::query().iter(world).count() == 0 {
             init_camera_and_light(world);
@@ -47,7 +49,7 @@ impl SimpleState for BlackState {
         let mut level_data =
             LevelData::try_from(LEVEL_ORDER[(self.level_num - 1) % LEVEL_ORDER.len()]).unwrap();
 
-        self.progress = Some(level_data.init(world, self.level_num));
+        self.progress = Some(level_data.init(world, resources, self.level_num));
         self.level_data = Some(level_data);
     }
 

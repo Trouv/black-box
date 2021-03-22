@@ -3,12 +3,10 @@ use crate::{
     components::{BlackBox, BoxOut, BoxReader, Button, Progression, ProgressionPiece},
 };
 use amethyst::{
-    assets::{AssetStorage, Loader},
+    assets::{prefab::Prefab, DefaultLoader, Handle, Loader},
     core::transform::{Parent, Transform},
-    ecs::{Entity, World, WorldExt},
-    gltf::{GltfSceneAsset, GltfSceneFormat},
-    prelude::Builder,
-    ui::{Anchor, FontHandle, LineMode, TtfFormat, UiImage, UiText, UiTransform},
+    ecs::*,
+    ui::{Anchor, FontAsset, LineMode, UiImage, UiText, UiTransform},
     utils::application_root_dir,
     window::ScreenDimensions,
 };
@@ -60,18 +58,14 @@ impl LevelData {
     fn init_progress(
         &self,
         world: &mut World,
+        loader: &mut DefaultLoader,
         box_: Entity,
         dimensions: &ScreenDimensions,
     ) -> (Entity, Vec<Entity>) {
         let pixel_x = dimensions.width() / CAM_RES_X;
         let pixel_y = dimensions.height() / CAM_RES_Y;
 
-        let font: FontHandle = world.read_resource::<Loader>().load(
-            "fonts/rainyhearts.ttf",
-            TtfFormat,
-            (),
-            &world.read_resource(),
-        );
+        let font: Handle<FontAsset> = loader.load("fonts/rainyhearts.ttf");
 
         let prog_reader = world
             .write_storage::<BlackBox>()
@@ -136,6 +130,7 @@ impl LevelData {
     fn init_box(
         &self,
         world: &mut World,
+        loader: &mut DefaultLoader,
         buttons: Vec<Entity>,
         dimensions: &ScreenDimensions,
     ) -> (Entity, Entity) {
@@ -144,27 +139,13 @@ impl LevelData {
         let mut transform = Transform::default();
         transform.set_translation_xyz(0., 0., 0.);
 
-        let font: FontHandle = world.read_resource::<Loader>().load(
-            "fonts/rainyhearts.ttf",
-            TtfFormat,
-            (),
-            &world.read_resource(),
-        );
+        let font: Handle<FontAsset> = loader.load("fonts/rainyhearts.ttf");
 
         let buttons_clone = buttons.clone();
 
         let mut box_ = BlackBox::new(buttons);
         let reader_id = box_.output_channel.register_reader();
-        let gltf_handle = {
-            let gltf_storage = &world.read_resource::<AssetStorage<GltfSceneAsset>>();
-
-            world.read_resource::<Loader>().load(
-                "models/box.glb",
-                GltfSceneFormat::default(),
-                (),
-                gltf_storage,
-            )
-        };
+        let gltf_handle: Handle<Prefab> = loader.load("models/box.glb");
 
         let box_ = world
             .create_entity()
@@ -208,19 +189,10 @@ impl LevelData {
         (box_, display)
     }
 
-    fn init_buttons(&self, world: &mut World) -> Vec<Entity> {
+    fn init_buttons(&self, world: &mut World, loader: &mut DefaultLoader) -> Vec<Entity> {
         let mut button_entities = Vec::new();
 
-        let gltf_handle = {
-            let gltf_storage = &world.read_resource::<AssetStorage<GltfSceneAsset>>();
-
-            world.read_resource::<Loader>().load(
-                "models/button.glb",
-                GltfSceneFormat::default(),
-                (),
-                gltf_storage,
-            )
-        };
+        let gltf_handle: Handle<Prefab> = loader.load("models/button.glb");
 
         for button in &self.buttons {
             button_entities.push(
@@ -239,18 +211,14 @@ impl LevelData {
     fn init_level_counter(
         &self,
         world: &mut World,
+        loader: &mut DefaultLoader,
         dimensions: &ScreenDimensions,
         level_num: usize,
     ) -> Entity {
         let pixel_x = dimensions.width() / CAM_RES_X;
         let pixel_y = dimensions.height() / CAM_RES_Y;
 
-        let font: FontHandle = world.read_resource::<Loader>().load(
-            "fonts/rainyhearts.ttf",
-            TtfFormat,
-            (),
-            &world.read_resource(),
-        );
+        let font: Handle<FontAsset> = loader.load("fonts/rainyhearts.ttf");
 
         world
             .create_entity()
@@ -275,13 +243,19 @@ impl LevelData {
             .build()
     }
 
-    pub fn init(&mut self, world: &mut World, level_num: usize) -> Entity {
-        let dimensions = (*world.read_resource::<ScreenDimensions>()).clone();
+    pub fn init(
+        &mut self,
+        world: &mut World,
+        resources: &mut Resources,
+        level_num: usize,
+    ) -> Entity {
+        let dimensions = resources.get::<ScreenDimensions>().unwrap().clone();
+        let mut loader = resources.get::<DefaultLoader>().unwrap();
 
-        let level_counter = self.init_level_counter(world, &dimensions, level_num);
-        let buttons = self.init_buttons(world);
-        let (box_, display) = self.init_box(world, buttons.clone(), &dimensions);
-        let (progress, pieces) = self.init_progress(world, box_, &dimensions);
+        let level_counter = self.init_level_counter(world, &mut loader, &dimensions, level_num);
+        let buttons = self.init_buttons(world, &mut loader);
+        let (box_, display) = self.init_box(world, &mut loader, buttons.clone(), &dimensions);
+        let (progress, pieces) = self.init_progress(world, &mut loader, box_, &dimensions);
 
         self.entities.push(level_counter);
         self.entities.extend(buttons);
