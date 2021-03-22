@@ -98,6 +98,16 @@ pub fn render_display(world: &mut SubWorld, #[resource] time: &Time) {
     let mut query = <(Write<BoxReader>, Write<UiText>)>::query();
     let (mut query_world, sub_world) = world.split_for_query(&query);
     for (reader, mut text) in query.iter_mut(&mut query_world) {
+        log::info!(
+            "{:?} has components {:?}",
+            reader.box_.unwrap(),
+            sub_world
+                .entry_ref(reader.box_.unwrap())
+                .unwrap()
+                .archetype()
+                .layout()
+                .component_types()
+        );
         if let Some(out) = sub_world
             .entry_ref(reader.box_.unwrap())
             .unwrap()

@@ -24,7 +24,10 @@ pub mod level;
 pub mod systems;
 
 fn main() -> amethyst::Result<()> {
-    amethyst::start_logger(Default::default());
+    amethyst::start_logger(amethyst::LoggerConfig {
+        module_levels: vec![("distill_daemon".to_string(), amethyst::LogLevelFilter::Off)],
+        ..Default::default()
+    });
 
     let app_root = application_root_dir()?;
 

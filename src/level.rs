@@ -156,7 +156,7 @@ impl LevelData {
             .unwrap()
             .load("models/box.glb");
 
-        let box_ = world.push((gltf_handle, transform, box_));
+        let box_ = world.push((transform, box_, gltf_handle));
 
         let display = world.push((
             UiTransform::new(
