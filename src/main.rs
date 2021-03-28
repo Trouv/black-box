@@ -1,20 +1,4 @@
-use amethyst::{
-    animation::AnimationBundle,
-    assets::LoaderBundle,
-    core::transform::{Transform, TransformBundle},
-    gltf::bundle::GltfBundle,
-    input::InputBundle,
-    prelude::*,
-    renderer::{
-        plugins::{RenderPbr3D, RenderToWindow},
-        rendy::hal::command::ClearColor,
-        types::DefaultBackend,
-        RenderingBundle,
-    },
-    ui::{RenderUi, UiBundle},
-    utils::application_root_dir,
-};
-
+use bevy::prelude::*;
 use std::env;
 
 pub mod actions;

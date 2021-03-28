@@ -1,17 +1,8 @@
-use amethyst::{
-    animation::{
-        get_animation_set, AnimationCommand, AnimationControlSet, AnimationSet, EndControl,
-    },
-    core::{timing::Time, transform::Transform},
-    ecs::*,
-    input::InputHandler,
-    ui::{UiImage, UiText},
-};
-
 use crate::{
     components::{BlackBox, BoxOut, BoxReader, Button, Progression, ProgressionPiece, BUTTON_NUMS},
     level::GREEN,
 };
+use bevy::prelude::*;
 
 #[system]
 #[read_component(Entity)]
@@ -62,19 +53,12 @@ pub fn push_button(world: &mut SubWorld, #[resource] input: &InputHandler) {
     }
 }
 
-#[system]
-#[write_component(BlackBox)]
-#[read_component(Button)]
-pub fn update_box_state(world: &mut SubWorld) {
-    let mut query = <Write<BlackBox>>::query();
-    let (mut query_world, sub_world) = world.split_for_query(&query);
-    for mut box_ in query.iter_mut(&mut query_world) {
+pub fn update_box_state(box_query: Query<&mut BlackBox>, button_query: Query<&Button>)>) {
+    for mut box_ in box_query.iter_mut() {
         let mut state = box_.state;
         for b in &box_.buttons {
-            let button = sub_world
-                .entry_ref(*b)
-                .unwrap()
-                .into_component::<Button>()
+            let button = button_query
+                .get_component::<Button>(*b)
                 .unwrap();
             if button.just_unpressed {
                 for action in &button.action {
@@ -90,28 +74,10 @@ pub fn update_box_state(world: &mut SubWorld) {
     }
 }
 
-#[system]
-#[write_component(UiText)]
-#[write_component(BoxReader)]
-#[read_component(BlackBox)]
-pub fn render_display(world: &mut SubWorld, #[resource] time: &Time) {
-    let mut query = <(Write<BoxReader>, Write<UiText>)>::query();
-    let (mut query_world, sub_world) = world.split_for_query(&query);
-    for (reader, mut text) in query.iter_mut(&mut query_world) {
-        log::info!(
-            "{:?} has components {:?}",
-            reader.box_.unwrap(),
-            sub_world
-                .entry_ref(reader.box_.unwrap())
-                .unwrap()
-                .archetype()
-                .layout()
-                .component_types()
-        );
-        if let Some(out) = sub_world
-            .entry_ref(reader.box_.unwrap())
-            .unwrap()
-            .get_component::<BlackBox>()
+pub fn render_display(reader_query: Query<(&mut BoxReader, &mut UiText)>, box_query: Query<&BlackBox>, time: Res<Time>) {
+    for (reader, mut text) in reader_query.iter_mut() {
+        if let Some(out) = box_query
+            .get_component::<BlackBox>(reader.box_.unwrap())
             .unwrap()
             .output_channel
             .read(reader.reader_id.as_mut().unwrap())
