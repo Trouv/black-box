@@ -35,16 +35,10 @@ pub fn render_button(world: &mut SubWorld, buffer: &mut CommandBuffer) {
     }
 }
 
-#[system]
-#[write_component(Button)]
-#[read_component(BlackBox)]
-pub fn push_button(world: &mut SubWorld, #[resource] input: &InputHandler) {
-    let mut query = <Read<BlackBox>>::query();
-    let (query_world, mut sub_world) = world.split_for_query(&query);
-    for box_ in query.iter(&query_world) {
+pub fn push_button(box_query: Query<&BlackBox>, button_query: Query<&mut Button>, input: Res<Input>) {
+    for box_ in box_query.iter() {
         for (i, b) in box_.buttons.iter().enumerate() {
-            let mut entry = sub_world.entry_mut(*b).unwrap();
-            let button = entry.get_component_mut::<Button>().unwrap();
+            let mut button = button_query.get_component::<Button>(*b).unwrap();
             let last_pressed = button.pressed;
             button.pressed = input.action_is_down(BUTTON_NUMS[i]).unwrap();
             button.just_pressed = button.pressed && !last_pressed;
@@ -119,7 +113,7 @@ pub fn update_box_progress(reader_query: Query<(&mut Progression, &mut BoxReader
 }
 
 pub fn render_progression(prog_query: Query<&Progression>, image_query: Query<&mut UiImage>) {
-    for progress in query.iter() {
+    for progress in prog_query.iter() {
         for (i, piece) in progress.prompt.iter().enumerate() {
             let color = if i < progress.answer.len() {
                 GREEN
