@@ -91,20 +91,9 @@ pub fn render_display(reader_query: Query<(&mut BoxReader, &mut UiText)>, box_qu
     }
 }
 
-#[system]
-#[write_component(Progression)]
-#[write_component(BoxReader)]
-#[read_component(BlackBox)]
-#[read_component(ProgressionPiece)]
-pub fn update_box_progress(world: &mut SubWorld) {
-    let mut query = <(Write<Progression>, Write<BoxReader>)>::query();
-    let (mut query_world, sub_world) = world.split_for_query(&query);
-    for (progress, reader) in query.iter_mut(&mut query_world) {
-        let box_ = sub_world
-            .entry_ref(reader.box_.unwrap())
-            .unwrap()
-            .into_component::<BlackBox>()
-            .unwrap();
+pub fn update_box_progress(reader_query: Query<(&mut Progression, &mut BoxReader)>, box_query: Query<&BlackBox>, piece_query: Query<&ProgressionPiece>) {
+    for (progress, reader) in reader_query.iter_mut() {
+        let box_ = box_query.get_component_mut::<BlackBox>(reader.box_.unwrap()).unwrap();
 
         for out in box_.output_channel.read(reader.reader_id.as_mut().unwrap()) {
             progress.answer.push(out.clone());
@@ -114,10 +103,8 @@ pub fn update_box_progress(world: &mut SubWorld) {
                     .prompt
                     .iter()
                     .map(|p| {
-                        sub_world
-                            .entry_ref(*p)
-                            .unwrap()
-                            .get_component::<ProgressionPiece>()
+                        piece_query
+                            .get_component::<ProgressionPiece>(*p)
                             .unwrap()
                             .0
                             .clone()
@@ -131,23 +118,16 @@ pub fn update_box_progress(world: &mut SubWorld) {
     }
 }
 
-#[system]
-#[write_component(UiImage)]
-#[read_component(Progression)]
-pub fn render_progression(world: &mut SubWorld) {
-    let mut query = <Read<Progression>>::query();
-    let (query_world, mut sub_world) = world.split_for_query(&query);
-    for progress in query.iter(&query_world) {
+pub fn render_progression(prog_query: Query<&Progression>, image_query: Query<&mut UiImage>) {
+    for progress in query.iter() {
         for (i, piece) in progress.prompt.iter().enumerate() {
             let color = if i < progress.answer.len() {
                 GREEN
             } else {
                 [0.9, 0.9, 0.9, 1.0]
             };
-            *sub_world
-                .entry_mut(*piece)
-                .unwrap()
-                .get_component_mut::<UiImage>()
+            image_query
+                .get_component_mut::<UiImage>(*piece)
                 .unwrap() = UiImage::SolidColor(color);
         }
     }
