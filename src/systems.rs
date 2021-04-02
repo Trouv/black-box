@@ -2,7 +2,10 @@ use amethyst::{
     animation::{
         get_animation_set, AnimationCommand, AnimationControlSet, AnimationSet, EndControl,
     },
-    core::{timing::Time, transform::Transform},
+    core::{
+        timing::Time,
+        transform::{components::Children, Transform},
+    },
     ecs::*,
     input::InputHandler,
     ui::{UiImage, UiText},
@@ -17,28 +20,39 @@ use crate::{
 #[read_component(Entity)]
 #[read_component(Button)]
 #[read_component(AnimationSet<usize, Transform>)]
+#[read_component(Children)]
 #[write_component(AnimationControlSet<usize, Transform>)]
 pub fn render_button(world: &mut SubWorld, buffer: &mut CommandBuffer) {
-    let mut query = <(Entity, Read<Button>, Read<AnimationSet<usize, Transform>>)>::query();
+    let mut query = <(Entity, Read<Button>, Read<Children>)>::query();
     let (query_world, mut sub_world) = world.split_for_query(&query);
-    for (entity, button, set) in query.iter(&query_world) {
-        if let Some(control_set) = get_animation_set(&mut sub_world, buffer, *entity) {
-            if button.just_pressed {
-                control_set.add_animation(
-                    0,
-                    set.get(&0).unwrap(),
-                    EndControl::Stay,
-                    4.0,
-                    AnimationCommand::Start,
-                );
-            } else if button.just_unpressed {
-                control_set.add_animation(
-                    1,
-                    set.get(&1).unwrap(),
-                    EndControl::Stay,
-                    4.0,
-                    AnimationCommand::Start,
-                );
+    for (entity, button, children) in query.iter(&query_world) {
+        if let Ok(set) = sub_world
+            .entry_ref(*children.0.get(0).unwrap())
+            .unwrap()
+            .into_component::<AnimationSet<usize, Transform>>()
+        {
+            let set = set.clone();
+
+            log::info!("entity, button, children found");
+            if let Some(control_set) = get_animation_set(&mut sub_world, buffer, *entity) {
+                if button.just_pressed {
+                    log::info!("pressed");
+                    control_set.add_animation(
+                        0,
+                        set.get(&0).unwrap(),
+                        EndControl::Stay,
+                        4.0,
+                        AnimationCommand::Start,
+                    );
+                } else if button.just_unpressed {
+                    control_set.add_animation(
+                        1,
+                        set.get(&1).unwrap(),
+                        EndControl::Stay,
+                        4.0,
+                        AnimationCommand::Start,
+                    );
+                }
             }
         }
     }
@@ -98,16 +112,6 @@ pub fn render_display(world: &mut SubWorld, #[resource] time: &Time) {
     let mut query = <(Write<BoxReader>, Write<UiText>)>::query();
     let (mut query_world, sub_world) = world.split_for_query(&query);
     for (reader, mut text) in query.iter_mut(&mut query_world) {
-        log::info!(
-            "{:?} has components {:?}",
-            reader.box_.unwrap(),
-            sub_world
-                .entry_ref(reader.box_.unwrap())
-                .unwrap()
-                .archetype()
-                .layout()
-                .component_types()
-        );
         if let Some(out) = sub_world
             .entry_ref(reader.box_.unwrap())
             .unwrap()

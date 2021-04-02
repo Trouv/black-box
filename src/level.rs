@@ -131,7 +131,7 @@ impl LevelData {
     }
 
     fn init_box(
-        &self,
+        &mut self,
         world: &mut World,
         resources: &Resources,
         buttons: Vec<Entity>,
@@ -156,7 +156,8 @@ impl LevelData {
             .unwrap()
             .load("models/box.glb");
 
-        let box_ = world.push((transform, box_, gltf_handle));
+        let box_ = world.push((transform, box_));
+        self.entities.push(world.push((gltf_handle, Parent(box_))));
 
         let display = world.push((
             UiTransform::new(
@@ -188,7 +189,7 @@ impl LevelData {
         (box_, display)
     }
 
-    fn init_buttons(&self, world: &mut World, resources: &Resources) -> Vec<Entity> {
+    fn init_buttons(&mut self, world: &mut World, resources: &Resources) -> Vec<Entity> {
         let mut button_entities = Vec::new();
 
         let gltf_handle: Handle<Prefab> = resources
@@ -197,11 +198,10 @@ impl LevelData {
             .load("models/button.glb");
 
         for button in &self.buttons {
-            button_entities.push(world.push((
-                gltf_handle.clone(),
-                button.transform.clone(),
-                button.button.clone(),
-            )));
+            let button_entity = world.push((button.transform.clone(), button.button.clone()));
+            self.entities
+                .push(world.push((gltf_handle.clone(), Parent(button_entity))));
+            button_entities.push(button_entity);
         }
 
         button_entities
