@@ -2,14 +2,7 @@ use crate::{
     black_state::{CAM_RES_X, CAM_RES_Y},
     components::{BlackBox, BoxOut, BoxReader, Button, Progression, ProgressionPiece},
 };
-use amethyst::{
-    assets::{prefab::Prefab, DefaultLoader, Handle, Loader},
-    core::transform::{Parent, Transform},
-    ecs::*,
-    ui::{Anchor, FontAsset, LineMode, UiImage, UiText, UiTransform},
-    utils::application_root_dir,
-    window::ScreenDimensions,
-};
+use bevy::prelude::*;
 use ron::de::from_reader;
 use serde::{Deserialize, Serialize};
 use std::convert::TryFrom;
@@ -52,7 +45,7 @@ impl TryFrom<&str> for LevelData {
     }
 }
 
-pub const GREEN: [f32; 4] = [0.36, 0.63, 0.36, 1.0];
+pub const GREEN: Color = Color::rgb(0.36, 0.63, 0.36);
 
 impl LevelData {
     fn init_progress(

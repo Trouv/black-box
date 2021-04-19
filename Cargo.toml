@@ -6,7 +6,7 @@ edition = "2018"
 description = "Puzzle game about expirementation."
 
 [dependencies]
-bevy = { version = "0.5.0" }
+bevy = { version = "0.5" }
 log = { version = "0.4.8", features = ["serde"] }
 serde = { version = "1.0", features = ["derive"] }
 ron = "0.6.4"
