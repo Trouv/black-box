@@ -83,10 +83,14 @@ pub fn render_display(
             .read(reader.reader_id.as_mut().unwrap())
             .last()
         {
-            text.text = out.to_string();
-            text.color[3] = 1.;
+            text.sections[0].value = out.to_string();
+            text.sections[0].style.color.set_a(1.);
         } else {
-            text.color[3] = (text.color[3] - (2. * time.delta_seconds())).max(0.4);
+            text.sections[0]
+                .style
+                .color
+                .set_a(text.sections[0].style.color.a() - (2. * time.delta_seconds()))
+                .max(0.4);
         }
     }
 }
