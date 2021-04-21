@@ -1,19 +1,8 @@
-use amethyst::{
-    core::{math::Vector3, transform::Transform},
-    ecs::*,
-    input::{is_close_requested, is_key_down, VirtualKeyCode},
-    prelude::*,
-    renderer::{
-        light::{Light, PointLight},
-        palette::rgb::Rgb,
-        Camera,
-    },
-};
-
 use crate::{
     components::Progression,
     level::{LevelData, LEVEL_ORDER},
 };
+use bevy::prelude::*;
 
 use std::convert::TryFrom;
 

@@ -1,7 +1,4 @@
-use amethyst::{
-    core::shrev::{EventChannel, ReaderId},
-    ecs::Entity,
-};
+use bevy::prelude::*;
 use serde::{Deserialize, Serialize};
 use std::fmt;
 
