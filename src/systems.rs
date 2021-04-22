@@ -1,5 +1,8 @@
 use crate::{
-    components::{BlackBox, BoxOut, BoxReader, Button, Progression, ProgressionPiece, BUTTON_NUMS},
+    components::{
+        BlackBox, BoxOut, BoxReader, Button, OutputEvent, Progression, ProgressionPiece,
+        BUTTON_NUMS,
+    },
     level::GREEN,
 };
 use bevy::prelude::*;
@@ -51,8 +54,12 @@ pub fn push_button(
     }
 }
 
-pub fn update_box_state(box_query: Query<&mut BlackBox>, button_query: Query<&Button>) {
-    for mut box_ in box_query.iter_mut() {
+pub fn update_box_state(
+    box_query: Query<(Entity, &mut BlackBox)>,
+    button_query: Query<&Button>,
+    mut event_writer: EventWriter<OutputEvent>,
+) {
+    for (entity, mut box_) in box_query.iter_mut() {
         let mut state = box_.state;
         for b in &box_.buttons {
             let button = button_query.get_component::<Button>(*b).unwrap();
@@ -60,7 +67,10 @@ pub fn update_box_state(box_query: Query<&mut BlackBox>, button_query: Query<&Bu
                 for action in &button.action {
                     let out = action.evaluate(&mut state);
                     if let Some(o) = out {
-                        box_.output_channel.single_write(o.clone());
+                        event_writer.send(OutputEvent {
+                            box_: entity,
+                            output: o.clone(),
+                        });
                     }
                 }
                 log::debug!("Action performed, current state: {:?}", box_.state);
@@ -72,57 +82,51 @@ pub fn update_box_state(box_query: Query<&mut BlackBox>, button_query: Query<&Bu
 
 pub fn render_display(
     reader_query: Query<(&mut BoxReader, &mut Text)>,
-    box_query: Query<&BlackBox>,
+    mut event_reader: EventReader<OutputEvent>,
     time: Res<Time>,
 ) {
     for (reader, mut text) in reader_query.iter_mut() {
-        if let Some(out) = box_query
-            .get_component::<BlackBox>(reader.box_.unwrap())
-            .unwrap()
-            .output_channel
-            .read(reader.reader_id.as_mut().unwrap())
-            .last()
-        {
-            text.sections[0].value = out.to_string();
-            text.sections[0].style.color.set_a(1.);
-        } else {
-            text.sections[0]
-                .style
-                .color
-                .set_a(text.sections[0].style.color.a() - (2. * time.delta_seconds()))
-                .max(0.4);
+        for output_event in event_reader.clone().iter() {
+            if output_event.box_ == reader.box_ {
+                text.sections[0].value = output_event.output.to_string();
+                text.sections[0].style.color.set_a(1.);
+            } else {
+                text.sections[0]
+                    .style
+                    .color
+                    .set_a(text.sections[0].style.color.a() - (2. * time.delta_seconds()))
+                    .max(0.4);
+            }
         }
     }
 }
 
 pub fn update_box_progress(
     reader_query: Query<(&mut Progression, &mut BoxReader)>,
-    box_query: Query<&BlackBox>,
+    mut event_reader: EventReader<OutputEvent>,
     piece_query: Query<&ProgressionPiece>,
 ) {
     for (progress, reader) in reader_query.iter_mut() {
-        let box_ = box_query
-            .get_component_mut::<BlackBox>(reader.box_.unwrap())
-            .unwrap();
+        for output_event in event_reader.clone().iter() {
+            if output_event.box_ == reader.box_ {
+                progress.answer.push(output_event.output.clone());
 
-        for out in box_.output_channel.read(reader.reader_id.as_mut().unwrap()) {
-            progress.answer.push(out.clone());
-
-            while !progress.answer.is_empty()
-                && !progress
-                    .prompt
-                    .iter()
-                    .map(|p| {
-                        piece_query
-                            .get_component::<ProgressionPiece>(*p)
-                            .unwrap()
-                            .0
-                            .clone()
-                    })
-                    .collect::<Vec<BoxOut>>()
-                    .starts_with(progress.answer.as_slice())
-            {
-                progress.answer.remove(0);
+                while !progress.answer.is_empty()
+                    && !progress
+                        .prompt
+                        .iter()
+                        .map(|p| {
+                            piece_query
+                                .get_component::<ProgressionPiece>(*p)
+                                .unwrap()
+                                .0
+                                .clone()
+                        })
+                        .collect::<Vec<BoxOut>>()
+                        .starts_with(progress.answer.as_slice())
+                {
+                    progress.answer.remove(0);
+                }
             }
         }
     }

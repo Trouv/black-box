@@ -63,8 +63,6 @@ pub struct BlackBox {
     pub state: BoxState,
     #[serde(skip)]
     pub buttons: Vec<Entity>,
-    #[serde(skip)]
-    pub output_channel: EventChannel<BoxOut>,
 }
 
 impl Clone for BlackBox {
@@ -72,7 +70,6 @@ impl Clone for BlackBox {
         BlackBox {
             state: self.state,
             buttons: self.buttons.clone(),
-            output_channel: EventChannel::new(),
         }
     }
 }
@@ -82,7 +79,6 @@ impl BlackBox {
         BlackBox {
             state: BoxState::default(),
             buttons,
-            output_channel: EventChannel::new(),
         }
     }
 }
@@ -106,24 +102,21 @@ pub struct ProgressionPiece(pub BoxOut);
 pub struct BoxReader {
     #[serde(skip)]
     pub box_: Option<Entity>,
-    #[serde(skip)]
-    pub reader_id: Option<ReaderId<BoxOut>>,
 }
 
 impl Clone for BoxReader {
     fn clone(&self) -> Self {
-        BoxReader {
-            box_: self.box_,
-            reader_id: None,
-        }
+        BoxReader { box_: self.box_ }
     }
 }
 
 impl BoxReader {
-    pub fn new(box_: Entity, reader_id: ReaderId<BoxOut>) -> BoxReader {
-        BoxReader {
-            box_: Some(box_),
-            reader_id: Some(reader_id),
-        }
+    pub fn new(box_: Entity) -> BoxReader {
+        BoxReader { box_: Some(box_) }
     }
+}
+
+pub struct OutputEvent {
+    pub box_: Entity,
+    pub output: BoxOut,
 }
