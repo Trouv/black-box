@@ -185,12 +185,7 @@ impl LevelData {
         button_entities
     }
 
-    fn init_level_counter(
-        &self,
-        world: &mut World,
-        commands: &mut Commands,
-        level_num: usize,
-    ) -> Entity {
+    fn init_level_counter(&self, commands: &mut Commands, level_num: usize) -> Entity {
         let font: Handle<FontAsset> = resources
             .get::<DefaultLoader>()
             .unwrap()
