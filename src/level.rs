@@ -46,12 +46,11 @@ impl TryFrom<&str> for LevelData {
 }
 
 pub const GREEN: Color = Color::rgb(0.36, 0.63, 0.36);
+const PIXEL_X: u32 = 1;
+const PIXEL_Y: u32 = 1;
 
 impl LevelData {
     fn init_progress(&self, commands: &mut Commands, box_: Entity) -> (Entity, Vec<Entity>) {
-        let pixel_x = dimensions.width() / CAM_RES_X;
-        let pixel_y = dimensions.height() / CAM_RES_Y;
-
         let font: Handle<FontAsset> = resources
             .get::<DefaultLoader>()
             .unwrap()
@@ -74,8 +73,8 @@ impl LevelData {
                 0.,
                 0.,
                 0.,
-                pixel_x * 100.,
-                pixel_y * 16.,
+                PIXEL_X * 100.,
+                PIXEL_Y * 16.,
             ),
             BoxReader::new(box_, prog_reader),
         ));
@@ -87,17 +86,17 @@ impl LevelData {
                     format!("prog_piece_{}", i),
                     Anchor::Middle,
                     Anchor::Middle,
-                    pixel_x * ((-6. * (self.prompt.len() as f32 - 1.)) + (12. * i as f32)),
+                    PIXEL_X * ((-6. * (self.prompt.len() as f32 - 1.)) + (12. * i as f32)),
                     0.,
                     0.,
-                    12. * pixel_x,
-                    16. * pixel_y,
+                    12. * PIXEL_X,
+                    16. * PIXEL_Y,
                 ),
                 UiText::new(
                     Some(font.clone()),
                     piece.to_string(),
                     [0.1, 0.1, 0.1, 1.0],
-                    pixel_x * 10.,
+                    PIXEL_X * 10.,
                     LineMode::Single,
                     Anchor::Middle,
                 ),
@@ -118,8 +117,6 @@ impl LevelData {
     }
 
     fn init_box(&self, commands: &mut Commands, buttons: Vec<Entity>) -> (Entity, Entity) {
-        let pixel_y = dimensions.height() / CAM_RES_Y;
-
         let mut transform = Transform::default();
         transform.set_translation_xyz(0., 0., 0.);
 
@@ -155,7 +152,7 @@ impl LevelData {
                 Some(font),
                 "".to_string(),
                 GREEN,
-                pixel_y * 60.,
+                PIXEL_Y * 60.,
                 LineMode::Single,
                 Anchor::Middle,
             ),
@@ -194,9 +191,6 @@ impl LevelData {
         commands: &mut Commands,
         level_num: usize,
     ) -> Entity {
-        let pixel_x = dimensions.width() / CAM_RES_X;
-        let pixel_y = dimensions.height() / CAM_RES_Y;
-
         let font: Handle<FontAsset> = resources
             .get::<DefaultLoader>()
             .unwrap()
@@ -207,17 +201,17 @@ impl LevelData {
                 "level_counter".to_string(),
                 Anchor::TopRight,
                 Anchor::TopRight,
-                pixel_x * -3.,
+                PIXEL_X * -3.,
                 0.,
                 0.,
-                20. * pixel_x,
-                16. * pixel_y,
+                20. * PIXEL_X,
+                16. * PIXEL_Y,
             ),
             UiText::new(
                 Some(font),
                 format!("{}/{}", ((level_num - 1) % 10) + 1, LEVEL_ORDER.len()),
                 [0.1, 0.1, 0.1, 1.],
-                pixel_x * 10.,
+                PIXEL_X * 10.,
                 LineMode::Single,
                 Anchor::MiddleRight,
             ),
