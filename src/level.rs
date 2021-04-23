@@ -1,7 +1,4 @@
-use crate::{
-    black_state::{CAM_RES_X, CAM_RES_Y},
-    components::{BlackBox, BoxOut, BoxReader, Button, Progression, ProgressionPiece},
-};
+use crate::components::{BlackBox, BoxOut, BoxReader, Button, Progression, ProgressionPiece};
 use bevy::prelude::*;
 use ron::de::from_reader;
 use serde::{Deserialize, Serialize};
@@ -50,11 +47,13 @@ const PIXEL_X: u32 = 1;
 const PIXEL_Y: u32 = 1;
 
 impl LevelData {
-    fn init_progress(&self, commands: &mut Commands, box_: Entity) -> (Entity, Vec<Entity>) {
-        let font: Handle<FontAsset> = resources
-            .get::<DefaultLoader>()
-            .unwrap()
-            .load("fonts/rainyhearts.ttf");
+    fn init_progress(
+        &self,
+        commands: &mut Commands,
+        server: &Res<AssetServer>,
+        box_: Entity,
+    ) -> (Entity, Vec<Entity>) {
+        let font = server.load_untyped("fonts/rainyhearts.ttf");
 
         let prog_reader = world
             .entry_mut(box_)
@@ -116,23 +115,22 @@ impl LevelData {
         (progression, pieces)
     }
 
-    fn init_box(&self, commands: &mut Commands, buttons: Vec<Entity>) -> (Entity, Entity) {
+    fn init_box(
+        &self,
+        commands: &mut Commands,
+        server: &Res<AssetServer>,
+        buttons: Vec<Entity>,
+    ) -> (Entity, Entity) {
         let mut transform = Transform::default();
         transform.set_translation_xyz(0., 0., 0.);
 
-        let font: Handle<FontAsset> = resources
-            .get::<DefaultLoader>()
-            .unwrap()
-            .load("fonts/rainyhearts.ttf");
+        let font = server.load_untyped("fonts/rainyhearts.ttf");
 
         let buttons_clone = buttons.clone();
 
         let mut box_ = BlackBox::new(buttons);
         let reader_id = box_.output_channel.register_reader();
-        let gltf_handle: Handle<Prefab> = resources
-            .get::<DefaultLoader>()
-            .unwrap()
-            .load("models/box.glb");
+        let gltf_handle = server.load_untyped("models/box.glb");
 
         let box_ = world.push((transform, box_, gltf_handle));
 
@@ -166,13 +164,10 @@ impl LevelData {
         (box_, display)
     }
 
-    fn init_buttons(&self, commands: &mut Commands) -> Vec<Entity> {
+    fn init_buttons(&self, commands: &mut Commands, server: &Res<AssetServer>) -> Vec<Entity> {
         let mut button_entities = Vec::new();
 
-        let gltf_handle: Handle<Prefab> = resources
-            .get::<DefaultLoader>()
-            .unwrap()
-            .load("models/button.glb");
+        let gltf_handle = server.load_untyped("models/button.glb");
 
         for button in &self.buttons {
             button_entities.push(world.push((
@@ -185,11 +180,13 @@ impl LevelData {
         button_entities
     }
 
-    fn init_level_counter(&self, commands: &mut Commands, level_num: usize) -> Entity {
-        let font: Handle<FontAsset> = resources
-            .get::<DefaultLoader>()
-            .unwrap()
-            .load("fonts/rainyhearts.ttf");
+    fn init_level_counter(
+        &self,
+        commands: &mut Commands,
+        server: &Res<AssetServer>,
+        level_num: usize,
+    ) -> Entity {
+        let font = server.load_untyped("fonts/rainyhearts.ttf");
 
         world.push((
             UiTransform::new(
@@ -213,11 +210,16 @@ impl LevelData {
         ))
     }
 
-    pub fn init(&mut self, commands: &mut Commands, level_num: usize) -> Entity {
-        let level_counter = self.init_level_counter(&mut commands, level_num);
-        let buttons = self.init_buttons(&mut commands);
-        let (box_, display) = self.init_box(&mut commands, buttons.clone());
-        let (progress, pieces) = self.init_progress(&mut commands, box_);
+    pub fn init(
+        &mut self,
+        commands: &mut Commands,
+        server: &Res<AssetServer>,
+        level_num: usize,
+    ) -> Entity {
+        let level_counter = self.init_level_counter(&mut commands, &server, level_num);
+        let buttons = self.init_buttons(&mut commands, &server);
+        let (box_, display) = self.init_box(&mut commands, &server, buttons.clone());
+        let (progress, pieces) = self.init_progress(&mut commands, &server, box_);
 
         self.entities.push(level_counter);
         self.entities.extend(buttons);
