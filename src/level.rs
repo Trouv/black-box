@@ -5,7 +5,7 @@ use crate::{
 use bevy::prelude::*;
 use ron::de::from_reader;
 use serde::{Deserialize, Serialize};
-use std::convert::TryFrom;
+use std::{convert::TryFrom, io, path::Path};
 
 pub const LEVEL_ORDER: [&str; 10] = [
     "pin_pad.ron",
@@ -37,9 +37,9 @@ pub struct LevelData {
 }
 
 impl TryFrom<&str> for LevelData {
-    type Error = amethyst::Error;
-    fn try_from(path: &str) -> amethyst::Result<LevelData> {
-        let input_path = application_root_dir()?.join("assets/levels").join(path);
+    type Error = io::Error;
+    fn try_from(path: &str) -> io::Result<LevelData> {
+        let input_path = Path::new("assets/levels").join(path);
         let f = std::fs::File::open(&input_path)?;
         Ok(from_reader(f)?)
     }
@@ -48,13 +48,7 @@ impl TryFrom<&str> for LevelData {
 pub const GREEN: Color = Color::rgb(0.36, 0.63, 0.36);
 
 impl LevelData {
-    fn init_progress(
-        &self,
-        world: &mut World,
-        resources: &Resources,
-        box_: Entity,
-        dimensions: &ScreenDimensions,
-    ) -> (Entity, Vec<Entity>) {
+    fn init_progress(&self, commands: &mut Commands, box_: Entity) -> (Entity, Vec<Entity>) {
         let pixel_x = dimensions.width() / CAM_RES_X;
         let pixel_y = dimensions.height() / CAM_RES_Y;
 
@@ -123,13 +117,7 @@ impl LevelData {
         (progression, pieces)
     }
 
-    fn init_box(
-        &self,
-        world: &mut World,
-        resources: &Resources,
-        buttons: Vec<Entity>,
-        dimensions: &ScreenDimensions,
-    ) -> (Entity, Entity) {
+    fn init_box(&self, commands: &mut Commands, buttons: Vec<Entity>) -> (Entity, Entity) {
         let pixel_y = dimensions.height() / CAM_RES_Y;
 
         let mut transform = Transform::default();
@@ -181,7 +169,7 @@ impl LevelData {
         (box_, display)
     }
 
-    fn init_buttons(&self, world: &mut World, resources: &Resources) -> Vec<Entity> {
+    fn init_buttons(&self, commands: &mut Commands) -> Vec<Entity> {
         let mut button_entities = Vec::new();
 
         let gltf_handle: Handle<Prefab> = resources
@@ -203,8 +191,7 @@ impl LevelData {
     fn init_level_counter(
         &self,
         world: &mut World,
-        resources: &Resources,
-        dimensions: &ScreenDimensions,
+        commands: &mut Commands,
         level_num: usize,
     ) -> Entity {
         let pixel_x = dimensions.width() / CAM_RES_X;
@@ -237,13 +224,11 @@ impl LevelData {
         ))
     }
 
-    pub fn init(&mut self, world: &mut World, resources: &Resources, level_num: usize) -> Entity {
-        let dimensions = resources.get::<ScreenDimensions>().unwrap().clone();
-
-        let level_counter = self.init_level_counter(world, resources, &dimensions, level_num);
-        let buttons = self.init_buttons(world, resources);
-        let (box_, display) = self.init_box(world, resources, buttons.clone(), &dimensions);
-        let (progress, pieces) = self.init_progress(world, resources, box_, &dimensions);
+    pub fn init(&mut self, commands: &mut Commands, level_num: usize) -> Entity {
+        let level_counter = self.init_level_counter(&mut commands, level_num);
+        let buttons = self.init_buttons(&mut commands);
+        let (box_, display) = self.init_box(&mut commands, buttons.clone());
+        let (progress, pieces) = self.init_progress(&mut commands, box_);
 
         self.entities.push(level_counter);
         self.entities.extend(buttons);
