@@ -120,33 +120,46 @@ impl LevelData {
         let reader_id = box_.output_channel.register_reader();
         let gltf_handle = server.load_untyped("models/box.glb");
 
-        let box_ = world.push((transform, box_, gltf_handle));
+        let box_ = commands
+            .spawn()
+            .insert(transform)
+            .insert(box_)
+            .insert(gltf_handle)
+            .id();
 
-        let display = world.push((
-            UiTransform::new(
-                "display".to_string(),
-                Anchor::Middle,
-                Anchor::Middle,
-                0.,
-                0.15,
-                0.,
-                100.,
-                100.,
-            )
-            .into_percent(),
-            UiText::new(
-                Some(font),
-                "".to_string(),
-                GREEN,
-                PIXEL_Y * 60.,
-                LineMode::Single,
-                Anchor::Middle,
-            ),
-            BoxReader::new(box_, reader_id),
-        ));
+        let display = commands
+            .spawn_bundle(TextBundle {
+                style: Style {
+                    position_type: PositionType::Absolute,
+                    size: Size {
+                        width: Val::Percent(100.),
+                        height: Val::Percent(50.),
+                    },
+                    position: Rect {
+                        top: Val::Percent(10.),
+                        ..Default::default()
+                    },
+                    ..Default::default()
+                },
+                text: Text::with_section(
+                    "display".to_string(),
+                    TextStyle {
+                        font,
+                        font_size: 60.,
+                        color: GREEN,
+                    },
+                    TextAlignment {
+                        vertical: VerticalAlign::Center,
+                        horizontal: HorizontalAlign::Center,
+                    },
+                ),
+                ..Default::default()
+            })
+            .insert(BoxReader::new(box_))
+            .id();
 
         for button in buttons_clone {
-            world.entry(button).unwrap().add_component(Parent(box_));
+            commands.entity(button).insert(Parent(box_));
         }
 
         (box_, display)
