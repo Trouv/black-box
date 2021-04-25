@@ -171,11 +171,14 @@ impl LevelData {
         let gltf_handle = server.load_untyped("models/button.glb");
 
         for button in &self.buttons {
-            button_entities.push(world.push((
-                gltf_handle.clone(),
-                button.transform.clone(),
-                button.button.clone(),
-            )));
+            button_entities.push(
+                commands
+                    .spawn()
+                    .insert(gltf_handle.clone())
+                    .insert(button.transform.clone())
+                    .insert(button.button.clone())
+                    .id(),
+            );
         }
 
         button_entities
