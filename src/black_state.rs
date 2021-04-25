@@ -6,6 +6,10 @@ use bevy::prelude::*;
 
 use std::convert::TryFrom;
 
+pub enum AppState {
+    BlackBox,
+}
+
 pub struct BlackState {
     level_num: usize,
     level_data: Option<LevelData>,

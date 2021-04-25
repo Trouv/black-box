@@ -31,6 +31,8 @@ pub struct LevelData {
     buttons: Vec<ButtonData>,
     #[serde(skip)]
     pub entities: Vec<Entity>,
+    #[serde(skip)]
+    pub box_: Option<Entity>,
 }
 
 impl TryFrom<&str> for LevelData {
@@ -54,6 +56,7 @@ impl LevelData {
         box_: Entity,
     ) -> (Entity, Vec<Entity>) {
         let mut pieces = Vec::<Entity>::new();
+        let mut total_entities = Vec::<Entity>::new();
         let progression = commands
             .spawn_bundle(NodeBundle {
                 style: Style {
@@ -66,32 +69,36 @@ impl LevelData {
             .insert(BoxReader::new(box_))
             .with_children(|parent| {
                 for (i, piece) in self.prompt.iter().enumerate() {
-                    pieces.push(
-                        parent
-                            .spawn_bundle(NodeBundle {
-                                material: ColorMaterial::color(Color::rgb(0.9, 0.9, 0.9)),
-                                ..Default::default()
-                            })
-                            .insert(ProgressionPiece(piece.clone()))
-                            .with_children(|parent| {
-                                parent.spawn_bundle(TextBundle {
-                                    text: Text::with_section(
-                                        piece.to_string(),
-                                        TextStyle {
-                                            font: server.load("fonts/rainyhearts.ttf"),
-                                            font_size: 30.,
-                                            color: Color::rgb(0.1, 0.1, 0.1),
-                                        },
-                                        TextAlignment {
-                                            vertical: VerticalAlign::Center,
-                                            horizontal: HorizontalAlign::Center,
-                                        },
-                                    ),
-                                    ..Default::default()
-                                })
-                            })
-                            .id(),
-                    );
+                    let piece_entity = parent
+                        .spawn_bundle(NodeBundle {
+                            material: ColorMaterial::color(Color::rgb(0.9, 0.9, 0.9)),
+                            ..Default::default()
+                        })
+                        .insert(ProgressionPiece(piece.clone()))
+                        .with_children(|parent| {
+                            total_entities.push(
+                                parent
+                                    .spawn_bundle(TextBundle {
+                                        text: Text::with_section(
+                                            piece.to_string(),
+                                            TextStyle {
+                                                font: server.load("fonts/rainyhearts.ttf"),
+                                                font_size: 30.,
+                                                color: Color::rgb(0.1, 0.1, 0.1),
+                                            },
+                                            TextAlignment {
+                                                vertical: VerticalAlign::Center,
+                                                horizontal: HorizontalAlign::Center,
+                                            },
+                                        ),
+                                        ..Default::default()
+                                    })
+                                    .id(),
+                            );
+                        })
+                        .id();
+                    pieces.push(piece_entity.clone());
+                    total_entities.push(piece_entity.clone());
                 }
             })
             .insert(Progression {
@@ -100,30 +107,28 @@ impl LevelData {
             })
             .id();
 
-        (progression, pieces)
+        (progression, total_entities)
     }
 
     fn init_box(
-        &self,
+        &mut self,
         commands: &mut Commands,
         server: &Res<AssetServer>,
         buttons: Vec<Entity>,
     ) -> (Entity, Entity) {
-        let mut transform = Transform::default();
-        transform.set_translation_xyz(0., 0., 0.);
+        let mut transform = Transform::from_xyz(0., 0., 0.);
 
         let font = server.load_untyped("fonts/rainyhearts.ttf");
 
         let buttons_clone = buttons.clone();
 
-        let mut box_ = BlackBox::new(buttons);
-        let reader_id = box_.output_channel.register_reader();
+        let mut box_component = BlackBox::new(buttons);
         let gltf_handle = server.load_untyped("models/box.glb");
 
-        let box_ = commands
+        self.box_ = commands
             .spawn()
             .insert(transform)
-            .insert(box_)
+            .insert(box_component)
             .insert(gltf_handle)
             .id();
 
@@ -155,14 +160,14 @@ impl LevelData {
                 ),
                 ..Default::default()
             })
-            .insert(BoxReader::new(box_))
+            .insert(BoxReader::new(self.box_))
             .id();
 
         for button in buttons_clone {
-            commands.entity(button).insert(Parent(box_));
+            commands.entity(button).insert(Parent(self.box_));
         }
 
-        (box_, display)
+        (self.box_, display)
     }
 
     fn init_buttons(&self, commands: &mut Commands, server: &Res<AssetServer>) -> Vec<Entity> {
