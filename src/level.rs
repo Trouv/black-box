@@ -53,64 +53,52 @@ impl LevelData {
         server: &Res<AssetServer>,
         box_: Entity,
     ) -> (Entity, Vec<Entity>) {
-        let font = server.load_untyped("fonts/rainyhearts.ttf");
-
-        let prog_reader = world
-            .entry_mut(box_)
-            .unwrap()
-            .get_component_mut::<BlackBox>()
-            .unwrap()
-            .output_channel
-            .register_reader();
-
-        let progression = world.push((
-            Progression::default(),
-            UiTransform::new(
-                "progression_1".to_string(),
-                Anchor::TopMiddle,
-                Anchor::TopMiddle,
-                0.,
-                0.,
-                0.,
-                PIXEL_X * 100.,
-                PIXEL_Y * 16.,
-            ),
-            BoxReader::new(box_, prog_reader),
-        ));
-
         let mut pieces = Vec::<Entity>::new();
-        for (i, piece) in self.prompt.iter().enumerate() {
-            pieces.push(world.push((
-                UiTransform::new(
-                    format!("prog_piece_{}", i),
-                    Anchor::Middle,
-                    Anchor::Middle,
-                    PIXEL_X * ((-6. * (self.prompt.len() as f32 - 1.)) + (12. * i as f32)),
-                    0.,
-                    0.,
-                    12. * PIXEL_X,
-                    16. * PIXEL_Y,
-                ),
-                UiText::new(
-                    Some(font.clone()),
-                    piece.to_string(),
-                    [0.1, 0.1, 0.1, 1.0],
-                    PIXEL_X * 10.,
-                    LineMode::Single,
-                    Anchor::Middle,
-                ),
-                UiImage::SolidColor([0.9, 0.9, 0.9, 1.]),
-                Parent(progression),
-                ProgressionPiece(piece.clone()),
-            )));
-        }
-
-        world
-            .entry_mut(progression)
-            .unwrap()
-            .get_component_mut::<Progression>()
-            .unwrap()
-            .prompt = pieces.clone();
+        let progression = commands
+            .spawn_bundle(NodeBundle {
+                style: Style {
+                    justify_content: JustifyContent::Center,
+                    size: Size::new(Val::Percent(100.), Val::Percent(10.)), //Progression::default(),
+                    ..Default::default()
+                },
+                ..Default::default()
+            })
+            .insert(BoxReader::new(box_))
+            .with_children(|parent| {
+                for (i, piece) in self.prompt.iter().enumerate() {
+                    pieces.push(
+                        parent
+                            .spawn_bundle(NodeBundle {
+                                material: ColorMaterial::color(Color::rgb(0.9, 0.9, 0.9)),
+                                ..Default::default()
+                            })
+                            .insert(ProgressionPiece(piece.clone()))
+                            .with_children(|parent| {
+                                parent.spawn_bundle(TextBundle {
+                                    text: Text::with_section(
+                                        piece.to_string(),
+                                        TextStyle {
+                                            font: server.load("fonts/rainyhearts.ttf"),
+                                            font_size: 30.,
+                                            color: Color::rgb(0.1, 0.1, 0.1),
+                                        },
+                                        TextAlignment {
+                                            vertical: VerticalAlign::Center,
+                                            horizontal: HorizontalAlign::Center,
+                                        },
+                                    ),
+                                    ..Default::default()
+                                })
+                            })
+                            .id(),
+                    );
+                }
+            })
+            .insert(Progression {
+                prompt: pieces.clone(),
+                answer: Vec::new(),
+            })
+            .id();
 
         (progression, pieces)
     }
