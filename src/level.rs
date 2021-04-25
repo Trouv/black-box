@@ -192,26 +192,32 @@ impl LevelData {
     ) -> Entity {
         let font = server.load_untyped("fonts/rainyhearts.ttf");
 
-        world.push((
-            UiTransform::new(
-                "level_counter".to_string(),
-                Anchor::TopRight,
-                Anchor::TopRight,
-                PIXEL_X * -3.,
-                0.,
-                0.,
-                20. * PIXEL_X,
-                16. * PIXEL_Y,
-            ),
-            UiText::new(
-                Some(font),
-                format!("{}/{}", ((level_num - 1) % 10) + 1, LEVEL_ORDER.len()),
-                [0.1, 0.1, 0.1, 1.],
-                PIXEL_X * 10.,
-                LineMode::Single,
-                Anchor::MiddleRight,
-            ),
-        ))
+        commands
+            .spawn_bundle(TextBundle {
+                style: Style {
+                    position_type: PositionType::Absolute,
+                    position: Rect {
+                        top: Val::Px(10.),
+                        right: Val::Px(10.),
+                        ..Default::default()
+                    },
+                    ..Default::default()
+                },
+                text: Text::with_section(
+                    format!("{}/{}", ((level_num - 1) % 10) + 1, LEVEL_ORDER.len()),
+                    TextStyle {
+                        font,
+                        font_size: 30.,
+                        color: Color::rgb(0.1, 0.1, 0.1),
+                    },
+                    TextAlignment {
+                        horizontal: HorizontalAlign::Right,
+                        vertical: VerticalAlign::Top,
+                    },
+                ),
+                ..Default::default()
+            })
+            .id()
     }
 
     pub fn init(
