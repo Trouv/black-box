@@ -4,8 +4,6 @@ use crate::{
 };
 use bevy::prelude::*;
 
-use std::convert::TryFrom;
-
 pub enum AppState {
     BlackBox,
 }
@@ -16,15 +14,17 @@ fn black_box_setup(
     mut prev_level: Option<ResMut<LevelData>>,
 ) {
     let level_num = if let Some(mut level_data) = prev_level {
-        level_data.level_num + 1 % LEVEL_ORDER.len()
+        level_data.level_num + 1
     } else {
         camera_setup(&mut commands);
-        0
+        1
     };
 
     // This LevelData resource design seems dodgy, but it works pretty well for now while the game
     // only deals with 1 box at a time
-    commands.insert_resource(LevelData::from(level_num));
+    let mut level_data = LevelData::try_from(LEVEL_ORDER[(level_num - 1) % LEVEL_ORDER.len()]);
+    level_data.init(&mut commands, &server, level_num);
+    commands.insert_resource(level_data);
 }
 
 fn camera_setup(commands: &mut Commands) {
@@ -39,107 +39,21 @@ fn camera_setup(commands: &mut Commands) {
     });
 }
 
+fn level_completion(
+    mut commands: Commands,
+    progress_query: Query<Progression>,
+    level_data: Res<LevelData>,
+    mut state: ResMut<State<AppState>>,
+) {
+    for progress in progress_query.iter() {
+        if progress.answer.len() >= progress.prompt.len() {
+            state.set(AppState::BlackBox);
+        }
+    }
+}
+
 fn black_box_cleanup(mut commands: Commands, level_data: Res<LevelData>) {
     for entity in level_data.entities {
         commands.entity(entity).despawn_recursive();
     }
-}
-
-pub struct BlackState {
-    level_num: usize,
-    level_data: Option<LevelData>,
-    progress: Option<Entity>,
-}
-
-impl From<usize> for BlackState {
-    fn from(level_num: usize) -> BlackState {
-        BlackState {
-            level_num,
-            level_data: None,
-            progress: None,
-            // This sort of thing would probably be handled better by resources, but I'm planning
-            // on having many boxes in one scene so this is a temporary solution
-        }
-    }
-}
-
-impl SimpleState for BlackState {
-    fn on_start(&mut self, data: StateData<'_, GameData>) {
-        log::debug!("Starting level...");
-        let StateData {
-            world, resources, ..
-        } = data;
-
-        if <Read<Camera>>::query().iter(world).count() == 0 {
-            init_camera_and_light(world);
-        }
-
-        let mut level_data =
-            LevelData::try_from(LEVEL_ORDER[(self.level_num - 1) % LEVEL_ORDER.len()]).unwrap();
-
-        self.progress = Some(level_data.init(world, resources, self.level_num));
-        self.level_data = Some(level_data);
-    }
-
-    fn handle_event(
-        &mut self,
-        mut _data: StateData<'_, GameData>,
-        event: StateEvent,
-    ) -> SimpleTrans {
-        if let StateEvent::Window(event) = &event {
-            if is_close_requested(&event) || is_key_down(&event, VirtualKeyCode::Escape) {
-                return Trans::Quit;
-            }
-        }
-
-        Trans::None
-    }
-
-    fn fixed_update(&mut self, _data: StateData<'_, GameData>) -> SimpleTrans {
-        let world = _data.world;
-
-        if let Some(prog_entity) = self.progress {
-            let progression = world
-                .entry(prog_entity)
-                .unwrap()
-                .into_component::<Progression>()
-                .unwrap();
-
-            if progression.answer.len() >= progression.prompt.len() {
-                return Trans::Switch(Box::new(BlackState::from(self.level_num + 1)));
-            }
-        }
-
-        Trans::None
-    }
-
-    fn on_stop(&mut self, data: StateData<'_, GameData>) {
-        if let Some(level_data) = &self.level_data {
-            for entity in &level_data.entities {
-                data.world.remove(*entity);
-            }
-        }
-    }
-}
-
-pub const CAM_RES_X: f32 = 426.;
-pub const CAM_RES_Y: f32 = 240.;
-
-fn init_camera_and_light(world: &mut World) {
-    let mut transform = Transform::default();
-    transform.set_translation_xyz(0., 1., 0.7);
-    transform.face_towards(Vector3::new(0.0, 0.0, -0.5), Vector3::new(0.0, 1.0, 0.));
-
-    world.push((Camera::standard_3d(CAM_RES_X, CAM_RES_Y), transform));
-
-    let light: Light = PointLight {
-        intensity: 5.0,
-        color: Rgb::new(1.0, 0.8, 0.8),
-        ..PointLight::default()
-    }
-    .into();
-    let mut transform = Transform::default();
-    transform.set_translation_xyz(-1., 1., 1.);
-
-    world.push((light, transform));
 }
