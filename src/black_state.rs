@@ -16,12 +16,14 @@ fn black_box_setup(
     mut prev_level: Option<ResMut<LevelData>>,
 ) {
     let level_num = if let Some(mut level_data) = prev_level {
-        level_data.level_num + 1
+        level_data.level_num + 1 % LEVEL_ORDER.len()
     } else {
         camera_setup(&mut commands);
         0
     };
 
+    // This LevelData resource design seems dodgy, but it works pretty well for now while the game
+    // only deals with 1 box at a time
     commands.insert_resource(LevelData::from(level_num));
 }
 
@@ -35,6 +37,12 @@ fn camera_setup(commands: &mut Commands) {
         transform: Transform::from_xyz(-1., 1., 1.),
         ..Default::default()
     });
+}
+
+fn black_box_cleanup(mut commands: Commands, level_data: Res<LevelData>) {
+    for entity in level_data.entities {
+        commands.entity(entity).despawn_recursive();
+    }
 }
 
 pub struct BlackState {

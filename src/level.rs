@@ -56,9 +56,8 @@ impl LevelData {
         commands: &mut Commands,
         server: &Res<AssetServer>,
         box_: Entity,
-    ) -> (Entity, Vec<Entity>) {
+    ) -> Entity {
         let mut pieces = Vec::<Entity>::new();
-        let mut total_entities = Vec::<Entity>::new();
         let progression = commands
             .spawn_bundle(NodeBundle {
                 style: Style {
@@ -71,14 +70,14 @@ impl LevelData {
             .insert(BoxReader::new(box_))
             .with_children(|parent| {
                 for (i, piece) in self.prompt.iter().enumerate() {
-                    let piece_entity = parent
-                        .spawn_bundle(NodeBundle {
-                            material: ColorMaterial::color(Color::rgb(0.9, 0.9, 0.9)),
-                            ..Default::default()
-                        })
-                        .insert(ProgressionPiece(piece.clone()))
-                        .with_children(|parent| {
-                            total_entities.push(
+                    pieces.push(
+                        parent
+                            .spawn_bundle(NodeBundle {
+                                material: ColorMaterial::color(Color::rgb(0.9, 0.9, 0.9)),
+                                ..Default::default()
+                            })
+                            .insert(ProgressionPiece(piece.clone()))
+                            .with_children(|parent| {
                                 parent
                                     .spawn_bundle(TextBundle {
                                         text: Text::with_section(
@@ -95,12 +94,10 @@ impl LevelData {
                                         ),
                                         ..Default::default()
                                     })
-                                    .id(),
-                            );
-                        })
-                        .id();
-                    pieces.push(piece_entity.clone());
-                    total_entities.push(piece_entity.clone());
+                                    .id();
+                            })
+                            .id(),
+                    );
                 }
             })
             .insert(Progression {
@@ -109,7 +106,7 @@ impl LevelData {
             })
             .id();
 
-        (progression, total_entities)
+        progression
     }
 
     fn init_box(
@@ -233,14 +230,12 @@ impl LevelData {
         let level_counter = self.init_level_counter(&mut commands, &server);
         let buttons = self.init_buttons(&mut commands, &server);
         let (box_, display) = self.init_box(&mut commands, &server, buttons.clone());
-        let (progress, pieces) = self.init_progress(&mut commands, &server, box_);
+        let progress = self.init_progress(&mut commands, &server, box_);
 
         self.entities.push(level_counter);
-        self.entities.extend(buttons);
         self.entities.push(box_);
         self.entities.push(display);
         self.entities.push(progress);
-        self.entities.extend(pieces);
         progress
     }
 }
