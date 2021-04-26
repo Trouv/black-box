@@ -16,8 +16,13 @@ pub struct Button {
     pub action: Vec<Action>,
 }
 
-pub const BUTTON_NUMS: [&str; 6] = [
-    "button_0", "button_1", "button_2", "button_3", "button_4", "button_5",
+pub const BUTTON_NUMS: [KeyCode; 6] = [
+    KeyCode::Key1,
+    KeyCode::Key2,
+    KeyCode::Key3,
+    KeyCode::Key4,
+    KeyCode::Key5,
+    KeyCode::Key6,
 ];
 
 #[derive(Debug, PartialEq, Clone, Serialize, Deserialize)]

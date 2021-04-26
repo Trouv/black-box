@@ -56,7 +56,7 @@ impl LevelData {
         &self,
         commands: &mut Commands,
         server: &Res<AssetServer>,
-        materials: &ResMut<Assets<ColorMaterial>>,
+        materials: &mut ResMut<Assets<ColorMaterial>>,
         box_: Entity,
     ) -> Entity {
         let mut pieces = Vec::<Entity>::new();
@@ -71,7 +71,7 @@ impl LevelData {
             })
             .insert(BoxReader::new(box_))
             .with_children(|parent| {
-                for (i, piece) in self.prompt.iter().enumerate() {
+                for piece in self.prompt.iter() {
                     pieces.push(
                         parent
                             .spawn_bundle(NodeBundle {
@@ -117,11 +117,11 @@ impl LevelData {
         server: &Res<AssetServer>,
         buttons: Vec<Entity>,
     ) -> (Entity, Entity) {
-        let mut transform = Transform::from_xyz(0., 0., 0.);
+        let transform = Transform::from_xyz(0., 0., 0.);
 
         let buttons_clone = buttons.clone();
 
-        let mut box_component = BlackBox::new(buttons);
+        let box_component = BlackBox::new(buttons);
         let gltf_handle = server.load_untyped("models/box.glb");
 
         let box_ = commands
@@ -222,15 +222,15 @@ impl LevelData {
         &mut self,
         commands: &mut Commands,
         server: &Res<AssetServer>,
-        materials: &ResMut<Assets<ColorMaterial>>,
+        materials: &mut ResMut<Assets<ColorMaterial>>,
         level_num: usize,
     ) -> Entity {
         self.level_num = level_num;
 
-        let level_counter = self.init_level_counter(&mut commands, &server);
-        let buttons = self.init_buttons(&mut commands, &server);
-        let (box_, display) = self.init_box(&mut commands, &server, buttons.clone());
-        let progress = self.init_progress(&mut commands, &server, &materials, box_);
+        let level_counter = self.init_level_counter(commands, server);
+        let buttons = self.init_buttons(commands, server);
+        let (box_, display) = self.init_box(commands, server, buttons.clone());
+        let progress = self.init_progress(commands, server, materials, box_);
 
         self.entities.push(level_counter);
         self.entities.push(box_);

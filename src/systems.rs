@@ -40,14 +40,14 @@ use bevy::prelude::*;
 
 pub fn push_button(
     box_query: Query<&BlackBox>,
-    button_query: Query<&mut Button>,
+    mut button_query: Query<&mut Button>,
     input: Res<Input<KeyCode>>,
 ) {
     for box_ in box_query.iter() {
         for (i, b) in box_.buttons.iter().enumerate() {
-            let mut button = button_query.get_component::<Button>(*b).unwrap();
+            let mut button = button_query.get_component_mut::<Button>(*b).unwrap();
             let last_pressed = button.pressed;
-            button.pressed = input.action_is_down(BUTTON_NUMS[i]).unwrap();
+            button.pressed = input.pressed(BUTTON_NUMS[i]);
             button.just_pressed = button.pressed && !last_pressed;
             button.just_unpressed = !button.pressed && last_pressed;
         }
@@ -55,7 +55,7 @@ pub fn push_button(
 }
 
 pub fn update_box_state(
-    box_query: Query<(Entity, &mut BlackBox)>,
+    mut box_query: Query<(Entity, &mut BlackBox)>,
     button_query: Query<&Button>,
     mut event_writer: EventWriter<OutputEvent>,
 ) {
@@ -81,34 +81,31 @@ pub fn update_box_state(
 }
 
 pub fn render_display(
-    reader_query: Query<(&mut BoxReader, &mut Text)>,
+    mut reader_query: Query<(&mut BoxReader, &mut Text)>,
     mut event_reader: EventReader<OutputEvent>,
     time: Res<Time>,
 ) {
     for (reader, mut text) in reader_query.iter_mut() {
-        for output_event in event_reader.clone().iter() {
-            if output_event.box_ == reader.box_ {
+        for output_event in event_reader.iter() {
+            if output_event.box_ == reader.box_.expect("BoxReader should have Some box_") {
                 text.sections[0].value = output_event.output.to_string();
                 text.sections[0].style.color.set_a(1.);
             } else {
-                text.sections[0]
-                    .style
-                    .color
-                    .set_a(text.sections[0].style.color.a() - (2. * time.delta_seconds()))
-                    .max(0.4);
+                let alpha = text.sections[0].style.color.a() - (2. * time.delta_seconds()).max(0.4);
+                text.sections[0].style.color.set_a(alpha);
             }
         }
     }
 }
 
 pub fn update_box_progress(
-    reader_query: Query<(&mut Progression, &mut BoxReader)>,
+    mut reader_query: Query<(&mut Progression, &BoxReader)>,
     mut event_reader: EventReader<OutputEvent>,
     piece_query: Query<&ProgressionPiece>,
 ) {
-    for (progress, reader) in reader_query.iter_mut() {
-        for output_event in event_reader.clone().iter() {
-            if output_event.box_ == reader.box_ {
+    for (mut progress, reader) in reader_query.iter_mut() {
+        for output_event in event_reader.iter() {
+            if output_event.box_ == reader.box_.expect("BoxReader should have Some box_") {
                 progress.answer.push(output_event.output.clone());
 
                 while !progress.answer.is_empty()
@@ -134,8 +131,7 @@ pub fn update_box_progress(
 
 pub fn render_progression(
     prog_query: Query<&Progression>,
-    image_query: Query<&mut ColorMaterial>,
-    mut materials: ResMut<Assets<ColorMaterial>>,
+    mut image_query: Query<&mut ColorMaterial>,
 ) {
     for progress in prog_query.iter() {
         for (i, piece) in progress.prompt.iter().enumerate() {
@@ -146,7 +142,8 @@ pub fn render_progression(
             };
             image_query
                 .get_component_mut::<ColorMaterial>(*piece)
-                .unwrap() = materials.add(color);
+                .unwrap()
+                .color = color;
         }
     }
 }

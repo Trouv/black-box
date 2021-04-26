@@ -43,10 +43,11 @@ fn main() {
 
     App::build().add_plugins(DefaultPlugins).run();
 
-    let args: Vec<String> = env::args().collect();
-    let level = if args.len() >= 2 {
-        args[1].parse::<usize>()?
-    } else {
-        1
-    };
+    //let args: Vec<String> = env::args().collect();
+    //let level = if args.len() >= 2 {
+    //args[1].parse::<usize>()
+    //} else {
+    //1
+    //};
+    //Ok(())
 }

@@ -13,7 +13,7 @@ pub enum AppState {
 fn black_box_setup(
     mut commands: Commands,
     server: Res<AssetServer>,
-    materials: ResMut<Assets<ColorMaterial>>,
+    mut materials: ResMut<Assets<ColorMaterial>>,
     mut prev_level: Option<ResMut<LevelData>>,
 ) {
     let level_num = if let Some(mut level_data) = prev_level {
@@ -27,7 +27,7 @@ fn black_box_setup(
     // only deals with 1 box at a time
     let mut level_data = LevelData::try_from(LEVEL_ORDER[(level_num - 1) % LEVEL_ORDER.len()])
         .expect(format!("Unable to load level {}", level_num).as_str());
-    level_data.init(&mut commands, &server, &materials, level_num);
+    level_data.init(&mut commands, &server, &mut materials, level_num);
     commands.insert_resource(level_data);
 }
 
@@ -44,7 +44,6 @@ fn camera_setup(commands: &mut Commands) {
 }
 
 fn level_completion(
-    mut commands: Commands,
     progress_query: Query<&Progression>,
     level_data: Res<LevelData>,
     mut state: ResMut<State<AppState>>,
@@ -57,7 +56,7 @@ fn level_completion(
 }
 
 fn black_box_cleanup(mut commands: Commands, level_data: Res<LevelData>) {
-    for entity in level_data.entities {
-        commands.entity(entity).despawn_recursive();
+    for entity in &level_data.entities {
+        commands.entity(*entity).despawn_recursive();
     }
 }
