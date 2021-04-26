@@ -2,7 +2,7 @@ use crate::components::{BlackBox, BoxOut, BoxReader, Button, Progression, Progre
 use bevy::prelude::*;
 use ron::de::from_reader;
 use serde::{Deserialize, Serialize};
-use std::{convert::TryFrom, io, path::Path};
+use std::{convert::TryFrom, path::Path};
 
 pub const LEVEL_ORDER: [&str; 10] = [
     "pin_pad.ron",
@@ -21,7 +21,7 @@ pub const LEVEL_ORDER: [&str; 10] = [
 #[serde(deny_unknown_fields)]
 struct ButtonData {
     button: Button,
-    transform: Transform,
+    transform: Vec3,
 }
 
 #[derive(Serialize, Deserialize, Default, Clone, Debug)]
@@ -38,11 +38,12 @@ pub struct LevelData {
 }
 
 impl TryFrom<&str> for LevelData {
-    type Error = io::Error;
-    fn try_from(path: &str) -> io::Result<LevelData> {
+    type Error = ron::error::Error;
+
+    fn try_from(path: &str) -> ron::error::Result<LevelData> {
         let input_path = Path::new("assets/levels").join(path);
         let f = std::fs::File::open(&input_path)?;
-        Ok(from_reader(f)?)
+        from_reader(f)
     }
 }
 
