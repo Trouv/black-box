@@ -55,6 +55,7 @@ impl LevelData {
         &self,
         commands: &mut Commands,
         server: &Res<AssetServer>,
+        materials: &ResMut<Assets<ColorMaterial>>,
         box_: Entity,
     ) -> Entity {
         let mut pieces = Vec::<Entity>::new();
@@ -73,7 +74,7 @@ impl LevelData {
                     pieces.push(
                         parent
                             .spawn_bundle(NodeBundle {
-                                material: ColorMaterial::color(Color::rgb(0.9, 0.9, 0.9)),
+                                material: materials.add(Color::rgb(0.9, 0.9, 0.9).into()),
                                 ..Default::default()
                             })
                             .insert(ProgressionPiece(piece.clone()))
@@ -117,19 +118,18 @@ impl LevelData {
     ) -> (Entity, Entity) {
         let mut transform = Transform::from_xyz(0., 0., 0.);
 
-        let font = server.load_untyped("fonts/rainyhearts.ttf");
-
         let buttons_clone = buttons.clone();
 
         let mut box_component = BlackBox::new(buttons);
         let gltf_handle = server.load_untyped("models/box.glb");
 
-        self.box_ = commands
+        let box_ = commands
             .spawn()
             .insert(transform)
             .insert(box_component)
             .insert(gltf_handle)
             .id();
+        self.box_ = Some(box_);
 
         let display = commands
             .spawn_bundle(TextBundle {
@@ -148,7 +148,7 @@ impl LevelData {
                 text: Text::with_section(
                     "display".to_string(),
                     TextStyle {
-                        font,
+                        font: server.load("fonts/rainyhearts.ttf"),
                         font_size: 60.,
                         color: GREEN,
                     },
@@ -159,14 +159,14 @@ impl LevelData {
                 ),
                 ..Default::default()
             })
-            .insert(BoxReader::new(self.box_))
+            .insert(BoxReader::new(box_))
             .id();
 
         for button in buttons_clone {
-            commands.entity(button).insert(Parent(self.box_));
+            commands.entity(button).insert(Parent(box_));
         }
 
-        (self.box_, display)
+        (box_, display)
     }
 
     fn init_buttons(&self, commands: &mut Commands, server: &Res<AssetServer>) -> Vec<Entity> {
@@ -189,8 +189,6 @@ impl LevelData {
     }
 
     fn init_level_counter(&self, commands: &mut Commands, server: &Res<AssetServer>) -> Entity {
-        let font = server.load_untyped("fonts/rainyhearts.ttf");
-
         commands
             .spawn_bundle(TextBundle {
                 style: Style {
@@ -205,7 +203,7 @@ impl LevelData {
                 text: Text::with_section(
                     format!("{}/{}", ((self.level_num - 1) % 10) + 1, LEVEL_ORDER.len()),
                     TextStyle {
-                        font,
+                        font: server.load("fonts/rainyhearts.ttf"),
                         font_size: 30.,
                         color: Color::rgb(0.1, 0.1, 0.1),
                     },
@@ -223,6 +221,7 @@ impl LevelData {
         &mut self,
         commands: &mut Commands,
         server: &Res<AssetServer>,
+        materials: &ResMut<Assets<ColorMaterial>>,
         level_num: usize,
     ) -> Entity {
         self.level_num = level_num;
@@ -230,7 +229,7 @@ impl LevelData {
         let level_counter = self.init_level_counter(&mut commands, &server);
         let buttons = self.init_buttons(&mut commands, &server);
         let (box_, display) = self.init_box(&mut commands, &server, buttons.clone());
-        let progress = self.init_progress(&mut commands, &server, box_);
+        let progress = self.init_progress(&mut commands, &server, &materials, box_);
 
         self.entities.push(level_counter);
         self.entities.push(box_);

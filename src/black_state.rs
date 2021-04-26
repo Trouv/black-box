@@ -3,6 +3,7 @@ use crate::{
     level::{LevelData, LEVEL_ORDER},
 };
 use bevy::prelude::*;
+use std::convert::TryFrom;
 
 #[derive(Debug, Clone, Eq, PartialEq, Hash)]
 pub enum AppState {
@@ -12,6 +13,7 @@ pub enum AppState {
 fn black_box_setup(
     mut commands: Commands,
     server: Res<AssetServer>,
+    materials: ResMut<Assets<ColorMaterial>>,
     mut prev_level: Option<ResMut<LevelData>>,
 ) {
     let level_num = if let Some(mut level_data) = prev_level {
@@ -23,8 +25,9 @@ fn black_box_setup(
 
     // This LevelData resource design seems dodgy, but it works pretty well for now while the game
     // only deals with 1 box at a time
-    let mut level_data = LevelData::try_from(LEVEL_ORDER[(level_num - 1) % LEVEL_ORDER.len()]);
-    level_data.init(&mut commands, &server, level_num);
+    let mut level_data = LevelData::try_from(LEVEL_ORDER[(level_num - 1) % LEVEL_ORDER.len()])
+        .expect(format!("Unable to load level {}", level_num).as_str());
+    level_data.init(&mut commands, &server, &materials, level_num);
     commands.insert_resource(level_data);
 }
 
