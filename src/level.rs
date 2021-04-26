@@ -120,13 +120,14 @@ impl LevelData {
         let buttons_clone = buttons.clone();
 
         let box_component = BlackBox::new(buttons);
-        let gltf_handle = server.load_untyped("models/box.glb");
 
         let box_ = commands
             .spawn()
             .insert(transform)
             .insert(box_component)
-            .insert(gltf_handle)
+            .with_children(|parent| {
+                parent.spawn_scene(server.load("models/box.glb#Scene0"));
+            })
             .id();
         self.box_ = Some(box_);
 
@@ -171,15 +172,15 @@ impl LevelData {
     fn init_buttons(&self, commands: &mut Commands, server: &Res<AssetServer>) -> Vec<Entity> {
         let mut button_entities = Vec::new();
 
-        let gltf_handle = server.load_untyped("models/button.glb");
-
         for button in &self.buttons {
             button_entities.push(
                 commands
                     .spawn()
-                    .insert(gltf_handle.clone())
-                    .insert(button.translation.clone())
+                    .insert(Transform::from_translation(button.translation.clone()))
                     .insert(button.button.clone())
+                    .with_children(|parent| {
+                        parent.spawn_scene(server.load("models/button.glb#Scene0"));
+                    })
                     .id(),
             );
         }

@@ -45,6 +45,7 @@ fn main() {
 
     App::build()
         .add_plugins(DefaultPlugins)
+        .insert_resource(Msaa { samples: 1 })
         .add_state(BlackBox)
         .add_event::<components::OutputEvent>()
         .add_system_set(
