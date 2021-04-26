@@ -34,7 +34,7 @@ pub fn black_box_setup(
 fn camera_setup(commands: &mut Commands) {
     commands.spawn_bundle(UiCameraBundle::default());
     commands.spawn_bundle(PerspectiveCameraBundle {
-        transform: Transform::from_xyz(0., 2., 1.4).looking_at(Vec3::ZERO, Vec3::Y),
+        transform: Transform::from_xyz(0., 1.1, 0.8).looking_at(Vec3::new(0., 0., -0.2), Vec3::Y),
         ..Default::default()
     });
     commands.spawn_bundle(LightBundle {
