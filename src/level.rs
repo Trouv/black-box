@@ -122,8 +122,7 @@ impl LevelData {
         let box_component = BlackBox::new(buttons);
 
         let box_ = commands
-            .spawn()
-            .insert(transform)
+            .spawn_bundle((transform, GlobalTransform::identity()))
             .insert(box_component)
             .with_children(|parent| {
                 parent.spawn_scene(server.load("models/box.glb#Scene0"));
@@ -175,8 +174,10 @@ impl LevelData {
         for button in &self.buttons {
             button_entities.push(
                 commands
-                    .spawn()
-                    .insert(Transform::from_translation(button.translation.clone()))
+                    .spawn_bundle((
+                        Transform::from_translation(button.translation.clone()),
+                        GlobalTransform::identity(),
+                    ))
                     .insert(button.button.clone())
                     .with_children(|parent| {
                         parent.spawn_scene(server.load("models/button.glb#Scene0"));
