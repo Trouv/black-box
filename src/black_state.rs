@@ -4,6 +4,7 @@ use crate::{
 };
 use bevy::prelude::*;
 
+#[derive(Debug, Clone, Eq, PartialEq, Hash)]
 pub enum AppState {
     BlackBox,
 }
@@ -41,7 +42,7 @@ fn camera_setup(commands: &mut Commands) {
 
 fn level_completion(
     mut commands: Commands,
-    progress_query: Query<Progression>,
+    progress_query: Query<&Progression>,
     level_data: Res<LevelData>,
     mut state: ResMut<State<AppState>>,
 ) {

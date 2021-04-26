@@ -41,7 +41,7 @@ use bevy::prelude::*;
 pub fn push_button(
     box_query: Query<&BlackBox>,
     button_query: Query<&mut Button>,
-    input: Res<Input>,
+    input: Res<Input<KeyCode>>,
 ) {
     for box_ in box_query.iter() {
         for (i, b) in box_.buttons.iter().enumerate() {
