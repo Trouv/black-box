@@ -30,6 +30,8 @@ pub struct LevelData {
     prompt: Vec<BoxOut>,
     buttons: Vec<ButtonData>,
     #[serde(skip)]
+    pub level_num: usize,
+    #[serde(skip)]
     pub entities: Vec<Entity>,
     #[serde(skip)]
     pub box_: Option<Entity>,
@@ -189,12 +191,7 @@ impl LevelData {
         button_entities
     }
 
-    fn init_level_counter(
-        &self,
-        commands: &mut Commands,
-        server: &Res<AssetServer>,
-        level_num: usize,
-    ) -> Entity {
+    fn init_level_counter(&self, commands: &mut Commands, server: &Res<AssetServer>) -> Entity {
         let font = server.load_untyped("fonts/rainyhearts.ttf");
 
         commands
@@ -209,7 +206,7 @@ impl LevelData {
                     ..Default::default()
                 },
                 text: Text::with_section(
-                    format!("{}/{}", ((level_num - 1) % 10) + 1, LEVEL_ORDER.len()),
+                    format!("{}/{}", ((self.level_num - 1) % 10) + 1, LEVEL_ORDER.len()),
                     TextStyle {
                         font,
                         font_size: 30.,
@@ -231,7 +228,9 @@ impl LevelData {
         server: &Res<AssetServer>,
         level_num: usize,
     ) -> Entity {
-        let level_counter = self.init_level_counter(&mut commands, &server, level_num);
+        self.level_num = level_num;
+
+        let level_counter = self.init_level_counter(&mut commands, &server);
         let buttons = self.init_buttons(&mut commands, &server);
         let (box_, display) = self.init_box(&mut commands, &server, buttons.clone());
         let (progress, pieces) = self.init_progress(&mut commands, &server, box_);

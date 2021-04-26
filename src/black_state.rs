@@ -10,6 +10,33 @@ pub enum AppState {
     BlackBox,
 }
 
+fn black_box_setup(
+    mut commands: Commands,
+    server: Res<AssetServer>,
+    mut prev_level: Option<ResMut<LevelData>>,
+) {
+    let level_num = if let Some(mut level_data) = prev_level {
+        level_data.level_num + 1
+    } else {
+        camera_setup(&mut commands);
+        0
+    };
+
+    commands.insert_resource(LevelData::from(level_num));
+}
+
+fn camera_setup(commands: &mut Commands) {
+    commands.spawn_bundle(UiCameraBundle::default());
+    commands.spawn_bundle(PerspectiveCameraBundle {
+        transform: Transform::from_xyz(0., 1., 0.7).looking_at(Vec3::ZERO, Vec3::Y),
+        ..Default::default()
+    });
+    commands.spawn_bundle(LightBundle {
+        transform: Transform::from_xyz(-1., 1., 1.),
+        ..Default::default()
+    });
+}
+
 pub struct BlackState {
     level_num: usize,
     level_data: Option<LevelData>,
