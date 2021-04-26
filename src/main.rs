@@ -7,6 +7,8 @@ pub mod components;
 pub mod level;
 pub mod systems;
 
+use black_state::AppState::BlackBox;
+
 fn main() {
     //let app_root = application_root_dir()?;
 
@@ -41,7 +43,26 @@ fn main() {
     //.add_system(systems::render_progression_system);
     //
 
-    App::build().add_plugins(DefaultPlugins).run();
+    App::build()
+        .add_plugins(DefaultPlugins)
+        .add_state(BlackBox)
+        .add_event::<components::OutputEvent>()
+        .add_system_set(
+            SystemSet::on_enter(BlackBox).with_system(black_state::black_box_setup.system()),
+        )
+        .add_system_set(
+            SystemSet::on_update(BlackBox)
+                .with_system(black_state::level_completion.system())
+                .with_system(systems::push_button.system())
+                .with_system(systems::render_display.system())
+                //.with_system(systems::render_progression.system())
+                .with_system(systems::update_box_progress.system())
+                .with_system(systems::update_box_state.system()),
+        )
+        .add_system_set(
+            SystemSet::on_exit(BlackBox).with_system(black_state::black_box_cleanup.system()),
+        )
+        .run();
 
     //let args: Vec<String> = env::args().collect();
     //let level = if args.len() >= 2 {

@@ -10,7 +10,7 @@ pub enum AppState {
     BlackBox,
 }
 
-fn black_box_setup(
+pub fn black_box_setup(
     mut commands: Commands,
     server: Res<AssetServer>,
     mut materials: ResMut<Assets<ColorMaterial>>,
@@ -43,7 +43,7 @@ fn camera_setup(commands: &mut Commands) {
     });
 }
 
-fn level_completion(
+pub fn level_completion(
     progress_query: Query<&Progression>,
     level_data: Res<LevelData>,
     mut state: ResMut<State<AppState>>,
@@ -55,7 +55,7 @@ fn level_completion(
     }
 }
 
-fn black_box_cleanup(mut commands: Commands, level_data: Res<LevelData>) {
+pub fn black_box_cleanup(mut commands: Commands, level_data: Res<LevelData>) {
     for entity in &level_data.entities {
         commands.entity(*entity).despawn_recursive();
     }

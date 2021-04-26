@@ -21,7 +21,7 @@ pub const LEVEL_ORDER: [&str; 10] = [
 #[serde(deny_unknown_fields)]
 struct ButtonData {
     button: Button,
-    transform: Vec3,
+    translation: Vec3,
 }
 
 #[derive(Serialize, Deserialize, Default, Clone, Debug)]
@@ -48,8 +48,6 @@ impl TryFrom<&str> for LevelData {
 }
 
 pub const GREEN: Color = Color::rgb(0.36, 0.63, 0.36);
-const PIXEL_X: u32 = 1;
-const PIXEL_Y: u32 = 1;
 
 impl LevelData {
     fn init_progress(
@@ -180,7 +178,7 @@ impl LevelData {
                 commands
                     .spawn()
                     .insert(gltf_handle.clone())
-                    .insert(button.transform.clone())
+                    .insert(button.translation.clone())
                     .insert(button.button.clone())
                     .id(),
             );
