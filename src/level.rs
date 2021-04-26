@@ -62,9 +62,13 @@ impl LevelData {
             .spawn_bundle(NodeBundle {
                 style: Style {
                     justify_content: JustifyContent::Center,
-                    size: Size::new(Val::Percent(100.), Val::Percent(10.)), //Progression::default(),
+                    size: Size {
+                        height: Val::Percent(10.),
+                        ..Default::default()
+                    },
                     ..Default::default()
                 },
+                material: materials.add(ColorMaterial::color(Color::NONE)),
                 ..Default::default()
             })
             .insert(BoxReader::new(box_))
@@ -113,6 +117,7 @@ impl LevelData {
         &mut self,
         commands: &mut Commands,
         server: &Res<AssetServer>,
+        materials: &mut ResMut<Assets<ColorMaterial>>,
         buttons: Vec<Entity>,
     ) -> (Entity, Entity) {
         let transform = Transform::from_xyz(0., 0., 0.);
@@ -131,34 +136,44 @@ impl LevelData {
         self.box_ = Some(box_);
 
         let display = commands
-            .spawn_bundle(TextBundle {
+            .spawn_bundle(NodeBundle {
                 style: Style {
                     position_type: PositionType::Absolute,
                     size: Size {
                         width: Val::Percent(100.),
                         height: Val::Percent(50.),
-                    },
-                    position: Rect {
-                        top: Val::Percent(10.),
                         ..Default::default()
                     },
+                    position: Rect {
+                        bottom: Val::Percent(40.),
+                        ..Default::default()
+                    },
+                    justify_content: JustifyContent::Center,
+                    align_items: AlignItems::Center,
                     ..Default::default()
                 },
-                text: Text::with_section(
-                    "display".to_string(),
-                    TextStyle {
-                        font: server.load("fonts/rainyhearts.ttf"),
-                        font_size: 60.,
-                        color: GREEN,
-                    },
-                    TextAlignment {
-                        vertical: VerticalAlign::Center,
-                        horizontal: HorizontalAlign::Center,
-                    },
-                ),
+                material: materials.add(ColorMaterial::color(Color::NONE)),
                 ..Default::default()
             })
-            .insert(BoxReader::new(box_))
+            .with_children(|parent| {
+                parent
+                    .spawn_bundle(TextBundle {
+                        text: Text::with_section(
+                            "display".to_string(),
+                            TextStyle {
+                                font: server.load("fonts/rainyhearts.ttf"),
+                                font_size: 60.,
+                                color: GREEN,
+                            },
+                            TextAlignment {
+                                vertical: VerticalAlign::Center,
+                                horizontal: HorizontalAlign::Center,
+                            },
+                        ),
+                        ..Default::default()
+                    })
+                    .insert(BoxReader::new(box_));
+            })
             .id();
 
         for button in buttons_clone {
@@ -229,7 +244,7 @@ impl LevelData {
 
         let level_counter = self.init_level_counter(commands, server);
         let buttons = self.init_buttons(commands, server);
-        let (box_, display) = self.init_box(commands, server, buttons.clone());
+        let (box_, display) = self.init_box(commands, server, materials, buttons.clone());
         let progress = self.init_progress(commands, server, materials, box_);
 
         self.entities.push(level_counter);
