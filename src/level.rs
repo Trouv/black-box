@@ -62,9 +62,10 @@ impl LevelData {
             .spawn_bundle(NodeBundle {
                 style: Style {
                     justify_content: JustifyContent::Center,
+                    align_items: AlignItems::FlexEnd,
                     size: Size {
-                        height: Val::Percent(10.),
-                        ..Default::default()
+                        height: Val::Percent(100.),
+                        width: Val::Percent(100.),
                     },
                     ..Default::default()
                 },
@@ -77,6 +78,15 @@ impl LevelData {
                     pieces.push(
                         parent
                             .spawn_bundle(NodeBundle {
+                                style: Style {
+                                    align_items: AlignItems::Center,
+                                    justify_content: JustifyContent::Center,
+                                    size: Size {
+                                        height: Val::Percent(10.),
+                                        width: Val::Percent(10. / 16. * 9.),
+                                    },
+                                    ..Default::default()
+                                },
                                 material: materials.add(Color::rgb(0.9, 0.9, 0.9).into()),
                                 ..Default::default()
                             })
@@ -88,13 +98,10 @@ impl LevelData {
                                             piece.to_string(),
                                             TextStyle {
                                                 font: server.load("fonts/rainyhearts.ttf"),
-                                                font_size: 30.,
+                                                font_size: 50.,
                                                 color: Color::rgb(0.1, 0.1, 0.1),
                                             },
-                                            TextAlignment {
-                                                vertical: VerticalAlign::Center,
-                                                horizontal: HorizontalAlign::Center,
-                                            },
+                                            TextAlignment::default(),
                                         ),
                                         ..Default::default()
                                     })
@@ -141,11 +148,11 @@ impl LevelData {
                     position_type: PositionType::Absolute,
                     size: Size {
                         width: Val::Percent(100.),
-                        height: Val::Percent(50.),
+                        height: Val::Percent(30.),
                         ..Default::default()
                     },
                     position: Rect {
-                        bottom: Val::Percent(40.),
+                        bottom: Val::Percent(60.),
                         ..Default::default()
                     },
                     justify_content: JustifyContent::Center,
@@ -162,13 +169,10 @@ impl LevelData {
                             "display".to_string(),
                             TextStyle {
                                 font: server.load("fonts/rainyhearts.ttf"),
-                                font_size: 60.,
+                                font_size: 200.,
                                 color: GREEN,
                             },
-                            TextAlignment {
-                                vertical: VerticalAlign::Center,
-                                horizontal: HorizontalAlign::Center,
-                            },
+                            TextAlignment::default(),
                         ),
                         ..Default::default()
                     })
@@ -220,13 +224,10 @@ impl LevelData {
                     format!("{}/{}", ((self.level_num - 1) % 10) + 1, LEVEL_ORDER.len()),
                     TextStyle {
                         font: server.load("fonts/rainyhearts.ttf"),
-                        font_size: 30.,
+                        font_size: 50.,
                         color: Color::rgb(0.1, 0.1, 0.1),
                     },
-                    TextAlignment {
-                        horizontal: HorizontalAlign::Right,
-                        vertical: VerticalAlign::Top,
-                    },
+                    TextAlignment::default(),
                 ),
                 ..Default::default()
             })
