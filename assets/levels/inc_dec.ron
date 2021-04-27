@@ -21,9 +21,7 @@ LevelData(
                     AddEq(C(1), 0),
                 ],
             ),
-            transform: (
-                translation: (0.00, 0.0, 0.10),
-            ),
+            translation: (0.00, 0.0, 0.10),
         ),
         (
             button: (
@@ -31,9 +29,7 @@ LevelData(
                     AddEq(C(-1), 0),
                 ],
             ),
-            transform: (
-                translation: (0.00, 0.0, -0.10),
-            ),
+            translation: (0.00, 0.0, -0.10),
         ),
     ],
 )

@@ -18,9 +18,7 @@ LevelData(
                     PrintInt(C(3)),
                 ],
             ),
-            transform: (
-                translation: (-0.20, 0.0, -0.20),
-            ),
+            translation: (-0.20, 0.0, -0.20),
         ),
         (
             button: (
@@ -28,9 +26,7 @@ LevelData(
                     PrintInt(C(5)),
                 ],
             ),
-            transform: (
-                translation: (-0.10, 0.0, -0.10),
-            ),
+            translation: (-0.10, 0.0, -0.10),
         ),
         (
             button: (
@@ -38,9 +34,7 @@ LevelData(
                     PrintInt(C(1)),
                 ],
             ),
-            transform: (
-                translation: (0.00, 0.0, -0.00),
-            ),
+            translation: (0.00, 0.0, -0.00),
         ),
         (
             button: (
@@ -48,9 +42,7 @@ LevelData(
                     PrintInt(C(2)),
                 ],
             ),
-            transform: (
-                translation: (0.10, 0.0, 0.10),
-            ),
+            translation: (0.10, 0.0, 0.10),
         ),
         (
             button: (
@@ -58,9 +50,7 @@ LevelData(
                     PrintInt(C(4)),
                 ],
             ),
-            transform: (
-                translation: (0.20, 0.0, 0.20),
-            ),
+            translation: (0.20, 0.0, 0.20),
         ),
     ],
 )

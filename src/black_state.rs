@@ -8,6 +8,7 @@ use std::convert::TryFrom;
 #[derive(Debug, Clone, Eq, PartialEq, Hash)]
 pub enum AppState {
     BlackBox,
+    IntoBlackBox,
 }
 
 pub fn black_box_setup(
@@ -50,9 +51,13 @@ pub fn level_completion(
 ) {
     for progress in progress_query.iter() {
         if progress.answer.len() >= progress.prompt.len() {
-            state.set(AppState::BlackBox);
+            state.replace(AppState::IntoBlackBox).unwrap();
         }
     }
+}
+
+pub fn into_black_box(mut state: ResMut<State<AppState>>) {
+    state.replace(AppState::BlackBox).unwrap();
 }
 
 pub fn black_box_cleanup(mut commands: Commands, level_data: Res<LevelData>) {

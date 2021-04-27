@@ -17,9 +17,7 @@ LevelData(
                     Mod(G(0), C(6), 0),
                 ],
             ),
-            transform: (
-                translation: (-0.10, 0.0, 0.10),
-            ),
+            translation: (-0.10, 0.0, 0.10),
         ),
         (
             button: (
@@ -27,9 +25,7 @@ LevelData(
                     PrintInt(G(0)),
                 ],
             ),
-            transform: (
-                translation: (0.10, 0.0, -0.10),
-            ),
+            translation: (0.10, 0.0, -0.10),
         ),
     ],
 )

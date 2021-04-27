@@ -7,7 +7,7 @@ pub mod components;
 pub mod level;
 pub mod systems;
 
-use black_state::AppState::BlackBox;
+use black_state::AppState;
 
 fn main() {
     //let app_root = application_root_dir()?;
@@ -46,13 +46,14 @@ fn main() {
     App::build()
         .add_plugins(DefaultPlugins)
         .insert_resource(Msaa { samples: 1 })
-        .add_state(BlackBox)
+        .add_state(AppState::BlackBox)
         .add_event::<components::OutputEvent>()
         .add_system_set(
-            SystemSet::on_enter(BlackBox).with_system(black_state::black_box_setup.system()),
+            SystemSet::on_enter(AppState::BlackBox)
+                .with_system(black_state::black_box_setup.system()),
         )
         .add_system_set(
-            SystemSet::on_update(BlackBox)
+            SystemSet::on_update(AppState::BlackBox)
                 .with_system(black_state::level_completion.system())
                 .with_system(systems::push_button.system())
                 .with_system(systems::render_display.system())
@@ -61,7 +62,12 @@ fn main() {
                 .with_system(systems::update_box_state.system()),
         )
         .add_system_set(
-            SystemSet::on_exit(BlackBox).with_system(black_state::black_box_cleanup.system()),
+            SystemSet::on_exit(AppState::BlackBox)
+                .with_system(black_state::black_box_cleanup.system()),
+        )
+        .add_system_set(
+            SystemSet::on_enter(AppState::IntoBlackBox)
+                .with_system(black_state::into_black_box.system()),
         )
         .run();
 
