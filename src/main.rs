@@ -57,7 +57,7 @@ fn main() {
                 .with_system(black_state::level_completion.system())
                 .with_system(systems::push_button.system())
                 .with_system(systems::render_display.system())
-                //.with_system(systems::render_progression.system())
+                .with_system(systems::render_progression.system())
                 .with_system(systems::update_box_progress.system())
                 .with_system(systems::update_box_state.system()),
         )

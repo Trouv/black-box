@@ -91,7 +91,8 @@ pub fn render_display(
                 text.sections[0].value = output_event.output.to_string();
                 text.sections[0].style.color.set_a(1.);
             } else {
-                let alpha = text.sections[0].style.color.a() - (2. * time.delta_seconds()).max(0.4);
+                let alpha =
+                    (text.sections[0].style.color.a() - (2. * time.delta_seconds())).max(0.4);
                 text.sections[0].style.color.set_a(alpha);
             }
         }
@@ -130,8 +131,10 @@ pub fn update_box_progress(
 }
 
 pub fn render_progression(
+    mut commands: Commands,
     prog_query: Query<&Progression>,
-    mut image_query: Query<&mut ColorMaterial>,
+    mut image_query: Query<Entity, With<ProgressionPiece>>,
+    mut materials: ResMut<Assets<ColorMaterial>>,
 ) {
     for progress in prog_query.iter() {
         for (i, piece) in progress.prompt.iter().enumerate() {
@@ -140,10 +143,15 @@ pub fn render_progression(
             } else {
                 Color::rgb(0.9, 0.9, 0.9)
             };
-            image_query
-                .get_component_mut::<ColorMaterial>(*piece)
-                .unwrap()
-                .color = color;
+
+            commands.entity(*piece).remove::<Handle<ColorMaterial>>();
+            commands
+                .entity(*piece)
+                .insert(materials.add(ColorMaterial::color(color)));
+            //image_query
+            //.get_component_mut::<ColorMaterial>(*piece)
+            //.unwrap()
+            //.color = color;
         }
     }
 }
