@@ -90,12 +90,10 @@ pub fn render_display(
             if output_event.box_ == reader.box_.expect("BoxReader should have Some box_") {
                 text.sections[0].value = output_event.output.to_string();
                 text.sections[0].style.color.set_a(1.);
-            } else {
-                let alpha =
-                    (text.sections[0].style.color.a() - (2. * time.delta_seconds())).max(0.4);
-                text.sections[0].style.color.set_a(alpha);
             }
         }
+        let alpha = (text.sections[0].style.color.a() - (2. * time.delta_seconds())).max(0.4);
+        text.sections[0].style.color.set_a(alpha);
     }
 }
 
