@@ -50,7 +50,8 @@ fn main() {
         .add_event::<components::OutputEvent>()
         .add_system_set(
             SystemSet::on_enter(AppState::BlackBox)
-                .with_system(black_state::black_box_setup.system()),
+                .with_system(black_state::black_box_setup.system())
+                .with_system(level::add_colors.system()),
         )
         .add_system_set(
             SystemSet::on_update(AppState::BlackBox)

@@ -3,7 +3,7 @@ use crate::{
         BlackBox, BoxOut, BoxReader, Button, OutputEvent, Progression, ProgressionPiece,
         BUTTON_NUMS,
     },
-    level::GREEN,
+    level::{ColorHandles, GREEN},
 };
 use bevy::prelude::*;
 
@@ -131,27 +131,22 @@ pub fn update_box_progress(
 }
 
 pub fn render_progression(
-    mut commands: Commands,
     prog_query: Query<&Progression>,
-    mut image_query: Query<Entity, With<ProgressionPiece>>,
-    mut materials: ResMut<Assets<ColorMaterial>>,
+    mut image_query: Query<&mut Handle<ColorMaterial>, With<ProgressionPiece>>,
+    color_handles: Res<ColorHandles>,
 ) {
     for progress in prog_query.iter() {
         for (i, piece) in progress.prompt.iter().enumerate() {
             let color = if i < progress.answer.len() {
-                GREEN
+                color_handles.green.clone_weak()
             } else {
-                Color::rgb(0.9, 0.9, 0.9)
+                color_handles.white.clone_weak()
             };
 
-            commands.entity(*piece).remove::<Handle<ColorMaterial>>();
-            commands
-                .entity(*piece)
-                .insert(materials.add(ColorMaterial::color(color)));
-            //image_query
-            //.get_component_mut::<ColorMaterial>(*piece)
-            //.unwrap()
-            //.color = color;
+            let mut current_color = image_query
+                .get_component_mut::<Handle<ColorMaterial>>(*piece)
+                .unwrap();
+            *current_color = color;
         }
     }
 }
