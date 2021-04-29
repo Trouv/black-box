@@ -9,6 +9,11 @@ pub mod systems;
 
 use black_state::AppState;
 
+#[derive(Debug, Clone, PartialEq, Eq, Hash, SystemLabel)]
+enum SystemLabels {
+    Input,
+}
+
 fn main() {
     //let app_root = application_root_dir()?;
 
@@ -55,11 +60,19 @@ fn main() {
         )
         .add_system_set(
             SystemSet::on_update(AppState::BlackBox)
+                .label(SystemLabels::Input)
+                .with_system(systems::push_button.system()),
+        )
+        .add_system_set(
+            SystemSet::on_update(AppState::BlackBox)
+                .after(SystemLabels::Input)
+                .with_system(systems::update_box_progress.system()),
+        )
+        .add_system_set(
+            SystemSet::on_update(AppState::BlackBox)
                 .with_system(black_state::level_completion.system())
-                .with_system(systems::push_button.system())
                 .with_system(systems::render_display.system())
                 .with_system(systems::render_progression.system())
-                .with_system(systems::update_box_progress.system())
                 .with_system(systems::update_box_state.system()),
         )
         .add_system_set(

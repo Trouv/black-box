@@ -3,7 +3,7 @@ use crate::{
         BlackBox, BoxOut, BoxReader, Button, OutputEvent, Progression, ProgressionPiece,
         BUTTON_NUMS,
     },
-    level::{ColorHandles, GREEN},
+    level::ColorHandles,
 };
 use bevy::prelude::*;
 

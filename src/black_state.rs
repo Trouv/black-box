@@ -15,9 +15,9 @@ pub fn black_box_setup(
     mut commands: Commands,
     server: Res<AssetServer>,
     mut materials: ResMut<Assets<ColorMaterial>>,
-    mut prev_level: Option<ResMut<LevelData>>,
+    prev_level: Option<Res<LevelData>>,
 ) {
-    let level_num = if let Some(mut level_data) = prev_level {
+    let level_num = if let Some(level_data) = prev_level {
         level_data.level_num + 1
     } else {
         camera_setup(&mut commands);
@@ -44,11 +44,7 @@ fn camera_setup(commands: &mut Commands) {
     });
 }
 
-pub fn level_completion(
-    progress_query: Query<&Progression>,
-    level_data: Res<LevelData>,
-    mut state: ResMut<State<AppState>>,
-) {
+pub fn level_completion(progress_query: Query<&Progression>, mut state: ResMut<State<AppState>>) {
     for progress in progress_query.iter() {
         if progress.answer.len() >= progress.prompt.len() {
             state.replace(AppState::IntoBlackBox).unwrap();
