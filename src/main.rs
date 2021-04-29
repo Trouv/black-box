@@ -1,5 +1,5 @@
 use bevy::prelude::*;
-use std::env;
+use std::{env, num::ParseIntError};
 
 pub mod actions;
 mod black_state;
@@ -14,7 +14,7 @@ enum SystemLabels {
     Input,
 }
 
-fn main() {
+fn main() -> Result<(), ParseIntError> {
     //let app_root = application_root_dir()?;
 
     //let resources = app_root.join("assets");
@@ -47,12 +47,20 @@ fn main() {
     //.add_system(systems::update_box_progress_system)
     //.add_system(systems::render_progression_system);
     //
+    let args: Vec<String> = env::args().collect();
+    let level_num = level::LevelNum(if args.len() >= 2 {
+        args[1].parse::<usize>()?
+    } else {
+        1
+    });
 
     App::build()
         .add_plugins(DefaultPlugins)
         .insert_resource(Msaa { samples: 1 })
+        .insert_resource(level_num)
         .add_state(AppState::BlackBox)
         .add_event::<components::OutputEvent>()
+        .add_startup_system(black_state::camera_setup.system())
         .add_system_set(
             SystemSet::on_enter(AppState::BlackBox)
                 .with_system(black_state::black_box_setup.system())
@@ -85,11 +93,5 @@ fn main() {
         )
         .run();
 
-    //let args: Vec<String> = env::args().collect();
-    //let level = if args.len() >= 2 {
-    //args[1].parse::<usize>()
-    //} else {
-    //1
-    //};
-    //Ok(())
+    Ok(())
 }

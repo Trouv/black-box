@@ -17,6 +17,8 @@ pub const LEVEL_ORDER: [&str; 10] = [
     "binary.ron",
 ];
 
+pub struct LevelNum(pub usize);
+
 #[derive(Serialize, Deserialize, Default, Clone, Debug)]
 #[serde(deny_unknown_fields)]
 struct ButtonData {
@@ -29,8 +31,6 @@ struct ButtonData {
 pub struct LevelData {
     prompt: Vec<BoxOut>,
     buttons: Vec<ButtonData>,
-    #[serde(skip)]
-    pub level_num: usize,
     #[serde(skip)]
     pub entities: Vec<Entity>,
     #[serde(skip)]
@@ -180,7 +180,7 @@ impl LevelData {
                 parent
                     .spawn_bundle(TextBundle {
                         text: Text::with_section(
-                            "display".to_string(),
+                            "".to_string(),
                             TextStyle {
                                 font: server.load("fonts/rainyhearts.ttf"),
                                 font_size: 200.,
@@ -222,7 +222,12 @@ impl LevelData {
         button_entities
     }
 
-    fn init_level_counter(&self, commands: &mut Commands, server: &Res<AssetServer>) -> Entity {
+    fn init_level_counter(
+        &self,
+        commands: &mut Commands,
+        server: &Res<AssetServer>,
+        level_num: usize,
+    ) -> Entity {
         commands
             .spawn_bundle(TextBundle {
                 style: Style {
@@ -235,7 +240,7 @@ impl LevelData {
                     ..Default::default()
                 },
                 text: Text::with_section(
-                    format!("{}/{}", ((self.level_num - 1) % 10) + 1, LEVEL_ORDER.len()),
+                    format!("{}/{}", ((level_num - 1) % 10) + 1, LEVEL_ORDER.len()),
                     TextStyle {
                         font: server.load("fonts/rainyhearts.ttf"),
                         font_size: 50.,
@@ -255,9 +260,7 @@ impl LevelData {
         materials: &mut ResMut<Assets<ColorMaterial>>,
         level_num: usize,
     ) -> Entity {
-        self.level_num = level_num;
-
-        let level_counter = self.init_level_counter(commands, server);
+        let level_counter = self.init_level_counter(commands, server, level_num);
         let buttons = self.init_buttons(commands, server);
         let (box_, display) = self.init_box(commands, server, materials, buttons.clone());
         let progress = self.init_progress(commands, server, materials, box_);
