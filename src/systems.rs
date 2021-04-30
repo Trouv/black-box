@@ -7,36 +7,15 @@ use crate::{
 };
 use bevy::prelude::*;
 
-//#[system]
-//#[read_component(Entity)]
-//#[read_component(Button)]
-//#[read_component(AnimationSet<usize, Transform>)]
-//#[write_component(AnimationControlSet<usize, Transform>)]
-//pub fn render_button(world: &mut SubWorld, buffer: &mut CommandBuffer) {
-//let mut query = <(Entity, Read<Button>, Read<AnimationSet<usize, Transform>>)>::query();
-//let (query_world, mut sub_world) = world.split_for_query(&query);
-//for (entity, button, set) in query.iter(&query_world) {
-//if let Some(control_set) = get_animation_set(&mut sub_world, buffer, *entity) {
-//if button.just_pressed {
-//control_set.add_animation(
-//0,
-//set.get(&0).unwrap(),
-//EndControl::Stay,
-//4.0,
-//AnimationCommand::Start,
-//);
-//} else if button.just_unpressed {
-//control_set.add_animation(
-//1,
-//set.get(&1).unwrap(),
-//EndControl::Stay,
-//4.0,
-//AnimationCommand::Start,
-//);
-//}
-//}
-//}
-//}
+pub fn render_button(mut button_query: Query<(&Button, &mut Transform)>) {
+    for (button, mut transform) in button_query.iter_mut() {
+        if button.pressed {
+            transform.translation = Vec3::new(0., -0.02, 0.);
+        } else {
+            transform.translation = Vec3::ZERO;
+        }
+    }
+}
 
 pub fn push_button(
     box_query: Query<&BlackBox>,

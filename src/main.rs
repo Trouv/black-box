@@ -79,6 +79,7 @@ fn main() -> Result<(), ParseIntError> {
         .add_system_set(
             SystemSet::on_update(AppState::BlackBox)
                 .with_system(black_state::level_completion.system())
+                .with_system(systems::render_button.system())
                 .with_system(systems::render_display.system())
                 .with_system(systems::render_progression.system())
                 .with_system(systems::update_box_state.system()),

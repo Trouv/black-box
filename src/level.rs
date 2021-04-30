@@ -139,13 +139,11 @@ impl LevelData {
         commands: &mut Commands,
         server: &Res<AssetServer>,
         materials: &mut ResMut<Assets<ColorMaterial>>,
-        buttons: Vec<Entity>,
+        buttons: (Vec<Entity>, Vec<Entity>),
     ) -> (Entity, Entity) {
         let transform = Transform::from_xyz(0., 0., 0.);
 
-        let buttons_clone = buttons.clone();
-
-        let box_component = BlackBox::new(buttons);
+        let box_component = BlackBox::new(buttons.1);
 
         let box_ = commands
             .spawn_bundle((transform, GlobalTransform::identity()))
@@ -194,32 +192,46 @@ impl LevelData {
             })
             .id();
 
-        for button in buttons_clone {
+        for button in buttons.0 {
             commands.entity(button).insert(Parent(box_));
         }
 
         (box_, display)
     }
 
-    fn init_buttons(&self, commands: &mut Commands, server: &Res<AssetServer>) -> Vec<Entity> {
+    fn init_buttons(
+        &self,
+        commands: &mut Commands,
+        server: &Res<AssetServer>,
+    ) -> (Vec<Entity>, Vec<Entity>) {
+        let mut total_entities = Vec::new();
         let mut button_entities = Vec::new();
 
         for button in &self.buttons {
-            button_entities.push(
+            total_entities.push(
                 commands
                     .spawn_bundle((
                         Transform::from_translation(button.translation.clone()),
                         GlobalTransform::identity(),
                     ))
-                    .insert(button.button.clone())
                     .with_children(|parent| {
-                        parent.spawn_scene(server.load("models/button.glb#Scene0"));
+                        parent.spawn_scene(server.load("models/button_base.glb#Scene0"));
+                        button_entities.push(
+                            parent
+                                .spawn_bundle((Transform::default(), GlobalTransform::identity()))
+                                .insert(button.button.clone())
+                                .with_children(|parent| {
+                                    parent
+                                        .spawn_scene(server.load("models/button_body.glb#Scene0"));
+                                })
+                                .id(),
+                        )
                     })
                     .id(),
             );
         }
 
-        button_entities
+        (total_entities, button_entities)
     }
 
     fn init_level_counter(
@@ -262,7 +274,7 @@ impl LevelData {
     ) -> Entity {
         let level_counter = self.init_level_counter(commands, server, level_num);
         let buttons = self.init_buttons(commands, server);
-        let (box_, display) = self.init_box(commands, server, materials, buttons.clone());
+        let (box_, display) = self.init_box(commands, server, materials, buttons);
         let progress = self.init_progress(commands, server, materials, box_);
 
         self.entities.push(level_counter);
