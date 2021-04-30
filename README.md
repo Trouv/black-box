@@ -1,7 +1,7 @@
 ![Screenshot](repo/screenshot.png)
 
 # Black Box
-Black Box is, so far, a very a simple puzzle game, written using rust+amethyst.
+Black Box is, so far, a very a simple puzzle game, written using rust+bevy.
 I have no intentions to keep it simple, but as it stands now, it's a prototype.
 
 The basic idea is that the player is given a box with buttons on it, but not
@@ -16,11 +16,8 @@ I also don't want to give too many plans away here to avoid spoilers.
 I will say that I hope to...
 - make it polished
 - make it accessible
-- make it weird and artsy
+- make it weird
 - give it a story
-
-And, if legion ever gets merged to amethyst...
-- port it to legion
 
 ### How to play
 To play the most recent early release of black-box, download the most recent
