@@ -29,7 +29,7 @@ pub struct LevelNum(pub usize);
 
 #[derive(Serialize, Deserialize, Default, Clone, Debug)]
 #[serde(deny_unknown_fields)]
-struct ButtonData {
+pub struct ButtonData {
     button: Button,
     translation: Vec3,
 }
@@ -37,8 +37,8 @@ struct ButtonData {
 #[derive(Serialize, Deserialize, Default, Clone, Debug)]
 #[serde(deny_unknown_fields)]
 pub struct LevelData {
-    prompt: Vec<BoxOut>,
-    buttons: Vec<ButtonData>,
+    pub prompt: Vec<BoxOut>,
+    pub buttons: Vec<ButtonData>,
 }
 
 impl TryFrom<&str> for LevelData {
@@ -59,14 +59,13 @@ pub fn add_colors(mut materials: ResMut<Assets<ColorMaterial>>, mut commands: Co
     });
 }
 
-fn spawn_box(
+pub fn spawn_box(
     buttons: Vec<ButtonData>,
     commands: &mut Commands,
     server: &Res<AssetServer>,
-    materials: &mut ResMut<Assets<ColorMaterial>>,
 ) -> Entity {
-    let button_entities: Vec<Entity> = Vec::new();
-    let box_ = commands
+    let mut button_entities: Vec<Entity> = Vec::new();
+    commands
         .spawn_bundle((Transform::default(), GlobalTransform::identity()))
         .with_children(|parent| {
             parent.spawn_scene(server.load("models/box.glb#Scene0"));
@@ -91,16 +90,14 @@ fn spawn_box(
                         )
                     });
             }
-        });
-
-    box_.insert(BlackBox::new(button_entities));
-
-    box_.id()
+        })
+        .insert(BlackBox::new(button_entities))
+        .id()
 }
 
-struct BoxUiRoot(Entity);
+pub struct BoxUiRoot(pub Entity);
 
-fn spawn_box_ui(
+pub fn spawn_box_ui(
     prompt: Vec<BoxOut>,
     commands: &mut Commands,
     server: &Res<AssetServer>,
@@ -125,7 +122,7 @@ fn spawn_box_ui(
         })
         .with_children(|parent| {
             let mut pieces = Vec::<Entity>::new();
-            let progression = parent
+            parent
                 .spawn_bundle(NodeBundle {
                     style: Style {
                         justify_content: JustifyContent::Center,
@@ -198,12 +195,11 @@ fn spawn_box_ui(
                         ),
                         ..Default::default()
                     });
+                })
+                .insert(Progression {
+                    prompt: pieces.clone(),
+                    answer: Vec::new(),
                 });
-
-            progression.insert(Progression {
-                prompt: pieces.clone(),
-                answer: Vec::new(),
-            });
 
             parent
                 .spawn_bundle(NodeBundle {

@@ -1,6 +1,6 @@
 use crate::{
     components::Progression,
-    level::{LevelData, LevelNum, LEVEL_ORDER},
+    level::{spawn_box, spawn_box_ui, BoxUiRoot, LevelData, LevelNum, LEVEL_ORDER},
 };
 use bevy::prelude::*;
 use std::convert::TryFrom;
@@ -17,10 +17,17 @@ pub fn black_box_setup(
     level_num: Res<LevelNum>,
     mut materials: ResMut<Assets<ColorMaterial>>,
 ) {
-    let mut level_data = LevelData::try_from(LEVEL_ORDER[(level_num.0 - 1) % LEVEL_ORDER.len()])
+    let level_data = LevelData::try_from(LEVEL_ORDER[(level_num.0 - 1) % LEVEL_ORDER.len()])
         .expect(format!("Unable to load level {}", level_num.0).as_str());
-    level_data.init(&mut commands, &server, &mut materials, level_num.0);
-    commands.insert_resource(level_data);
+    let box_ = spawn_box(level_data.buttons, &mut commands, &server);
+    spawn_box_ui(
+        level_data.prompt,
+        &mut commands,
+        &server,
+        &mut materials,
+        box_,
+        &level_num,
+    );
 }
 
 pub fn camera_setup(mut commands: Commands) {
@@ -52,8 +59,9 @@ pub fn into_black_box(mut state: ResMut<State<AppState>>) {
     state.replace(AppState::BlackBox).unwrap();
 }
 
-pub fn black_box_cleanup(mut commands: Commands, level_data: Res<LevelData>) {
-    for entity in &level_data.entities {
-        commands.entity(*entity).despawn_recursive();
+pub fn black_box_cleanup(mut commands: Commands, ui_query: Query<(Entity, &BoxUiRoot)>) {
+    for (ui_entity, box_ui_root) in ui_query.iter() {
+        commands.entity(box_ui_root.0).despawn_recursive();
+        commands.entity(ui_entity).despawn_recursive();
     }
 }
