@@ -37,20 +37,19 @@ fn main() -> Result<(), ParseIntError> {
         .add_system_set(
             SystemSet::on_update(AppState::BlackBox)
                 .label(SystemLabels::Input)
-                .with_system(systems::push_button.system()),
+                .with_system(systems::button_input.system()),
         )
         .add_system_set(
             SystemSet::on_update(AppState::BlackBox)
                 .after(SystemLabels::Input)
-                .with_system(systems::update_box_progress.system()),
+                .with_system(systems::update_box_state.system()),
         )
         .add_system_set(
             SystemSet::on_update(AppState::BlackBox)
                 .with_system(black_state::level_completion.system())
                 .with_system(systems::render_button.system())
                 .with_system(systems::render_display.system())
-                .with_system(systems::render_progression.system())
-                .with_system(systems::update_box_state.system()),
+                .with_system(systems::render_progression.system()),
         )
         .add_system_set(
             SystemSet::on_exit(AppState::BlackBox)

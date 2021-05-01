@@ -92,14 +92,27 @@ impl BlackBox {
 #[serde(default)]
 #[serde(deny_unknown_fields)]
 pub struct Progression {
+    pub prompt: Vec<BoxOut>,
     #[serde(skip)]
-    pub prompt: Vec<Entity>,
     pub answer: Vec<BoxOut>,
 }
 
-#[derive(Default, Clone, Serialize, Deserialize)]
+impl Progression {
+    pub fn update(&mut self, output: BoxOut) {
+        self.answer.push(output);
+
+        while !self.answer.is_empty() && !self.prompt.starts_with(self.answer.as_slice()) {
+            self.answer.remove(0);
+        }
+    }
+}
+
+#[derive(Clone, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
-pub struct ProgressionPiece(pub BoxOut);
+pub struct ProgressionPiece {
+    pub progression: Entity,
+    pub index: usize,
+}
 
 #[derive(Default, Serialize, Deserialize)]
 #[serde(default)]

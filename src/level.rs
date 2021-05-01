@@ -60,7 +60,7 @@ pub fn add_colors(mut materials: ResMut<Assets<ColorMaterial>>, mut commands: Co
 }
 
 pub fn spawn_box(
-    buttons: Vec<ButtonData>,
+    level_data: &LevelData,
     commands: &mut Commands,
     server: &Res<AssetServer>,
 ) -> Entity {
@@ -70,7 +70,7 @@ pub fn spawn_box(
         .with_children(|parent| {
             parent.spawn_scene(server.load("models/box.glb#Scene0"));
 
-            for button_data in buttons {
+            for button_data in &level_data.buttons {
                 parent
                     .spawn_bundle((
                         Transform::from_translation(button_data.translation.clone()),
@@ -92,6 +92,10 @@ pub fn spawn_box(
             }
         })
         .insert(BlackBox::new(button_entities))
+        .insert(Progression {
+            prompt: level_data.prompt.clone(),
+            answer: Vec::new(),
+        })
         .id()
 }
 
@@ -121,7 +125,7 @@ pub fn spawn_box_ui(
             ..Default::default()
         })
         .with_children(|parent| {
-            let mut pieces = Vec::<Entity>::new();
+            let font = server.load("fonts/rainyhearts.ttf");
             parent
                 .spawn_bundle(NodeBundle {
                     style: Style {
@@ -136,43 +140,42 @@ pub fn spawn_box_ui(
                     material: transparent.clone(),
                     ..Default::default()
                 })
-                .insert(BoxReader::new(box_))
                 .with_children(|parent| {
-                    for piece in prompt.iter() {
-                        pieces.push(
-                            parent
-                                .spawn_bundle(NodeBundle {
-                                    style: Style {
-                                        align_items: AlignItems::Center,
-                                        justify_content: JustifyContent::Center,
-                                        size: Size {
-                                            height: Val::Percent(100.),
-                                            width: Val::Percent(10. / 16. * 9.),
-                                        },
-                                        ..Default::default()
+                    for (i, piece) in prompt.iter().enumerate() {
+                        parent
+                            .spawn_bundle(NodeBundle {
+                                style: Style {
+                                    align_items: AlignItems::Center,
+                                    justify_content: JustifyContent::Center,
+                                    size: Size {
+                                        height: Val::Percent(100.),
+                                        width: Val::Percent(10. / 16. * 9.),
                                     },
-                                    material: materials.add(Color::rgb(0.9, 0.9, 0.9).into()),
                                     ..Default::default()
-                                })
-                                .insert(ProgressionPiece(piece.clone()))
-                                .with_children(|parent| {
-                                    parent
-                                        .spawn_bundle(TextBundle {
-                                            text: Text::with_section(
-                                                piece.to_string(),
-                                                TextStyle {
-                                                    font: server.load("fonts/rainyhearts.ttf"),
-                                                    font_size: 50.,
-                                                    color: Color::rgb(0.1, 0.1, 0.1),
-                                                },
-                                                TextAlignment::default(),
-                                            ),
-                                            ..Default::default()
-                                        })
-                                        .id();
-                                })
-                                .id(),
-                        );
+                                },
+                                material: materials.add(Color::rgb(0.9, 0.9, 0.9).into()),
+                                ..Default::default()
+                            })
+                            .insert(ProgressionPiece {
+                                progression: box_,
+                                index: i,
+                            })
+                            .with_children(|parent| {
+                                parent
+                                    .spawn_bundle(TextBundle {
+                                        text: Text::with_section(
+                                            piece.to_string(),
+                                            TextStyle {
+                                                font: font.clone(),
+                                                font_size: 50.,
+                                                color: Color::rgb(0.1, 0.1, 0.1),
+                                            },
+                                            TextAlignment::default(),
+                                        ),
+                                        ..Default::default()
+                                    })
+                                    .id();
+                            });
                     }
                     parent.spawn_bundle(TextBundle {
                         style: Style {
@@ -187,7 +190,7 @@ pub fn spawn_box_ui(
                         text: Text::with_section(
                             format!("{}/{}", ((level_num.0 - 1) % 10) + 1, LEVEL_ORDER.len()),
                             TextStyle {
-                                font: server.load("fonts/rainyhearts.ttf"),
+                                font: font.clone(),
                                 font_size: 50.,
                                 color: Color::rgb(0.1, 0.1, 0.1),
                             },
@@ -195,16 +198,11 @@ pub fn spawn_box_ui(
                         ),
                         ..Default::default()
                     });
-                })
-                .insert(Progression {
-                    prompt: pieces.clone(),
-                    answer: Vec::new(),
                 });
 
             parent
                 .spawn_bundle(NodeBundle {
                     style: Style {
-                        position_type: PositionType::Absolute,
                         size: Size {
                             width: Val::Percent(100.),
                             height: Val::Percent(30.),
@@ -223,7 +221,7 @@ pub fn spawn_box_ui(
                             text: Text::with_section(
                                 "".to_string(),
                                 TextStyle {
-                                    font: server.load("fonts/rainyhearts.ttf"),
+                                    font: font.clone(),
                                     font_size: 200.,
                                     color: GREEN,
                                 },

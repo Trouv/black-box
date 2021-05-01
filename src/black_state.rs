@@ -19,7 +19,7 @@ pub fn black_box_setup(
 ) {
     let level_data = LevelData::try_from(LEVEL_ORDER[(level_num.0 - 1) % LEVEL_ORDER.len()])
         .expect(format!("Unable to load level {}", level_num.0).as_str());
-    let box_ = spawn_box(level_data.buttons, &mut commands, &server);
+    let box_ = spawn_box(&level_data, &mut commands, &server);
     spawn_box_ui(
         level_data.prompt,
         &mut commands,
