@@ -4,6 +4,14 @@ use ron::de::from_reader;
 use serde::{Deserialize, Serialize};
 use std::{convert::TryFrom, path::Path};
 
+pub const GREEN: Color = Color::rgb(0.36, 0.63, 0.36);
+
+pub struct ColorHandles {
+    pub white: Handle<ColorMaterial>,
+    pub green: Handle<ColorMaterial>,
+    pub transparent: Handle<ColorMaterial>,
+}
+
 pub const LEVEL_ORDER: [&str; 10] = [
     "pin_pad.ron",
     "counter.ron",
@@ -31,10 +39,6 @@ struct ButtonData {
 pub struct LevelData {
     prompt: Vec<BoxOut>,
     buttons: Vec<ButtonData>,
-    #[serde(skip)]
-    pub entities: Vec<Entity>,
-    #[serde(skip)]
-    pub box_: Option<Entity>,
 }
 
 impl TryFrom<&str> for LevelData {
@@ -47,20 +51,51 @@ impl TryFrom<&str> for LevelData {
     }
 }
 
-pub const GREEN: Color = Color::rgb(0.36, 0.63, 0.36);
-
-pub struct ColorHandles {
-    pub white: Handle<ColorMaterial>,
-    pub green: Handle<ColorMaterial>,
-    pub transparent: Handle<ColorMaterial>,
-}
-
 pub fn add_colors(mut materials: ResMut<Assets<ColorMaterial>>, mut commands: Commands) {
     commands.insert_resource(ColorHandles {
         white: materials.add(ColorMaterial::color(Color::rgb(0.9, 0.9, 0.9))),
         green: materials.add(ColorMaterial::color(GREEN)),
         transparent: materials.add(ColorMaterial::color(Color::NONE)),
     });
+}
+
+fn spawn_box(
+    buttons: Vec<ButtonData>,
+    commands: &mut Commands,
+    server: &Res<AssetServer>,
+    materials: &mut ResMut<Assets<ColorMaterial>>,
+) -> Entity {
+    let button_entities: Vec<Entity> = Vec::new();
+    let box_ = commands
+        .spawn_bundle((Transform::default(), GlobalTransform::identity()))
+        .with_children(|parent| {
+            parent.spawn_scene(server.load("models/box.glb#Scene0"));
+
+            for button_data in buttons {
+                parent
+                    .spawn_bundle((
+                        Transform::from_translation(button_data.translation.clone()),
+                        GlobalTransform::identity(),
+                    ))
+                    .with_children(|parent| {
+                        parent.spawn_scene(server.load("models/button_base.glb#Scene0"));
+                        button_entities.push(
+                            parent
+                                .spawn_bundle((Transform::default(), GlobalTransform::identity()))
+                                .insert(button_data.button.clone())
+                                .with_children(|parent| {
+                                    parent
+                                        .spawn_scene(server.load("models/button_body.glb#Scene0"));
+                                })
+                                .id(),
+                        )
+                    });
+            }
+        });
+
+    box_.insert(BlackBox::new(button_entities));
+
+    box_.id()
 }
 
 impl LevelData {
@@ -131,29 +166,6 @@ impl LevelData {
             })
             .id();
 
-        progression
-    }
-
-    fn init_box(
-        &mut self,
-        commands: &mut Commands,
-        server: &Res<AssetServer>,
-        materials: &mut ResMut<Assets<ColorMaterial>>,
-        buttons: (Vec<Entity>, Vec<Entity>),
-    ) -> (Entity, Entity) {
-        let transform = Transform::from_xyz(0., 0., 0.);
-
-        let box_component = BlackBox::new(buttons.1);
-
-        let box_ = commands
-            .spawn_bundle((transform, GlobalTransform::identity()))
-            .insert(box_component)
-            .with_children(|parent| {
-                parent.spawn_scene(server.load("models/box.glb#Scene0"));
-            })
-            .id();
-        self.box_ = Some(box_);
-
         let display = commands
             .spawn_bundle(NodeBundle {
                 style: Style {
@@ -192,46 +204,7 @@ impl LevelData {
             })
             .id();
 
-        for button in buttons.0 {
-            commands.entity(button).insert(Parent(box_));
-        }
-
-        (box_, display)
-    }
-
-    fn init_buttons(
-        &self,
-        commands: &mut Commands,
-        server: &Res<AssetServer>,
-    ) -> (Vec<Entity>, Vec<Entity>) {
-        let mut total_entities = Vec::new();
-        let mut button_entities = Vec::new();
-
-        for button in &self.buttons {
-            total_entities.push(
-                commands
-                    .spawn_bundle((
-                        Transform::from_translation(button.translation.clone()),
-                        GlobalTransform::identity(),
-                    ))
-                    .with_children(|parent| {
-                        parent.spawn_scene(server.load("models/button_base.glb#Scene0"));
-                        button_entities.push(
-                            parent
-                                .spawn_bundle((Transform::default(), GlobalTransform::identity()))
-                                .insert(button.button.clone())
-                                .with_children(|parent| {
-                                    parent
-                                        .spawn_scene(server.load("models/button_body.glb#Scene0"));
-                                })
-                                .id(),
-                        )
-                    })
-                    .id(),
-            );
-        }
-
-        (total_entities, button_entities)
+        progression
     }
 
     fn init_level_counter(
