@@ -98,162 +98,146 @@ fn spawn_box(
     box_.id()
 }
 
-impl LevelData {
-    fn init_progress(
-        &self,
-        commands: &mut Commands,
-        server: &Res<AssetServer>,
-        materials: &mut ResMut<Assets<ColorMaterial>>,
-        box_: Entity,
-    ) -> Entity {
-        let mut pieces = Vec::<Entity>::new();
-        let progression = commands
-            .spawn_bundle(NodeBundle {
-                style: Style {
-                    justify_content: JustifyContent::Center,
-                    align_items: AlignItems::FlexEnd,
-                    size: Size {
-                        height: Val::Percent(100.),
-                        width: Val::Percent(100.),
-                    },
-                    ..Default::default()
-                },
-                material: materials.add(ColorMaterial::color(Color::NONE)),
-                ..Default::default()
-            })
-            .insert(BoxReader::new(box_))
-            .with_children(|parent| {
-                for piece in self.prompt.iter() {
-                    pieces.push(
-                        parent
-                            .spawn_bundle(NodeBundle {
-                                style: Style {
-                                    align_items: AlignItems::Center,
-                                    justify_content: JustifyContent::Center,
-                                    size: Size {
-                                        height: Val::Percent(10.),
-                                        width: Val::Percent(10. / 16. * 9.),
-                                    },
-                                    ..Default::default()
-                                },
-                                material: materials.add(Color::rgb(0.9, 0.9, 0.9).into()),
-                                ..Default::default()
-                            })
-                            .insert(ProgressionPiece(piece.clone()))
-                            .with_children(|parent| {
-                                parent
-                                    .spawn_bundle(TextBundle {
-                                        text: Text::with_section(
-                                            piece.to_string(),
-                                            TextStyle {
-                                                font: server.load("fonts/rainyhearts.ttf"),
-                                                font_size: 50.,
-                                                color: Color::rgb(0.1, 0.1, 0.1),
-                                            },
-                                            TextAlignment::default(),
-                                        ),
-                                        ..Default::default()
-                                    })
-                                    .id();
-                            })
-                            .id(),
-                    );
-                }
-            })
-            .insert(Progression {
-                prompt: pieces.clone(),
-                answer: Vec::new(),
-            })
-            .id();
+struct BoxUiRoot(Entity);
 
-        let display = commands
-            .spawn_bundle(NodeBundle {
-                style: Style {
-                    position_type: PositionType::Absolute,
-                    size: Size {
-                        width: Val::Percent(100.),
-                        height: Val::Percent(30.),
-                        ..Default::default()
-                    },
-                    position: Rect {
-                        bottom: Val::Percent(60.),
-                        ..Default::default()
-                    },
-                    justify_content: JustifyContent::Center,
-                    align_items: AlignItems::Center,
-                    ..Default::default()
+fn spawn_box_ui(
+    prompt: Vec<BoxOut>,
+    commands: &mut Commands,
+    server: &Res<AssetServer>,
+    materials: &mut ResMut<Assets<ColorMaterial>>,
+    box_: Entity,
+    level_num: &Res<LevelNum>,
+) -> Entity {
+    let transparent = materials.add(ColorMaterial::color(Color::NONE));
+    commands
+        .spawn_bundle(NodeBundle {
+            style: Style {
+                align_items: AlignItems::Center,
+                flex_direction: FlexDirection::ColumnReverse,
+                size: Size {
+                    height: Val::Percent(100.),
+                    width: Val::Percent(100.),
                 },
-                material: materials.add(ColorMaterial::color(Color::NONE)),
                 ..Default::default()
-            })
-            .with_children(|parent| {
-                parent
-                    .spawn_bundle(TextBundle {
+            },
+            material: transparent.clone(),
+            ..Default::default()
+        })
+        .with_children(|parent| {
+            let mut pieces = Vec::<Entity>::new();
+            let progression = parent
+                .spawn_bundle(NodeBundle {
+                    style: Style {
+                        justify_content: JustifyContent::Center,
+                        align_items: AlignItems::FlexEnd,
+                        size: Size {
+                            height: Val::Percent(10.),
+                            width: Val::Percent(100.),
+                        },
+                        ..Default::default()
+                    },
+                    material: transparent.clone(),
+                    ..Default::default()
+                })
+                .insert(BoxReader::new(box_))
+                .with_children(|parent| {
+                    for piece in prompt.iter() {
+                        pieces.push(
+                            parent
+                                .spawn_bundle(NodeBundle {
+                                    style: Style {
+                                        align_items: AlignItems::Center,
+                                        justify_content: JustifyContent::Center,
+                                        size: Size {
+                                            height: Val::Percent(100.),
+                                            width: Val::Percent(10. / 16. * 9.),
+                                        },
+                                        ..Default::default()
+                                    },
+                                    material: materials.add(Color::rgb(0.9, 0.9, 0.9).into()),
+                                    ..Default::default()
+                                })
+                                .insert(ProgressionPiece(piece.clone()))
+                                .with_children(|parent| {
+                                    parent
+                                        .spawn_bundle(TextBundle {
+                                            text: Text::with_section(
+                                                piece.to_string(),
+                                                TextStyle {
+                                                    font: server.load("fonts/rainyhearts.ttf"),
+                                                    font_size: 50.,
+                                                    color: Color::rgb(0.1, 0.1, 0.1),
+                                                },
+                                                TextAlignment::default(),
+                                            ),
+                                            ..Default::default()
+                                        })
+                                        .id();
+                                })
+                                .id(),
+                        );
+                    }
+                    parent.spawn_bundle(TextBundle {
+                        style: Style {
+                            position_type: PositionType::Absolute,
+                            position: Rect {
+                                top: Val::Px(10.),
+                                right: Val::Px(10.),
+                                ..Default::default()
+                            },
+                            ..Default::default()
+                        },
                         text: Text::with_section(
-                            "".to_string(),
+                            format!("{}/{}", ((level_num.0 - 1) % 10) + 1, LEVEL_ORDER.len()),
                             TextStyle {
                                 font: server.load("fonts/rainyhearts.ttf"),
-                                font_size: 200.,
-                                color: GREEN,
+                                font_size: 50.,
+                                color: Color::rgb(0.1, 0.1, 0.1),
                             },
                             TextAlignment::default(),
                         ),
                         ..Default::default()
-                    })
-                    .insert(BoxReader::new(box_));
-            })
-            .id();
+                    });
+                });
 
-        progression
-    }
+            progression.insert(Progression {
+                prompt: pieces.clone(),
+                answer: Vec::new(),
+            });
 
-    fn init_level_counter(
-        &self,
-        commands: &mut Commands,
-        server: &Res<AssetServer>,
-        level_num: usize,
-    ) -> Entity {
-        commands
-            .spawn_bundle(TextBundle {
-                style: Style {
-                    position_type: PositionType::Absolute,
-                    position: Rect {
-                        top: Val::Px(10.),
-                        right: Val::Px(10.),
+            parent
+                .spawn_bundle(NodeBundle {
+                    style: Style {
+                        position_type: PositionType::Absolute,
+                        size: Size {
+                            width: Val::Percent(100.),
+                            height: Val::Percent(30.),
+                            ..Default::default()
+                        },
+                        justify_content: JustifyContent::Center,
+                        align_items: AlignItems::Center,
                         ..Default::default()
                     },
+                    material: transparent.clone(),
                     ..Default::default()
-                },
-                text: Text::with_section(
-                    format!("{}/{}", ((level_num - 1) % 10) + 1, LEVEL_ORDER.len()),
-                    TextStyle {
-                        font: server.load("fonts/rainyhearts.ttf"),
-                        font_size: 50.,
-                        color: Color::rgb(0.1, 0.1, 0.1),
-                    },
-                    TextAlignment::default(),
-                ),
-                ..Default::default()
-            })
-            .id()
-    }
-
-    pub fn init(
-        &mut self,
-        commands: &mut Commands,
-        server: &Res<AssetServer>,
-        materials: &mut ResMut<Assets<ColorMaterial>>,
-        level_num: usize,
-    ) -> Entity {
-        let level_counter = self.init_level_counter(commands, server, level_num);
-        let buttons = self.init_buttons(commands, server);
-        let (box_, display) = self.init_box(commands, server, materials, buttons);
-        let progress = self.init_progress(commands, server, materials, box_);
-
-        self.entities.push(level_counter);
-        self.entities.push(box_);
-        self.entities.push(display);
-        self.entities.push(progress);
-        progress
-    }
+                })
+                .with_children(|parent| {
+                    parent
+                        .spawn_bundle(TextBundle {
+                            text: Text::with_section(
+                                "".to_string(),
+                                TextStyle {
+                                    font: server.load("fonts/rainyhearts.ttf"),
+                                    font_size: 200.,
+                                    color: GREEN,
+                                },
+                                TextAlignment::default(),
+                            ),
+                            ..Default::default()
+                        })
+                        .insert(BoxReader::new(box_));
+                });
+        })
+        .insert(BoxUiRoot(box_))
+        .id()
 }
