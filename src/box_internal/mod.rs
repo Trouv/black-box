@@ -22,15 +22,15 @@ pub struct ButtonData {
 
 #[derive(Serialize, Deserialize, Default, Clone, Debug)]
 #[serde(deny_unknown_fields)]
-pub struct LevelData {
+pub struct BoxData {
     pub prompt: Vec<BoxOut>,
     pub buttons: Vec<ButtonData>,
 }
 
-impl TryFrom<&str> for LevelData {
+impl TryFrom<&str> for BoxData {
     type Error = ron::error::Error;
 
-    fn try_from(path: &str) -> ron::error::Result<LevelData> {
+    fn try_from(path: &str) -> ron::error::Result<BoxData> {
         let input_path = Path::new("assets/levels").join(path);
         let f = std::fs::File::open(&input_path)?;
         from_reader(f)

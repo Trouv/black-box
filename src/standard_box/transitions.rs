@@ -1,7 +1,7 @@
 use crate::{
     box_internal::{
         components::{BoxOut, BoxState, Itemized, Pressable, Progression},
-        LevelData,
+        BoxData,
     },
     resources::LevelNum,
     standard_box::components::{BoxReader, ProgressionPiece},
@@ -10,7 +10,7 @@ use crate::{
 use bevy::prelude::*;
 use std::convert::TryFrom;
 pub fn into_black_box(mut state: ResMut<State<AppState>>) {
-    state.replace(AppState::BlackBox).unwrap();
+    state.replace(AppState::StandardBox).unwrap();
 }
 
 pub fn black_box_cleanup(mut commands: Commands, ui_query: Query<(Entity, &BoxUiRoot)>) {
@@ -26,7 +26,7 @@ pub fn black_box_setup(
     level_num: Res<LevelNum>,
     mut materials: ResMut<Assets<ColorMaterial>>,
 ) {
-    let level_data = LevelData::try_from(LEVEL_ORDER[(level_num.0 - 1) % LEVEL_ORDER.len()])
+    let level_data = BoxData::try_from(LEVEL_ORDER[(level_num.0 - 1) % LEVEL_ORDER.len()])
         .expect(format!("Unable to load level {}", level_num.0).as_str());
     let box_ = spawn_box(&level_data, &mut commands, &server);
     spawn_box_ui(
@@ -40,7 +40,7 @@ pub fn black_box_setup(
 }
 
 pub fn spawn_box(
-    level_data: &LevelData,
+    level_data: &BoxData,
     commands: &mut Commands,
     server: &Res<AssetServer>,
 ) -> Entity {
@@ -225,7 +225,7 @@ pub fn level_completion(
 ) {
     for progress in progress_query.iter() {
         if progress.answer.len() >= progress.prompt.len() {
-            state.replace(AppState::IntoBlackBox).unwrap();
+            state.replace(AppState::StandardBoxTransition).unwrap();
             level_num.0 += 1;
         }
     }

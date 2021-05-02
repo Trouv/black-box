@@ -7,8 +7,8 @@ pub mod standard_box;
 
 #[derive(Debug, Clone, Eq, PartialEq, Hash)]
 pub enum AppState {
-    BlackBox,
-    IntoBlackBox,
+    StandardBox,
+    StandardBoxTransition,
 }
 
 pub const LEVEL_ORDER: [&str; 10] = [
@@ -41,37 +41,37 @@ fn main() -> Result<(), ParseIntError> {
         .add_plugins(DefaultPlugins)
         .insert_resource(Msaa { samples: 1 })
         .insert_resource(level_num)
-        .add_state(AppState::BlackBox)
+        .add_state(AppState::StandardBox)
         .add_event::<box_internal::OutputEvent>()
         .add_startup_system(transitions::camera_setup.system())
         .add_system_set(
-            SystemSet::on_enter(AppState::BlackBox)
+            SystemSet::on_enter(AppState::StandardBox)
                 .with_system(standard_box::transitions::black_box_setup.system())
                 .with_system(resources::add_colors.system()),
         )
         .add_system_set(
-            SystemSet::on_update(AppState::BlackBox)
+            SystemSet::on_update(AppState::StandardBox)
                 .label(SystemLabels::Input)
                 .with_system(standard_box::systems::button_input.system()),
         )
         .add_system_set(
-            SystemSet::on_update(AppState::BlackBox)
+            SystemSet::on_update(AppState::StandardBox)
                 .after(SystemLabels::Input)
                 .with_system(box_internal::systems::update.system()),
         )
         .add_system_set(
-            SystemSet::on_update(AppState::BlackBox)
+            SystemSet::on_update(AppState::StandardBox)
                 .with_system(standard_box::transitions::level_completion.system())
                 .with_system(standard_box::systems::render_button.system())
                 .with_system(standard_box::systems::render_display.system())
                 .with_system(standard_box::systems::render_progression.system()),
         )
         .add_system_set(
-            SystemSet::on_exit(AppState::BlackBox)
+            SystemSet::on_exit(AppState::StandardBox)
                 .with_system(standard_box::transitions::black_box_cleanup.system()),
         )
         .add_system_set(
-            SystemSet::on_enter(AppState::IntoBlackBox)
+            SystemSet::on_enter(AppState::StandardBoxTransition)
                 .with_system(standard_box::transitions::into_black_box.system()),
         )
         .run();
