@@ -7,9 +7,9 @@ use crate::{
 };
 use bevy::prelude::*;
 
-pub fn render_button(mut button_query: Query<(&Pressable, &mut Transform)>) {
-    for (button, mut transform) in button_query.iter_mut() {
-        if button.pressed {
+pub fn render_button(mut button_query: Query<(&Pressable, &mut Transform), With<ButtonScript>>) {
+    for (pressable, mut transform) in button_query.iter_mut() {
+        if pressable.pressed() {
             transform.translation = Vec3::new(0., -0.02, 0.);
         } else {
             transform.translation = Vec3::ZERO;
@@ -22,10 +22,7 @@ pub fn button_input(
     input: Res<Input<KeyCode>>,
 ) {
     for (mut pressable, itemized) in button_query.iter_mut() {
-        let last_pressed = pressable.pressed;
-        pressable.pressed = input.pressed(BUTTON_NUMS[itemized.index]);
-        pressable.just_pressed = pressable.pressed && !last_pressed;
-        pressable.just_unpressed = !pressable.pressed && last_pressed;
+        pressable.update(input.pressed(BUTTON_NUMS[itemized.index]));
     }
 }
 
@@ -35,7 +32,7 @@ pub fn update_box_state(
     mut event_writer: EventWriter<OutputEvent>,
 ) {
     for (pressable, button_script, itemized) in button_query.iter() {
-        if pressable.just_unpressed {
+        if pressable.just_unpressed() {
             let (mut box_, mut progression) = box_query
                 .get_mut(itemized.collector)
                 .expect("Itemized component on button isn't pointing to a Box!");

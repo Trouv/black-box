@@ -8,11 +8,28 @@ use crate::actions::Action;
 #[serde(deny_unknown_fields)]
 pub struct Pressable {
     #[serde(skip)]
-    pub pressed: bool,
+    pressed: bool,
     #[serde(skip)]
-    pub just_pressed: bool,
-    #[serde(skip)]
-    pub just_unpressed: bool,
+    previous: bool,
+}
+
+impl Pressable {
+    pub fn update(&mut self, pressed: bool) {
+        self.previous = self.pressed;
+        self.pressed = pressed;
+    }
+
+    pub fn pressed(&self) -> bool {
+        self.pressed
+    }
+
+    pub fn just_pressed(&self) -> bool {
+        self.pressed && !self.previous
+    }
+
+    pub fn just_unpressed(&self) -> bool {
+        !self.pressed && self.previous
+    }
 }
 
 #[derive(Clone, Debug, Default, Serialize, Deserialize)]
