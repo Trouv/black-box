@@ -6,7 +6,7 @@ use std::{convert::TryFrom, path::Path};
 pub mod actions;
 pub mod components;
 
-use components::{BoxOut, ButtonScript};
+use components::{ActionScript, BoxOut};
 
 pub struct OutputEvent {
     pub box_: Entity,
@@ -16,7 +16,7 @@ pub struct OutputEvent {
 #[derive(Serialize, Deserialize, Clone, Debug)]
 #[serde(deny_unknown_fields)]
 pub struct ButtonData {
-    pub button: ButtonScript,
+    pub button: ActionScript,
     pub translation: Vec3,
 }
 
@@ -39,22 +39,22 @@ impl TryFrom<&str> for BoxData {
 
 pub mod systems {
     use crate::box_internal::{
-        components::{BoxState, ButtonScript, Itemized, Pressable, Progression},
+        components::{ActionScript, BoxState, Itemized, Pressable, Progression},
         OutputEvent,
     };
     use bevy::prelude::*;
 
     pub fn update(
         mut box_query: Query<(&mut BoxState, &mut Progression)>,
-        button_query: Query<(&Pressable, &ButtonScript, &Itemized)>,
+        button_query: Query<(&Pressable, &ActionScript, &Itemized)>,
         mut event_writer: EventWriter<OutputEvent>,
     ) {
-        for (pressable, button_script, itemized) in button_query.iter() {
+        for (pressable, action_script, itemized) in button_query.iter() {
             if pressable.just_unpressed() {
                 let (mut box_, mut progression) = box_query
                     .get_mut(itemized.collector)
                     .expect("Itemized component on button isn't pointing to a Box!");
-                for action in &button_script.0 {
+                for action in action_script {
                     let out = action.evaluate(&mut box_);
                     if let Some(o) = out {
                         progression.update(o.clone());

@@ -11,20 +11,16 @@ BoxData(
     ],
     buttons: [
         (
-            button: (
-                [
-                    AddEq(C(1), 0),
-                    Mod(G(0), C(6), 0),
-                ],
-            ),
+            button: [
+                AddEq(C(1), 0),
+                Mod(G(0), C(6), 0),
+            ],
             translation: (-0.10, 0.0, 0.10),
         ),
         (
-            button: (
-                [
-                    PrintInt(G(0)),
-                ],
-            ),
+            button: [
+                PrintInt(G(0)),
+            ],
             translation: (0.10, 0.0, -0.10),
         ),
     ],

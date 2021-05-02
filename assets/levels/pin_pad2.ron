@@ -13,43 +13,33 @@ BoxData(
     ],
     buttons: [
         (
-            button: (
-                [
-                    PrintInt(C(3)),
-                ],
-            ),
+            button: [
+                PrintInt(C(3)),
+            ],
             translation: (-0.20, 0.0, -0.20),
         ),
         (
-            button: (
-                [
-                    PrintInt(C(5)),
-                ],
-            ),
+            button: [
+                PrintInt(C(5)),
+            ],
             translation: (-0.10, 0.0, -0.10),
         ),
         (
-            button: (
-                [
-                    PrintInt(C(1)),
-                ],
-            ),
+            button: [
+                PrintInt(C(1)),
+            ],
             translation: (0.00, 0.0, -0.00),
         ),
         (
-            button: (
-                [
-                    PrintInt(C(2)),
-                ],
-            ),
+            button: [
+                PrintInt(C(2)),
+            ],
             translation: (0.10, 0.0, 0.10),
         ),
         (
-            button: (
-                [
-                    PrintInt(C(4)),
-                ],
-            ),
+            button: [
+                PrintInt(C(4)),
+            ],
             translation: (0.20, 0.0, 0.20),
         ),
     ],

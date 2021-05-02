@@ -17,34 +17,28 @@ BoxData(
     ],
     buttons: [
         (
-            button: (
-                [
-                    Mod(G(0), C(3), 1),
-                    Mult(G(1), C(2), 1),
-                    AddEq(C(1), 1),
-                    PrintInt(G(1)),
-                ],
-            ),
+            button: [
+                Mod(G(0), C(3), 1),
+                Mult(G(1), C(2), 1),
+                AddEq(C(1), 1),
+                PrintInt(G(1)),
+            ],
             translation: (-0.10, 0.0, -0.10),
         ),
         (
-            button: (
-                [
-                    AddEq(C(1), 0),
-                    Mod(G(0), C(6), 0),
-                ],
-            ),
+            button: [
+                AddEq(C(1), 0),
+                Mod(G(0), C(6), 0),
+            ],
             translation: (0.00, 0.0, -0.00),
         ),
         (
-            button: (
-                [
-                    Mod(G(0), C(2), 1),
-                    Mult(G(1), C(2), 1),
-                    AddEq(C(2), 1),
-                    PrintInt(G(1)),
-                ],
-            ),
+            button: [
+                Mod(G(0), C(2), 1),
+                Mult(G(1), C(2), 1),
+                AddEq(C(2), 1),
+                PrintInt(G(1)),
+            ],
             translation: (0.10, 0.0, 0.10),
         ),
     ],

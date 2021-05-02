@@ -1,6 +1,6 @@
 use crate::{
     box_internal::{
-        components::{ButtonScript, Itemized, Pressable, Progression, BUTTON_NUMS},
+        components::{ActionScript, Itemized, Pressable, Progression, BUTTON_NUMS},
         OutputEvent,
     },
     resources::ColorHandles,
@@ -9,7 +9,7 @@ use crate::{
 use bevy::prelude::*;
 
 pub fn button_input(
-    mut button_query: Query<(&mut Pressable, &Itemized), With<ButtonScript>>,
+    mut button_query: Query<(&mut Pressable, &Itemized), With<ActionScript>>,
     input: Res<Input<KeyCode>>,
 ) {
     for (mut pressable, itemized) in button_query.iter_mut() {
@@ -17,7 +17,7 @@ pub fn button_input(
     }
 }
 
-pub fn render_button(mut button_query: Query<(&Pressable, &mut Transform), With<ButtonScript>>) {
+pub fn render_button(mut button_query: Query<(&Pressable, &mut Transform), With<ActionScript>>) {
     for (pressable, mut transform) in button_query.iter_mut() {
         if pressable.pressed() {
             transform.translation = Vec3::new(0., -0.02, 0.);

@@ -32,8 +32,7 @@ impl Pressable {
     }
 }
 
-#[derive(Clone, Debug, Default, Serialize, Deserialize)]
-pub struct ButtonScript(pub Vec<Action>);
+pub type ActionScript = Vec<Action>;
 
 pub const BUTTON_NUMS: [KeyCode; 6] = [
     KeyCode::Key1,

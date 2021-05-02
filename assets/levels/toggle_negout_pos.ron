@@ -15,30 +15,25 @@ BoxData(
     ],
     buttons: [
         (
-            button: (
-                [
-                    IfElseDo(
-                        G(0),
-                        [
-                            PrintInt(G(1)),
-                            AddEq(C(-1), 1),
-                        ],
-                        [
-                            AddEq(C(1), 1),
-                        ],
-                    )
-                            
-                ],
-            ),
+            button: [
+                IfElseDo(
+                    G(0),
+                    [
+                        PrintInt(G(1)),
+                        AddEq(C(-1), 1),
+                    ],
+                    [
+                        AddEq(C(1), 1),
+                    ],
+                )                        
+            ],
             translation: (0.00, 0.0, 0.10),
         ),
         (
-            button: (
-                [
-                    AddEq(C(1), 0),
-                    Mod(G(0), C(2), 0),
-                ],
-            ),
+            button: [
+                AddEq(C(1), 0),
+                Mod(G(0), C(2), 0),
+            ],
             translation: (0.00, 0.0, -0.10),
         ),
     ],

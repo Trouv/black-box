@@ -15,20 +15,16 @@ BoxData(
     ],
     buttons: [
         (
-            button: (
-                [
-                    PrintInt(G(0)),
-                    AddEq(C(1), 0),
-                ],
-            ),
+            button: [
+                PrintInt(G(0)),
+                AddEq(C(1), 0),
+            ],
             translation: (0.00, 0.0, 0.10),
         ),
         (
-            button: (
-                [
-                    AddEq(C(-1), 0),
-                ],
-            ),
+            button: [
+                AddEq(C(-1), 0),
+            ],
             translation: (0.00, 0.0, -0.10),
         ),
     ],
