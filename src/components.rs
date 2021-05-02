@@ -4,17 +4,19 @@ use std::fmt;
 
 use crate::actions::Action;
 
-#[derive(Default, Clone, Serialize, Deserialize, Debug)]
+#[derive(Clone, Default, Serialize, Deserialize, Debug)]
 #[serde(deny_unknown_fields)]
-pub struct Button {
+pub struct Pressable {
     #[serde(skip)]
     pub pressed: bool,
     #[serde(skip)]
     pub just_pressed: bool,
     #[serde(skip)]
     pub just_unpressed: bool,
-    pub action: Vec<Action>,
 }
+
+#[derive(Clone, Debug, Default, Serialize, Deserialize)]
+pub struct ButtonScript(pub Vec<Action>);
 
 pub const BUTTON_NUMS: [KeyCode; 6] = [
     KeyCode::Key1,
@@ -50,43 +52,6 @@ impl Default for BoxOut {
 }
 
 pub type BoxState = [f32; 8];
-pub type BoxResult = (BoxState, Option<BoxOut>);
-pub type ButtonAction = fn(BoxState) -> BoxResult;
-
-impl From<Vec<Action>> for Button {
-    fn from(action: Vec<Action>) -> Self {
-        let mut button = Button::default();
-        button.action = action;
-        button
-    }
-}
-
-#[derive(Default, Serialize, Deserialize)]
-#[serde(default)]
-#[serde(deny_unknown_fields)]
-pub struct BlackBox {
-    pub state: BoxState,
-    #[serde(skip)]
-    pub buttons: Vec<Entity>,
-}
-
-impl Clone for BlackBox {
-    fn clone(&self) -> Self {
-        BlackBox {
-            state: self.state,
-            buttons: self.buttons.clone(),
-        }
-    }
-}
-
-impl BlackBox {
-    pub fn new(buttons: Vec<Entity>) -> BlackBox {
-        BlackBox {
-            state: BoxState::default(),
-            buttons,
-        }
-    }
-}
 
 #[derive(Default, Clone, Serialize, Deserialize)]
 #[serde(default)]
@@ -109,10 +74,13 @@ impl Progression {
 
 #[derive(Clone, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
-pub struct ProgressionPiece {
-    pub progression: Entity,
+pub struct Itemized {
+    pub collector: Entity,
     pub index: usize,
 }
+
+#[derive(Copy, Clone, Eq, PartialEq, Debug, Default, Serialize, Deserialize)]
+pub struct ProgressionPiece;
 
 #[derive(Default, Serialize, Deserialize)]
 #[serde(default)]

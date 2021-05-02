@@ -1,4 +1,6 @@
-use crate::components::{BlackBox, BoxOut, BoxReader, Button, Progression, ProgressionPiece};
+use crate::components::{
+    BoxOut, BoxReader, BoxState, ButtonScript, Itemized, Pressable, Progression, ProgressionPiece,
+};
 use bevy::prelude::*;
 use ron::de::from_reader;
 use serde::{Deserialize, Serialize};
@@ -27,10 +29,10 @@ pub const LEVEL_ORDER: [&str; 10] = [
 
 pub struct LevelNum(pub usize);
 
-#[derive(Serialize, Deserialize, Default, Clone, Debug)]
+#[derive(Serialize, Deserialize, Clone, Debug)]
 #[serde(deny_unknown_fields)]
 pub struct ButtonData {
-    button: Button,
+    button: ButtonScript,
     translation: Vec3,
 }
 
@@ -64,13 +66,13 @@ pub fn spawn_box(
     commands: &mut Commands,
     server: &Res<AssetServer>,
 ) -> Entity {
-    let mut button_entities: Vec<Entity> = Vec::new();
     commands
         .spawn_bundle((Transform::default(), GlobalTransform::identity()))
         .with_children(|parent| {
             parent.spawn_scene(server.load("models/box.glb#Scene0"));
 
-            for button_data in &level_data.buttons {
+            let box_ = parent.parent_entity();
+            for (i, button_data) in level_data.buttons.iter().enumerate() {
                 parent
                     .spawn_bundle((
                         Transform::from_translation(button_data.translation.clone()),
@@ -78,20 +80,21 @@ pub fn spawn_box(
                     ))
                     .with_children(|parent| {
                         parent.spawn_scene(server.load("models/button_base.glb#Scene0"));
-                        button_entities.push(
-                            parent
-                                .spawn_bundle((Transform::default(), GlobalTransform::identity()))
-                                .insert(button_data.button.clone())
-                                .with_children(|parent| {
-                                    parent
-                                        .spawn_scene(server.load("models/button_body.glb#Scene0"));
-                                })
-                                .id(),
-                        )
+                        parent
+                            .spawn_bundle((Transform::default(), GlobalTransform::identity()))
+                            .insert(button_data.button.clone())
+                            .insert(Itemized {
+                                collector: box_,
+                                index: i,
+                            })
+                            .insert(Pressable::default())
+                            .with_children(|parent| {
+                                parent.spawn_scene(server.load("models/button_body.glb#Scene0"));
+                            });
                     });
             }
         })
-        .insert(BlackBox::new(button_entities))
+        .insert(BoxState::default())
         .insert(Progression {
             prompt: level_data.prompt.clone(),
             answer: Vec::new(),
@@ -156,8 +159,9 @@ pub fn spawn_box_ui(
                                 material: materials.add(Color::rgb(0.9, 0.9, 0.9).into()),
                                 ..Default::default()
                             })
-                            .insert(ProgressionPiece {
-                                progression: box_,
+                            .insert(ProgressionPiece)
+                            .insert(Itemized {
+                                collector: box_,
                                 index: i,
                             })
                             .with_children(|parent| {

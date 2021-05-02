@@ -12,7 +12,7 @@ LevelData(
     buttons: [
         (
             button: (
-                action: [
+                [
                     AddEq(C(1), 0),
                     Mod(G(0), C(6), 0),
                 ],
@@ -21,7 +21,7 @@ LevelData(
         ),
         (
             button: (
-                action: [
+                [
                     PrintInt(G(0)),
                 ],
             ),

@@ -14,7 +14,7 @@ LevelData(
     buttons: [
         (
             button: (
-                action: [
+                [
                     PrintInt(C(3)),
                 ],
             ),
@@ -22,7 +22,7 @@ LevelData(
         ),
         (
             button: (
-                action: [
+                [
                     PrintInt(C(5)),
                 ],
             ),
@@ -30,7 +30,7 @@ LevelData(
         ),
         (
             button: (
-                action: [
+                [
                     PrintInt(C(1)),
                 ],
             ),
@@ -38,7 +38,7 @@ LevelData(
         ),
         (
             button: (
-                action: [
+                [
                     PrintInt(C(2)),
                 ],
             ),
@@ -46,7 +46,7 @@ LevelData(
         ),
         (
             button: (
-                action: [
+                [
                     PrintInt(C(4)),
                 ],
             ),

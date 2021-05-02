@@ -16,7 +16,7 @@ LevelData(
     buttons: [
         (
             button: (
-                action: [
+                [
                     IfElseDo(
                         G(0),
                         [
@@ -34,7 +34,7 @@ LevelData(
         ),
         (
             button: (
-                action: [
+                [
                     AddEq(C(1), 0),
                     Mod(G(0), C(2), 0),
                 ],

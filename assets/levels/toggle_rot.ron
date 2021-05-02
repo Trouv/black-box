@@ -18,7 +18,7 @@ LevelData(
     buttons: [
         (
             button: (
-                action: [
+                [
                     Mod(G(0), C(3), 1),
                     Mult(G(1), C(2), 1),
                     AddEq(C(1), 1),
@@ -29,7 +29,7 @@ LevelData(
         ),
         (
             button: (
-                action: [
+                [
                     AddEq(C(1), 0),
                     Mod(G(0), C(6), 0),
                 ],
@@ -38,7 +38,7 @@ LevelData(
         ),
         (
             button: (
-                action: [
+                [
                     Mod(G(0), C(2), 1),
                     Mult(G(1), C(2), 1),
                     AddEq(C(2), 1),
