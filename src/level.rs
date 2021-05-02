@@ -5,62 +5,6 @@ use bevy::prelude::*;
 use ron::de::from_reader;
 use serde::{Deserialize, Serialize};
 use std::{convert::TryFrom, path::Path};
-
-pub const GREEN: Color = Color::rgb(0.36, 0.63, 0.36);
-
-pub struct ColorHandles {
-    pub white: Handle<ColorMaterial>,
-    pub green: Handle<ColorMaterial>,
-    pub transparent: Handle<ColorMaterial>,
-}
-
-pub const LEVEL_ORDER: [&str; 10] = [
-    "pin_pad.ron",
-    "counter.ron",
-    "mod_counter.ron",
-    "dec_inc.ron",
-    "inc_dec.ron",
-    "two_toggles.ron",
-    "toggle_neg_pos.ron",
-    "toggle_negout_pos.ron",
-    "toggle_rot.ron",
-    "binary.ron",
-];
-
-pub struct LevelNum(pub usize);
-
-#[derive(Serialize, Deserialize, Clone, Debug)]
-#[serde(deny_unknown_fields)]
-pub struct ButtonData {
-    button: ButtonScript,
-    translation: Vec3,
-}
-
-#[derive(Serialize, Deserialize, Default, Clone, Debug)]
-#[serde(deny_unknown_fields)]
-pub struct LevelData {
-    pub prompt: Vec<BoxOut>,
-    pub buttons: Vec<ButtonData>,
-}
-
-impl TryFrom<&str> for LevelData {
-    type Error = ron::error::Error;
-
-    fn try_from(path: &str) -> ron::error::Result<LevelData> {
-        let input_path = Path::new("assets/levels").join(path);
-        let f = std::fs::File::open(&input_path)?;
-        from_reader(f)
-    }
-}
-
-pub fn add_colors(mut materials: ResMut<Assets<ColorMaterial>>, mut commands: Commands) {
-    commands.insert_resource(ColorHandles {
-        white: materials.add(ColorMaterial::color(Color::rgb(0.9, 0.9, 0.9))),
-        green: materials.add(ColorMaterial::color(GREEN)),
-        transparent: materials.add(ColorMaterial::color(Color::NONE)),
-    });
-}
-
 pub fn spawn_box(
     level_data: &LevelData,
     commands: &mut Commands,

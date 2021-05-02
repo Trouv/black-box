@@ -7,7 +7,24 @@ pub mod components;
 pub mod level;
 pub mod systems;
 
-use black_state::AppState;
+#[derive(Debug, Clone, Eq, PartialEq, Hash)]
+pub enum AppState {
+    BlackBox,
+    IntoBlackBox,
+}
+
+pub const LEVEL_ORDER: [&str; 10] = [
+    "pin_pad.ron",
+    "counter.ron",
+    "mod_counter.ron",
+    "dec_inc.ron",
+    "inc_dec.ron",
+    "two_toggles.ron",
+    "toggle_neg_pos.ron",
+    "toggle_negout_pos.ron",
+    "toggle_rot.ron",
+    "binary.ron",
+];
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash, SystemLabel)]
 enum SystemLabels {

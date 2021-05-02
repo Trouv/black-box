@@ -26,30 +26,6 @@ pub fn button_input(
     }
 }
 
-pub fn update_box_state(
-    mut box_query: Query<(&mut BoxState, &mut Progression)>,
-    button_query: Query<(&Pressable, &ButtonScript, &Itemized)>,
-    mut event_writer: EventWriter<OutputEvent>,
-) {
-    for (pressable, button_script, itemized) in button_query.iter() {
-        if pressable.just_unpressed() {
-            let (mut box_, mut progression) = box_query
-                .get_mut(itemized.collector)
-                .expect("Itemized component on button isn't pointing to a Box!");
-            for action in &button_script.0 {
-                let out = action.evaluate(&mut box_);
-                if let Some(o) = out {
-                    progression.update(o.clone());
-                    event_writer.send(OutputEvent {
-                        box_: itemized.collector,
-                        output: o.clone(),
-                    });
-                }
-            }
-        }
-    }
-}
-
 pub fn render_display(
     mut reader_query: Query<(&mut BoxReader, &mut Text)>,
     mut event_reader: EventReader<OutputEvent>,
