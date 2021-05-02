@@ -1,11 +1,21 @@
 use crate::{
-    components::{
-        BoxReader, BoxState, ButtonScript, Itemized, OutputEvent, Pressable, Progression,
-        ProgressionPiece, BUTTON_NUMS,
+    box_internal::{
+        components::{ButtonScript, Itemized, Pressable, Progression, BUTTON_NUMS},
+        OutputEvent,
     },
-    level::ColorHandles,
+    resources::ColorHandles,
+    standard_box::components::{BoxReader, ProgressionPiece},
 };
 use bevy::prelude::*;
+
+pub fn button_input(
+    mut button_query: Query<(&mut Pressable, &Itemized), With<ButtonScript>>,
+    input: Res<Input<KeyCode>>,
+) {
+    for (mut pressable, itemized) in button_query.iter_mut() {
+        pressable.update(input.pressed(BUTTON_NUMS[itemized.index]));
+    }
+}
 
 pub fn render_button(mut button_query: Query<(&Pressable, &mut Transform), With<ButtonScript>>) {
     for (pressable, mut transform) in button_query.iter_mut() {
@@ -14,15 +24,6 @@ pub fn render_button(mut button_query: Query<(&Pressable, &mut Transform), With<
         } else {
             transform.translation = Vec3::ZERO;
         }
-    }
-}
-
-pub fn button_input(
-    mut button_query: Query<(&mut Pressable, &Itemized), With<ButtonScript>>,
-    input: Res<Input<KeyCode>>,
-) {
-    for (mut pressable, itemized) in button_query.iter_mut() {
-        pressable.update(input.pressed(BUTTON_NUMS[itemized.index]));
     }
 }
 

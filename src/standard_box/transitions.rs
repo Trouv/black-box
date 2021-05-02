@@ -1,10 +1,44 @@
-use crate::components::{
-    BoxOut, BoxReader, BoxState, ButtonScript, Itemized, Pressable, Progression, ProgressionPiece,
+use crate::{
+    box_internal::{
+        components::{BoxOut, BoxState, Itemized, Pressable, Progression},
+        LevelData,
+    },
+    resources::LevelNum,
+    standard_box::components::{BoxReader, ProgressionPiece},
+    AppState, LEVEL_ORDER,
 };
 use bevy::prelude::*;
-use ron::de::from_reader;
-use serde::{Deserialize, Serialize};
-use std::{convert::TryFrom, path::Path};
+use std::convert::TryFrom;
+pub fn into_black_box(mut state: ResMut<State<AppState>>) {
+    state.replace(AppState::BlackBox).unwrap();
+}
+
+pub fn black_box_cleanup(mut commands: Commands, ui_query: Query<(Entity, &BoxUiRoot)>) {
+    for (ui_entity, box_ui_root) in ui_query.iter() {
+        commands.entity(box_ui_root.0).despawn_recursive();
+        commands.entity(ui_entity).despawn_recursive();
+    }
+}
+
+pub fn black_box_setup(
+    mut commands: Commands,
+    server: Res<AssetServer>,
+    level_num: Res<LevelNum>,
+    mut materials: ResMut<Assets<ColorMaterial>>,
+) {
+    let level_data = LevelData::try_from(LEVEL_ORDER[(level_num.0 - 1) % LEVEL_ORDER.len()])
+        .expect(format!("Unable to load level {}", level_num.0).as_str());
+    let box_ = spawn_box(&level_data, &mut commands, &server);
+    spawn_box_ui(
+        level_data.prompt,
+        &mut commands,
+        &server,
+        &mut materials,
+        box_,
+        &level_num,
+    );
+}
+
 pub fn spawn_box(
     level_data: &LevelData,
     commands: &mut Commands,
@@ -171,7 +205,7 @@ pub fn spawn_box_ui(
                                 TextStyle {
                                     font: font.clone(),
                                     font_size: 200.,
-                                    color: GREEN,
+                                    color: Color::rgb(0.36, 0.63, 0.36),
                                 },
                                 TextAlignment::default(),
                             ),
@@ -182,4 +216,17 @@ pub fn spawn_box_ui(
         })
         .insert(BoxUiRoot(box_))
         .id()
+}
+
+pub fn level_completion(
+    progress_query: Query<&Progression>,
+    mut state: ResMut<State<AppState>>,
+    mut level_num: ResMut<LevelNum>,
+) {
+    for progress in progress_query.iter() {
+        if progress.answer.len() >= progress.prompt.len() {
+            state.replace(AppState::IntoBlackBox).unwrap();
+            level_num.0 += 1;
+        }
+    }
 }
