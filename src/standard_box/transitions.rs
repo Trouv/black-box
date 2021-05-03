@@ -9,6 +9,7 @@ use crate::{
 };
 use bevy::prelude::*;
 use std::convert::TryFrom;
+
 pub fn into_black_box(mut state: ResMut<State<AppState>>) {
     state.replace(AppState::StandardBox).unwrap();
 }

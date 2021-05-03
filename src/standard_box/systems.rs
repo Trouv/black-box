@@ -34,7 +34,7 @@ pub fn render_display(
 ) {
     for (reader, mut text) in reader_query.iter_mut() {
         for output_event in event_reader.iter() {
-            if output_event.box_ == reader.box_.expect("BoxReader should have Some box_") {
+            if output_event.box_ == reader.box_ {
                 text.sections[0].value = output_event.output.to_string();
                 text.sections[0].style.color.set_a(1.);
             }
