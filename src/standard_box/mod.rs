@@ -1,6 +1,17 @@
 pub mod systems;
 pub mod transitions;
 
+use bevy::prelude::*;
+
+pub const BUTTON_NUMS: [KeyCode; 6] = [
+    KeyCode::Key1,
+    KeyCode::Key2,
+    KeyCode::Key3,
+    KeyCode::Key4,
+    KeyCode::Key5,
+    KeyCode::Key6,
+];
+
 pub mod components {
     use bevy::prelude::*;
     use serde::{Deserialize, Serialize};

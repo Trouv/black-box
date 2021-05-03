@@ -1,10 +1,13 @@
 use crate::{
     box_internal::{
-        components::{ActionScript, Itemized, Pressable, Progression, BUTTON_NUMS},
+        components::{ActionScript, Itemized, Pressable, Progression},
         OutputEvent,
     },
     resources::ColorHandles,
-    standard_box::components::{BoxReader, ProgressionPiece},
+    standard_box::{
+        components::{BoxReader, ProgressionPiece},
+        BUTTON_NUMS,
+    },
 };
 use bevy::prelude::*;
 

@@ -1,9 +1,9 @@
-use bevy::prelude::*;
-use std::{env, num::ParseIntError};
-
 pub mod box_internal;
 pub mod resources;
 pub mod standard_box;
+
+use bevy::prelude::*;
+use std::{env, num::ParseIntError};
 
 #[derive(Copy, Clone, Eq, PartialEq, Debug, Hash)]
 pub enum AppState {
@@ -45,10 +45,10 @@ fn main() -> Result<(), ParseIntError> {
         .add_state(AppState::StandardBox)
         .add_event::<box_internal::OutputEvent>()
         .add_startup_system(transitions::camera_setup.system())
+        .add_startup_system(transitions::add_colors.system())
         .add_system_set(
             SystemSet::on_enter(AppState::StandardBox)
-                .with_system(standard_box::transitions::black_box_setup.system())
-                .with_system(resources::add_colors.system()),
+                .with_system(standard_box::transitions::black_box_setup.system()),
         )
         .add_system_set(
             SystemSet::on_update(AppState::StandardBox)
@@ -81,6 +81,7 @@ fn main() -> Result<(), ParseIntError> {
 }
 
 mod transitions {
+    use crate::resources::ColorHandles;
     use bevy::prelude::*;
 
     pub fn camera_setup(mut commands: Commands) {
@@ -93,6 +94,13 @@ mod transitions {
         commands.spawn_bundle(LightBundle {
             transform: Transform::from_xyz(-2., 2., 2.),
             ..Default::default()
+        });
+    }
+
+    pub fn add_colors(mut materials: ResMut<Assets<ColorMaterial>>, mut commands: Commands) {
+        commands.insert_resource(ColorHandles {
+            white: materials.add(ColorMaterial::color(Color::rgb(0.9, 0.9, 0.9))),
+            green: materials.add(ColorMaterial::color(Color::rgb(0.36, 0.63, 0.36))),
         });
     }
 }

@@ -34,15 +34,6 @@ impl Pressable {
 
 pub type ActionScript = Vec<Action>;
 
-pub const BUTTON_NUMS: [KeyCode; 6] = [
-    KeyCode::Key1,
-    KeyCode::Key2,
-    KeyCode::Key3,
-    KeyCode::Key4,
-    KeyCode::Key5,
-    KeyCode::Key6,
-];
-
 #[derive(Clone, PartialEq, Debug, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub enum BoxOut {
