@@ -1,7 +1,7 @@
 use crate::box_internal::components::{BoxOut, BoxState};
 use serde::{Deserialize, Serialize};
 
-#[derive(Clone, Serialize, Deserialize, Debug)]
+#[derive(Clone, PartialEq, Debug, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub enum Action {
     Set(Val, usize),
@@ -74,7 +74,7 @@ impl Action {
     }
 }
 
-#[derive(Clone, Copy, Serialize, Deserialize, Debug)]
+#[derive(Copy, Clone, PartialEq, Debug, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub enum Val {
     C(f32),

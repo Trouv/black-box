@@ -5,7 +5,7 @@ pub mod box_internal;
 pub mod resources;
 pub mod standard_box;
 
-#[derive(Debug, Clone, Eq, PartialEq, Hash)]
+#[derive(Copy, Clone, Eq, PartialEq, Debug, Hash)]
 pub enum AppState {
     StandardBox,
     StandardBoxTransition,
@@ -26,7 +26,8 @@ pub const LEVEL_ORDER: [&str; 10] = [
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash, SystemLabel)]
 enum SystemLabels {
-    Input,
+    // Left as an enum for potential future labels
+    InputLabel,
 }
 
 fn main() -> Result<(), ParseIntError> {
@@ -51,12 +52,12 @@ fn main() -> Result<(), ParseIntError> {
         )
         .add_system_set(
             SystemSet::on_update(AppState::StandardBox)
-                .label(SystemLabels::Input)
+                .label(SystemLabels::InputLabel)
                 .with_system(standard_box::systems::button_input.system()),
         )
         .add_system_set(
             SystemSet::on_update(AppState::StandardBox)
-                .after(SystemLabels::Input)
+                .after(SystemLabels::InputLabel)
                 .with_system(box_internal::systems::update.system()),
         )
         .add_system_set(

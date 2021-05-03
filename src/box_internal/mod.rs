@@ -8,19 +8,20 @@ pub mod components;
 
 use components::{ActionScript, BoxOut};
 
+#[derive(Clone, PartialEq, Debug)]
 pub struct OutputEvent {
     pub box_: Entity,
     pub output: BoxOut,
 }
 
-#[derive(Serialize, Deserialize, Clone, Debug)]
+#[derive(Clone, PartialEq, Debug, Default, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct ButtonData {
     pub button: ActionScript,
     pub translation: Vec3,
 }
 
-#[derive(Serialize, Deserialize, Default, Clone, Debug)]
+#[derive(Clone, PartialEq, Debug, Default, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct BoxData {
     pub prompt: Vec<BoxOut>,

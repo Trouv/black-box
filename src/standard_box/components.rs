@@ -1,18 +1,12 @@
 use bevy::prelude::*;
 use serde::{Deserialize, Serialize};
 
-#[derive(Copy, Clone, Eq, PartialEq, Debug, Default, Serialize, Deserialize)]
+#[derive(Copy, Clone, Eq, PartialEq, Debug, Hash, Default, Serialize, Deserialize)]
 pub struct ProgressionPiece;
 
-#[derive(Copy, Eq, PartialEq, Debug)]
+#[derive(Copy, Clone, Eq, PartialEq, Debug, Hash)]
 pub struct BoxReader {
     pub box_: Entity,
-}
-
-impl Clone for BoxReader {
-    fn clone(&self) -> Self {
-        BoxReader { box_: self.box_ }
-    }
 }
 
 impl BoxReader {

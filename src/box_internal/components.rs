@@ -4,7 +4,7 @@ use std::fmt;
 
 use super::actions::Action;
 
-#[derive(Clone, Default, Serialize, Deserialize, Debug)]
+#[derive(Copy, Clone, Eq, PartialEq, Debug, Default, Hash, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct Pressable {
     #[serde(skip)]
@@ -43,7 +43,7 @@ pub const BUTTON_NUMS: [KeyCode; 6] = [
     KeyCode::Key6,
 ];
 
-#[derive(Debug, PartialEq, Clone, Serialize, Deserialize)]
+#[derive(Clone, PartialEq, Debug, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub enum BoxOut {
     Int(i32),
@@ -69,7 +69,7 @@ impl Default for BoxOut {
 
 pub type BoxState = [f32; 8];
 
-#[derive(Default, Clone, Serialize, Deserialize)]
+#[derive(Clone, PartialEq, Debug, Default, Serialize, Deserialize)]
 #[serde(default)]
 #[serde(deny_unknown_fields)]
 pub struct Progression {
@@ -88,8 +88,7 @@ impl Progression {
     }
 }
 
-#[derive(Clone, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
+#[derive(Copy, Clone, Eq, PartialEq, Debug, Hash)]
 pub struct Itemized {
     pub collector: Entity,
     pub index: usize,
