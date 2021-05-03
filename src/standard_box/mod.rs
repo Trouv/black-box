@@ -29,4 +29,7 @@ pub mod components {
             BoxReader { box_ }
         }
     }
+
+    #[derive(Copy, Clone, Eq, PartialEq, Debug, Hash)]
+    pub struct BoxUiRoot(pub Entity);
 }

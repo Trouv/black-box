@@ -4,7 +4,7 @@ use crate::{
         BoxData,
     },
     resources::LevelNum,
-    standard_box::components::{BoxReader, ProgressionPiece},
+    standard_box::components::{BoxReader, BoxUiRoot, ProgressionPiece},
     AppState, LEVEL_ORDER,
 };
 use bevy::prelude::*;
@@ -82,8 +82,6 @@ pub fn spawn_box(
         })
         .id()
 }
-
-pub struct BoxUiRoot(pub Entity);
 
 pub fn spawn_box_ui(
     prompt: Vec<BoxOut>,
