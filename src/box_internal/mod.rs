@@ -1,12 +1,11 @@
-use bevy::prelude::*;
-use ron::de::from_reader;
-use serde::{Deserialize, Serialize};
-use std::{convert::TryFrom, path::Path};
-
 pub mod actions;
 pub mod components;
 
+use bevy::prelude::*;
 use components::{ActionScript, BoxOut};
+use ron::de::from_reader;
+use serde::{Deserialize, Serialize};
+use std::{convert::TryFrom, path::Path};
 
 #[derive(Clone, PartialEq, Debug)]
 pub struct OutputEvent {

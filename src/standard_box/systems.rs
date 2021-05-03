@@ -53,7 +53,9 @@ pub fn render_progression(
         *color = if piece.index
             < prog_query
                 .get_component::<Progression>(piece.collector)
-                .unwrap()
+                .expect(
+                    "ProgressionPiece's Itemized component should point to a Progression entity.",
+                )
                 .answer
                 .len()
         {

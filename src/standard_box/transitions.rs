@@ -11,7 +11,9 @@ use bevy::prelude::*;
 use std::convert::TryFrom;
 
 pub fn into_black_box(mut state: ResMut<State<AppState>>) {
-    state.replace(AppState::StandardBox).unwrap();
+    state
+        .overwrite_set(AppState::StandardBox)
+        .expect("Current state is StandardBox state unexpectedly.");
 }
 
 pub fn black_box_cleanup(mut commands: Commands, ui_query: Query<(Entity, &BoxUiRoot)>) {
@@ -226,7 +228,9 @@ pub fn level_completion(
 ) {
     for progress in progress_query.iter() {
         if progress.answer.len() >= progress.prompt.len() {
-            state.replace(AppState::StandardBoxTransition).unwrap();
+            state
+                .overwrite_set(AppState::StandardBoxTransition)
+                .expect("Current state is StandardBoxTransition unexpectedly.");
             level_num.0 += 1;
         }
     }

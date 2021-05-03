@@ -2,7 +2,7 @@ use bevy::prelude::*;
 use serde::{Deserialize, Serialize};
 use std::fmt;
 
-use super::actions::Action;
+use crate::box_internal::actions::Action;
 
 #[derive(Copy, Clone, Eq, PartialEq, Debug, Default, Hash, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
