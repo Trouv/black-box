@@ -3,6 +3,7 @@ pub mod transitions;
 
 use crate::{box_internal, AppState, SystemLabels};
 use bevy::prelude::*;
+use serde::{Deserialize, Serialize};
 
 pub const BUTTON_NUMS: [KeyCode; 6] = [
     KeyCode::Key1,
@@ -13,6 +14,7 @@ pub const BUTTON_NUMS: [KeyCode; 6] = [
     KeyCode::Key6,
 ];
 
+#[derive(Copy, Clone, Eq, PartialEq, Debug, Default, Hash, Serialize, Deserialize)]
 pub struct StandardBoxPlugin;
 
 impl Plugin for StandardBoxPlugin {
