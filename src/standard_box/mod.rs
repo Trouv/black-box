@@ -1,6 +1,7 @@
 pub mod systems;
 pub mod transitions;
 
+use crate::{box_internal, AppState, SystemLabels};
 use bevy::prelude::*;
 
 pub const BUTTON_NUMS: [KeyCode; 6] = [
@@ -11,6 +12,42 @@ pub const BUTTON_NUMS: [KeyCode; 6] = [
     KeyCode::Key5,
     KeyCode::Key6,
 ];
+
+pub struct StandardBoxPlugin;
+
+impl Plugin for StandardBoxPlugin {
+    fn build(&self, app: &mut AppBuilder) {
+        app.add_system_set(
+            SystemSet::on_enter(AppState::StandardBox)
+                .with_system(transitions::black_box_setup.system()),
+        )
+        .add_system_set(
+            SystemSet::on_update(AppState::StandardBox)
+                .label(SystemLabels::InputLabel)
+                .with_system(systems::button_input.system()),
+        )
+        .add_system_set(
+            SystemSet::on_update(AppState::StandardBox)
+                .after(SystemLabels::InputLabel)
+                .with_system(box_internal::systems::update.system()),
+        )
+        .add_system_set(
+            SystemSet::on_update(AppState::StandardBox)
+                .with_system(transitions::level_completion.system())
+                .with_system(systems::render_button.system())
+                .with_system(systems::render_display.system())
+                .with_system(systems::render_progression.system()),
+        )
+        .add_system_set(
+            SystemSet::on_exit(AppState::StandardBox)
+                .with_system(transitions::black_box_cleanup.system()),
+        )
+        .add_system_set(
+            SystemSet::on_enter(AppState::StandardBoxTransition)
+                .with_system(transitions::into_black_box.system()),
+        );
+    }
+}
 
 pub mod components {
     use bevy::prelude::*;

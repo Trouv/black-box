@@ -46,35 +46,7 @@ fn main() -> Result<(), ParseIntError> {
         .add_event::<box_internal::OutputEvent>()
         .add_startup_system(transitions::camera_setup.system())
         .add_startup_system(transitions::add_colors.system())
-        .add_system_set(
-            SystemSet::on_enter(AppState::StandardBox)
-                .with_system(standard_box::transitions::black_box_setup.system()),
-        )
-        .add_system_set(
-            SystemSet::on_update(AppState::StandardBox)
-                .label(SystemLabels::InputLabel)
-                .with_system(standard_box::systems::button_input.system()),
-        )
-        .add_system_set(
-            SystemSet::on_update(AppState::StandardBox)
-                .after(SystemLabels::InputLabel)
-                .with_system(box_internal::systems::update.system()),
-        )
-        .add_system_set(
-            SystemSet::on_update(AppState::StandardBox)
-                .with_system(standard_box::transitions::level_completion.system())
-                .with_system(standard_box::systems::render_button.system())
-                .with_system(standard_box::systems::render_display.system())
-                .with_system(standard_box::systems::render_progression.system()),
-        )
-        .add_system_set(
-            SystemSet::on_exit(AppState::StandardBox)
-                .with_system(standard_box::transitions::black_box_cleanup.system()),
-        )
-        .add_system_set(
-            SystemSet::on_enter(AppState::StandardBoxTransition)
-                .with_system(standard_box::transitions::into_black_box.system()),
-        )
+        .add_plugin(standard_box::StandardBoxPlugin)
         .run();
 
     Ok(())
