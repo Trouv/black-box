@@ -76,10 +76,7 @@ pub fn spawn_box(
             }
         })
         .insert(BoxState::default())
-        .insert(Progression {
-            prompt: level_data.prompt.clone(),
-            answer: Vec::new(),
-        })
+        .insert(Progression::new(level_data.prompt.clone()))
         .id()
 }
 
@@ -225,7 +222,7 @@ pub fn level_completion(
     mut level_num: ResMut<LevelNum>,
 ) {
     for progress in progress_query.iter() {
-        if progress.answer.len() >= progress.prompt.len() {
+        if progress.progress() >= progress.total() {
             state
                 .overwrite_set(AppState::StandardBoxTransition)
                 .expect("Current state is StandardBoxTransition unexpectedly.");

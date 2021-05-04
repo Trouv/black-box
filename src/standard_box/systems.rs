@@ -59,8 +59,7 @@ pub fn render_progression(
                 .expect(
                     "ProgressionPiece's Itemized component should point to a Progression entity.",
                 )
-                .answer
-                .len()
+                .progress()
         {
             color_handles.green.clone_weak()
         } else {

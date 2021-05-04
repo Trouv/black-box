@@ -64,18 +64,33 @@ pub type BoxState = [f32; 8];
 #[serde(default)]
 #[serde(deny_unknown_fields)]
 pub struct Progression {
-    pub prompt: Vec<BoxOut>,
+    prompt: Vec<BoxOut>,
     #[serde(skip)]
-    pub answer: Vec<BoxOut>,
+    answer: Vec<BoxOut>,
 }
 
 impl Progression {
+    pub fn new(prompt: Vec<BoxOut>) -> Progression {
+        Progression {
+            prompt,
+            answer: Vec::new(),
+        }
+    }
+
     pub fn update(&mut self, output: BoxOut) {
         self.answer.push(output);
 
         while !self.answer.is_empty() && !self.prompt.starts_with(self.answer.as_slice()) {
             self.answer.remove(0);
         }
+    }
+
+    pub fn progress(&self) -> usize {
+        self.answer.len()
+    }
+
+    pub fn total(&self) -> usize {
+        self.prompt.len()
     }
 }
 
