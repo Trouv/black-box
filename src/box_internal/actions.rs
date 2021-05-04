@@ -38,7 +38,7 @@ impl Action {
                 None
             }
             Action::Equals(a, b, i) => {
-                state[*i] = if a.evaluate(state) == b.evaluate(state) {
+                state[*i] = if (a.evaluate(state) - b.evaluate(state)).abs() < 0.00001 {
                     1.
                 } else {
                     0.

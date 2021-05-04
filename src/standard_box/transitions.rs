@@ -30,7 +30,7 @@ pub fn black_box_setup(
     mut materials: ResMut<Assets<ColorMaterial>>,
 ) {
     let level_data = BoxData::try_from(LEVEL_ORDER[(level_num.0 - 1) % LEVEL_ORDER.len()])
-        .expect(format!("Unable to load level {}", level_num.0).as_str());
+        .unwrap_or_else(|_| panic!("Unable to load level {}", level_num.0));
     let box_ = spawn_box(&level_data, &mut commands, &server);
     spawn_box_ui(
         level_data.prompt,
@@ -56,7 +56,7 @@ pub fn spawn_box(
             for (i, button_data) in level_data.buttons.iter().enumerate() {
                 parent
                     .spawn_bundle((
-                        Transform::from_translation(button_data.translation.clone()),
+                        Transform::from_translation(button_data.translation),
                         GlobalTransform::identity(),
                     ))
                     .with_children(|parent| {
@@ -186,7 +186,6 @@ pub fn spawn_box_ui(
                         size: Size {
                             width: Val::Percent(100.),
                             height: Val::Percent(30.),
-                            ..Default::default()
                         },
                         justify_content: JustifyContent::Center,
                         align_items: AlignItems::Center,
