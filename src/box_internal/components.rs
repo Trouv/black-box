@@ -19,6 +19,10 @@ impl Pressable {
         self.pressed = pressed;
     }
 
+    pub fn update_necessary(&self, pressed: bool) -> bool {
+        self.previous != self.pressed || self.pressed != pressed
+    }
+
     pub fn pressed(&self) -> bool {
         self.pressed
     }

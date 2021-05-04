@@ -46,7 +46,7 @@ pub mod systems {
 
     pub fn update(
         mut box_query: Query<(&mut BoxState, &mut Progression)>,
-        button_query: Query<(&Pressable, &ActionScript, &Itemized)>,
+        button_query: Query<(&Pressable, &ActionScript, &Itemized), Changed<Pressable>>,
         mut event_writer: EventWriter<OutputEvent>,
     ) {
         for (pressable, action_script, itemized) in button_query.iter() {

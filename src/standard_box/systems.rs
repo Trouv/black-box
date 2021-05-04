@@ -15,12 +15,19 @@ pub fn button_input(
     mut button_query: Query<(&mut Pressable, &Itemized), With<ActionScript>>,
     input: Res<Input<KeyCode>>,
 ) {
-    for (mut pressable, itemized) in button_query.iter_mut() {
-        pressable.update(input.pressed(BUTTON_NUMS[itemized.index]));
+    if input.is_changed() {
+        for (mut pressable, itemized) in button_query.iter_mut() {
+            let pressed = input.pressed(BUTTON_NUMS[itemized.index]);
+            if pressable.update_necessary(pressed) {
+                pressable.update(input.pressed(BUTTON_NUMS[itemized.index]));
+            }
+        }
     }
 }
 
-pub fn render_button(mut button_query: Query<(&Pressable, &mut Transform), With<ActionScript>>) {
+pub fn render_button(
+    mut button_query: Query<(&Pressable, &mut Transform), (With<ActionScript>, Changed<Pressable>)>,
+) {
     for (pressable, mut transform) in button_query.iter_mut() {
         if pressable.pressed() {
             transform.translation = Vec3::new(0., -0.02, 0.);
@@ -48,22 +55,17 @@ pub fn render_display(
 }
 
 pub fn render_progression(
-    prog_query: Query<&Progression>,
+    prog_query: Query<&Progression, Changed<Progression>>,
     mut piece_query: Query<(&mut Handle<ColorMaterial>, &Itemized), With<ProgressionPiece>>,
     color_handles: Res<ColorHandles>,
 ) {
     for (mut color, piece) in piece_query.iter_mut() {
-        *color = if piece.index
-            < prog_query
-                .get_component::<Progression>(piece.collector)
-                .expect(
-                    "ProgressionPiece's Itemized component should point to a Progression entity.",
-                )
-                .progress()
-        {
-            color_handles.green.clone_weak()
-        } else {
-            color_handles.white.clone_weak()
-        };
+        if let Ok(progression) = prog_query.get_component::<Progression>(piece.collector) {
+            *color = if piece.index < progression.progress() {
+                color_handles.green.clone_weak()
+            } else {
+                color_handles.white.clone_weak()
+            };
+        }
     }
 }
