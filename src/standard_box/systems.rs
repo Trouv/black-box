@@ -55,17 +55,19 @@ pub fn render_display(
 }
 
 pub fn render_progression(
-    prog_query: Query<&Progression, Changed<Progression>>,
+    prog_query: Query<(Entity, &Progression), Changed<Progression>>,
     mut piece_query: Query<(&mut Handle<ColorMaterial>, &Itemized), With<ProgressionPiece>>,
     color_handles: Res<ColorHandles>,
 ) {
-    for (mut color, piece) in piece_query.iter_mut() {
-        if let Ok(progression) = prog_query.get_component::<Progression>(piece.collector) {
-            *color = if piece.index < progression.progress() {
-                color_handles.green.clone_weak()
-            } else {
-                color_handles.white.clone_weak()
-            };
+    for (prog_entity, progression) in prog_query.iter() {
+        for (mut color, piece) in piece_query.iter_mut() {
+            if piece.collector == prog_entity {
+                *color = if piece.index < progression.progress() {
+                    color_handles.green.clone_weak()
+                } else {
+                    color_handles.white.clone_weak()
+                };
+            }
         }
     }
 }
