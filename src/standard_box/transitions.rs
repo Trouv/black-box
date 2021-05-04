@@ -216,7 +216,7 @@ pub fn spawn_box_ui(
 }
 
 pub fn level_completion(
-    progress_query: Query<&Progression>,
+    progress_query: Query<&Progression, Changed<Progression>>,
     mut state: ResMut<State<AppState>>,
     mut level_num: ResMut<LevelNum>,
 ) {
