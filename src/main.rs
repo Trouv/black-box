@@ -1,6 +1,6 @@
 pub mod box_internal;
-pub mod resources;
 pub mod standard_box;
+pub mod transitions;
 
 use bevy::prelude::*;
 use std::{env, num::ParseIntError};
@@ -52,27 +52,16 @@ fn main() -> Result<(), ParseIntError> {
     Ok(())
 }
 
-mod transitions {
-    use crate::resources::ColorHandles;
+pub mod resources {
     use bevy::prelude::*;
+    use serde::{Deserialize, Serialize};
 
-    pub fn camera_setup(mut commands: Commands) {
-        commands.spawn_bundle(UiCameraBundle::default());
-        commands.spawn_bundle(PerspectiveCameraBundle {
-            transform: Transform::from_xyz(0., 1.1, 0.8)
-                .looking_at(Vec3::new(0., 0., -0.2), Vec3::Y),
-            ..Default::default()
-        });
-        commands.spawn_bundle(LightBundle {
-            transform: Transform::from_xyz(-2., 2., 2.),
-            ..Default::default()
-        });
-    }
+    #[derive(Copy, Clone, Eq, PartialEq, Debug, Default, Hash, Serialize, Deserialize)]
+    pub struct LevelNum(pub usize);
 
-    pub fn add_colors(mut materials: ResMut<Assets<ColorMaterial>>, mut commands: Commands) {
-        commands.insert_resource(ColorHandles {
-            white: materials.add(ColorMaterial::color(Color::rgb(0.9, 0.9, 0.9))),
-            green: materials.add(ColorMaterial::color(Color::rgb(0.36, 0.63, 0.36))),
-        });
+    #[derive(Clone, Eq, PartialEq, Debug, Default, Hash)]
+    pub struct ColorHandles {
+        pub white: Handle<ColorMaterial>,
+        pub green: Handle<ColorMaterial>,
     }
 }
