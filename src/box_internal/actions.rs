@@ -1,6 +1,7 @@
 //! Provides objects for defining the behavior of a Box's Buttons.
-use crate::box_internal::components::{BoxOut, BoxState};
+use crate::box_internal::components::BoxState;
 use serde::{Deserialize, Serialize};
+use std::fmt;
 
 /// Enum that provides various commands that read/write to a BoxState when evaluated.
 #[derive(Clone, PartialEq, Debug, Serialize, Deserialize)]
@@ -24,7 +25,7 @@ pub enum Action {
     /// Evaluate every Action in the Vec in order, and return the last returned BoxOut (if there
     /// are any).
     Do(Vec<Action>),
-    /// If the first Val is nonzero, evaluate the first Vec<Action>, otherwise evaluate the second.
+    /// If the first Val is nonzero, evaluate the first Vec\<Action\>, otherwise evaluate the second.
     IfElseDo(Val, Vec<Action>, Vec<Action>),
     /// Return the Val as a BoxOut::Int
     PrintInt(Val),
@@ -105,5 +106,35 @@ impl Val {
             Val::C(val) => *val,
             Val::G(i) => state[*i],
         }
+    }
+}
+
+/// Represents the output of a Box.
+/// Used internally as the return type when evaluating actions, in OutputEvents, and in
+/// Progressions.
+///
+/// May be able to replaced by a simple i32 eventually, as BoxOut::Int is the only variant used so
+/// far, but left as an enum for now to make potential other uses easy.
+#[derive(Clone, PartialEq, Debug, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub enum BoxOut {
+    Int(i32),
+    Flt(f32),
+    Str(String),
+}
+
+impl fmt::Display for BoxOut {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match self {
+            BoxOut::Int(o) => write!(f, "{}", o),
+            BoxOut::Flt(o) => write!(f, "{}", o),
+            BoxOut::Str(o) => write!(f, "{}", o),
+        }
+    }
+}
+
+impl Default for BoxOut {
+    fn default() -> Self {
+        BoxOut::Int(0)
     }
 }

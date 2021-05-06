@@ -1,8 +1,7 @@
 use bevy::prelude::*;
 use serde::{Deserialize, Serialize};
-use std::fmt;
 
-use crate::box_internal::actions::Action;
+use crate::box_internal::actions::{Action, BoxOut};
 
 #[derive(Copy, Clone, Eq, PartialEq, Debug, Default, Hash, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
@@ -37,30 +36,6 @@ impl Pressable {
 }
 
 pub type ActionScript = Vec<Action>;
-
-#[derive(Clone, PartialEq, Debug, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
-pub enum BoxOut {
-    Int(i32),
-    Flt(f32),
-    Str(String),
-}
-
-impl fmt::Display for BoxOut {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        match self {
-            BoxOut::Int(o) => write!(f, "{}", o),
-            BoxOut::Flt(o) => write!(f, "{}", o),
-            BoxOut::Str(o) => write!(f, "{}", o),
-        }
-    }
-}
-
-impl Default for BoxOut {
-    fn default() -> Self {
-        BoxOut::Int(0)
-    }
-}
 
 pub type BoxState = [f32; 8];
 
@@ -98,6 +73,10 @@ impl Progression {
     }
 }
 
+/// Component that implies its entity is a member of an ordered list (at index), associated with
+/// some other Entity (collector).
+/// It is the reverse of the collector Entity having a Vec\<Entity\> component, containing this
+/// Entity.
 #[derive(Copy, Clone, Eq, PartialEq, Debug, Hash)]
 pub struct Itemized {
     pub collector: Entity,

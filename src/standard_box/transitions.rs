@@ -1,6 +1,7 @@
 use crate::{
     box_internal::{
-        components::{BoxOut, BoxState, Itemized, Pressable, Progression},
+        actions::BoxOut,
+        components::{BoxState, Itemized, Pressable, Progression},
         BoxData,
     },
     resources::LevelNum,

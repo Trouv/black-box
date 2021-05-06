@@ -7,8 +7,9 @@
 pub mod actions;
 pub mod components;
 
+use actions::BoxOut;
 use bevy::prelude::*;
-use components::{ActionScript, BoxOut};
+use components::ActionScript;
 use ron::de::from_reader;
 use serde::{Deserialize, Serialize};
 use std::{convert::TryFrom, path::Path};
