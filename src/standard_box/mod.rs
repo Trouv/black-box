@@ -1,3 +1,9 @@
+//! Systems, components, helpers and a plugin for the StandardBox state.
+//!
+//! The StandardBox state allows users to interact with a black box and see progress towards the
+//! prompt.
+//! This does not contain any of the gameplay logic for the boxes, just the input and rendering for
+//! a standard box.
 pub mod systems;
 pub mod transitions;
 

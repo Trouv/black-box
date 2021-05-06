@@ -1,3 +1,13 @@
+//! # Black Box
+//! Black Box is, so far, a very simple puzzle game written with Rust + Bevy.
+//!
+//! This project uses bevy's new State Machine logic, and its modules are structured around these
+//! states.
+//! Then, they are further split into components, systems, transitions (for entering and
+//! exiting systems) and resources, as necessary.
+//! There are also such sub-modules on the top-level, for objects and systems that aren't
+//! associated with a particular state.
+//! See the sub-module documentation for more details.
 pub mod box_internal;
 pub mod standard_box;
 pub mod transitions;

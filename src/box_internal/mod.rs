@@ -1,3 +1,9 @@
+//! Systems, components, and helpers for the gameplay logic of a BlackBox.
+//!
+//! This module is only concerned with the internal logic of a Black Box, not its rendering or
+//! input.
+//! As a result, there is no state associated with this module, and no plugin.
+//! Instead, other states may implement this module's systems and components as needed.
 pub mod actions;
 pub mod components;
 
