@@ -19,6 +19,7 @@ pub mod transitions {
                 radius: 0.5,
                 half_segment: 2.0,
             })
+            .insert(RotationConstraints::restrict_to_y_only())
             .with_children(|parent| {
                 parent.spawn_bundle(PerspectiveCameraBundle {
                     transform: Transform::from_xyz(0., 1.1, 0.)
@@ -26,6 +27,8 @@ pub mod transitions {
                     ..Default::default()
                 });
             });
+    }
+    pub fn world_setup(mut commands: Commands) {
         commands.spawn_bundle(LightBundle {
             transform: Transform::from_xyz(-2., 2., 2.),
             ..Default::default()
@@ -41,6 +44,7 @@ impl Plugin for RoamingPlugin {
         app.add_system_set(
             SystemSet::on_enter(AppState::Roaming)
                 .with_system(transitions::camera_setup.system())
+                .with_system(transitions::world_setup.system())
                 .with_system(crate::standard_box::transitions::black_box_setup.system()),
         )
         .add_system_set(SystemSet::on_update(AppState::Roaming))
