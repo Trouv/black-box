@@ -56,7 +56,7 @@ fn main() -> Result<(), ParseIntError> {
         .add_plugin(PhysicsPlugin::default())
         .insert_resource(Msaa { samples: 1 })
         .insert_resource(level_num)
-        .add_state(AppState::StandardBox)
+        .add_state(AppState::Roaming)
         .add_event::<box_internal::OutputEvent>()
         .add_startup_system(transitions::add_colors.system())
         .add_plugin(standard_box::StandardBoxPlugin)
