@@ -9,16 +9,19 @@
 //! associated with a particular state.
 //! See the sub-module documentation for more details.
 pub mod box_internal;
+pub mod roaming;
 pub mod standard_box;
 pub mod transitions;
 
 use bevy::prelude::*;
+use heron::prelude::*;
 use std::{env, num::ParseIntError};
 
 #[derive(Copy, Clone, Eq, PartialEq, Debug, Hash)]
 pub enum AppState {
     StandardBox,
     StandardBoxTransition,
+    Roaming,
 }
 
 pub const LEVEL_ORDER: [&str; 10] = [
@@ -50,13 +53,14 @@ fn main() -> Result<(), ParseIntError> {
 
     App::build()
         .add_plugins(DefaultPlugins)
+        .add_plugin(PhysicsPlugin::default())
         .insert_resource(Msaa { samples: 1 })
         .insert_resource(level_num)
         .add_state(AppState::StandardBox)
         .add_event::<box_internal::OutputEvent>()
-        .add_startup_system(transitions::camera_setup.system())
         .add_startup_system(transitions::add_colors.system())
         .add_plugin(standard_box::StandardBoxPlugin)
+        .add_plugin(roaming::RoamingPlugin)
         .run();
 
     Ok(())
