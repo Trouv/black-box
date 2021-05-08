@@ -13,7 +13,10 @@ pub mod components {
 }
 
 pub mod systems {
-    use crate::roaming::components::*;
+    use crate::roaming::{
+        components::*,
+        resources::{LookSensitivity, WalkSpeed},
+    };
     use bevy::{input::mouse::MouseMotion, prelude::*};
     use heron::prelude::*;
 
@@ -21,12 +24,14 @@ pub mod systems {
         mut velocity_query: Query<(&mut Velocity, &mut Transform), (With<Player>, With<Strafes>)>,
         input: Res<Input<KeyCode>>,
         time: Res<Time>,
+        walk_speed: Res<WalkSpeed>,
+        look_sensitivity: Res<LookSensitivity>,
         mut mouse_listener: EventReader<MouseMotion>,
     ) {
         for (mut velocity, mut transform) in velocity_query.iter_mut() {
             for motion_event in mouse_listener.iter() {
                 transform.rotate(Quat::from_rotation_y(
-                    motion_event.delta.x * -0.1 * time.delta_seconds(),
+                    motion_event.delta.x * -1.0 * look_sensitivity.0 * time.delta_seconds(),
                 ));
             }
 
@@ -44,6 +49,10 @@ pub mod systems {
             if input.pressed(KeyCode::D) {
                 linear += Vec3::new(1., 0., 0.);
             }
+            if linear.length() > 1.0 {
+                linear.normalize();
+            }
+            linear *= walk_speed.0;
             velocity.linear = transform.rotation * linear;
         }
     }
@@ -51,12 +60,13 @@ pub mod systems {
     pub fn camera_tilt(
         mut transform_query: Query<&mut Transform, (With<Player>, With<Tilts>)>,
         time: Res<Time>,
+        look_sensitivity: Res<LookSensitivity>,
         mut mouse_listener: EventReader<MouseMotion>,
     ) {
         for motion_event in mouse_listener.iter() {
             for mut transform in transform_query.iter_mut() {
                 transform.rotate(Quat::from_rotation_x(
-                    motion_event.delta.y * -0.1 * time.delta_seconds(),
+                    motion_event.delta.y * -1. * look_sensitivity.0 * time.delta_seconds(),
                 ));
             }
         }
@@ -110,24 +120,35 @@ pub mod transitions {
     }
 }
 
+pub mod resources {
+    use serde::{Deserialize, Serialize};
+    #[derive(Copy, Clone, PartialEq, Debug, Default, Serialize, Deserialize)]
+    pub struct WalkSpeed(pub f32);
+
+    #[derive(Copy, Clone, PartialEq, Debug, Default, Serialize, Deserialize)]
+    pub struct LookSensitivity(pub f32);
+}
+
 #[derive(Copy, Clone, Eq, PartialEq, Debug, Default, Hash, Serialize, Deserialize)]
 pub struct RoamingPlugin;
 
 impl Plugin for RoamingPlugin {
     fn build(&self, app: &mut AppBuilder) {
-        app.add_system_set(
-            SystemSet::on_enter(AppState::Roaming)
-                .with_system(transitions::camera_setup.system())
-                .with_system(transitions::world_setup.system())
-                .with_system(transitions::grab_cursor.system())
-                .with_system(crate::standard_box::transitions::black_box_setup.system()),
-        )
-        .add_system_set(
-            SystemSet::on_update(AppState::Roaming)
-                .with_system(systems::roaming_movement.system())
-                .with_system(systems::camera_tilt.system()),
-        )
-        .add_system_set(SystemSet::on_update(AppState::Roaming))
-        .add_system_set(SystemSet::on_exit(AppState::Roaming));
+        app.insert_resource(resources::WalkSpeed(2.))
+            .insert_resource(resources::LookSensitivity(0.2))
+            .add_system_set(
+                SystemSet::on_enter(AppState::Roaming)
+                    .with_system(transitions::camera_setup.system())
+                    .with_system(transitions::world_setup.system())
+                    .with_system(transitions::grab_cursor.system())
+                    .with_system(crate::standard_box::transitions::black_box_setup.system()),
+            )
+            .add_system_set(
+                SystemSet::on_update(AppState::Roaming)
+                    .with_system(systems::roaming_movement.system())
+                    .with_system(systems::camera_tilt.system()),
+            )
+            .add_system_set(SystemSet::on_update(AppState::Roaming))
+            .add_system_set(SystemSet::on_exit(AppState::Roaming));
     }
 }
