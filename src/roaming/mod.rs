@@ -20,6 +20,7 @@ pub mod systems {
     use bevy::{input::mouse::MouseMotion, prelude::*};
     use heron::prelude::*;
 
+    const PI: f32 = 3.14159265;
     pub fn roaming_movement(
         mut velocity_query: Query<(&mut Velocity, &mut Transform), (With<Player>, With<Strafes>)>,
         input: Res<Input<KeyCode>>,
@@ -68,6 +69,10 @@ pub mod systems {
                 transform.rotate(Quat::from_rotation_x(
                     motion_event.delta.y * -1. * look_sensitivity.0 * time.delta_seconds(),
                 ));
+
+                let mut euler = transform.rotation.to_axis_angle();
+                euler.1 = euler.1.min(PI / 2.);
+                transform.rotation = Quat::from_axis_angle(euler.0, euler.1);
             }
         }
     }
