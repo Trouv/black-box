@@ -22,19 +22,18 @@ pub mod systems {
 
     const PI: f32 = 3.14159265;
     pub fn roaming_movement(
-        mut velocity_query: Query<(&mut Velocity, &mut Transform), (With<Player>, With<Strafes>)>,
+        mut velocity_query: Query<(&mut Velocity, &Transform), (With<Player>, With<Strafes>)>,
         input: Res<Input<KeyCode>>,
-        time: Res<Time>,
         walk_speed: Res<WalkSpeed>,
         look_sensitivity: Res<LookSensitivity>,
         mut mouse_listener: EventReader<MouseMotion>,
     ) {
-        for (mut velocity, mut transform) in velocity_query.iter_mut() {
+        for (mut velocity, transform) in velocity_query.iter_mut() {
+            let mut angle = 0.;
             for motion_event in mouse_listener.iter() {
-                transform.rotate(Quat::from_rotation_y(
-                    motion_event.delta.x * -1.0 * look_sensitivity.0 * time.delta_seconds(),
-                ));
+                angle = motion_event.delta.x * -10. * look_sensitivity.0;
             }
+            velocity.angular = AxisAngle::new(Vec3::Y, angle);
 
             let mut linear = Vec3::ZERO;
 
@@ -140,7 +139,7 @@ pub struct RoamingPlugin;
 impl Plugin for RoamingPlugin {
     fn build(&self, app: &mut AppBuilder) {
         app.insert_resource(resources::WalkSpeed(2.))
-            .insert_resource(resources::LookSensitivity(0.2))
+            .insert_resource(resources::LookSensitivity(0.1))
             .add_system_set(
                 SystemSet::on_enter(AppState::Roaming)
                     .with_system(transitions::camera_setup.system())
