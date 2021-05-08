@@ -94,11 +94,19 @@ pub mod transitions {
                     .insert(Player);
             });
     }
+
     pub fn world_setup(mut commands: Commands) {
         commands.spawn_bundle(LightBundle {
             transform: Transform::from_xyz(-2., 2., 2.),
             ..Default::default()
         });
+    }
+
+    pub fn grab_cursor(mut windows: ResMut<Windows>) {
+        let window = windows.get_primary_mut().unwrap();
+
+        window.set_cursor_lock_mode(true);
+        window.set_cursor_visibility(false);
     }
 }
 
@@ -111,6 +119,7 @@ impl Plugin for RoamingPlugin {
             SystemSet::on_enter(AppState::Roaming)
                 .with_system(transitions::camera_setup.system())
                 .with_system(transitions::world_setup.system())
+                .with_system(transitions::grab_cursor.system())
                 .with_system(crate::standard_box::transitions::black_box_setup.system()),
         )
         .add_system_set(
