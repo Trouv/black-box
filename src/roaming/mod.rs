@@ -31,7 +31,7 @@ pub mod systems {
         for (mut velocity, transform) in velocity_query.iter_mut() {
             let mut angle = 0.;
             for motion_event in mouse_listener.iter() {
-                angle = motion_event.delta.x * -10. * look_sensitivity.0;
+                angle = motion_event.delta.x * -18. * look_sensitivity.0;
             }
             velocity.angular = AxisAngle::new(Vec3::Y, angle);
 
@@ -139,7 +139,7 @@ pub struct RoamingPlugin;
 impl Plugin for RoamingPlugin {
     fn build(&self, app: &mut AppBuilder) {
         app.insert_resource(resources::WalkSpeed(2.))
-            .insert_resource(resources::LookSensitivity(0.1))
+            .insert_resource(resources::LookSensitivity(0.06))
             .add_system_set(
                 SystemSet::on_enter(AppState::Roaming)
                     .with_system(transitions::camera_setup.system())
