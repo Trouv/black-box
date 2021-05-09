@@ -19,6 +19,12 @@ pub mod components {
             let tau = PI * 2.;
             self.theta = ((self.theta % tau) + tau) % tau;
         }
+
+        pub fn new(theta: f32) -> Self {
+            let mut turn = Turn::default();
+            turn.update(theta);
+            turn
+        }
     }
 
     impl From<Turn> for Quat {
@@ -36,6 +42,12 @@ pub mod components {
         pub fn update(&mut self, delta: f32) {
             self.phi += delta;
             self.phi = self.phi.min(PI / 2.).max(PI / -2.);
+        }
+
+        pub fn new(phi: f32) -> Self {
+            let mut tilt = Tilt::default();
+            tilt.update(phi);
+            tilt
         }
     }
 
@@ -149,14 +161,16 @@ pub mod transitions {
                     .insert(Turn::default())
                     .insert(Player)
                     .with_children(|parent| {
+                        let transform = Transform::from_xyz(0., 1.1, 0.)
+                            .looking_at(Vec3::new(0., 0., -1.), Vec3::Y);
+
                         parent
                             .spawn_bundle(PerspectiveCameraBundle {
-                                transform: Transform::from_xyz(0., 1.1, 0.)
-                                    .looking_at(Vec3::new(0., 0., -1.), Vec3::Y),
+                                transform,
                                 ..Default::default()
                             })
-                            .insert(Tilt::default())
-                            .insert(Player);
+                            .insert(Player)
+                            .insert(Tilt::new(transform.rotation.to_axis_angle().1 * -1.));
                     });
             });
     }
