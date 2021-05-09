@@ -3,11 +3,48 @@ use bevy::prelude::*;
 use serde::{Deserialize, Serialize};
 
 pub mod components {
+    const PI: f32 = 3.14159265;
+    use bevy::prelude::*;
     use serde::{Deserialize, Serialize};
     #[derive(Copy, Clone, Eq, PartialEq, Debug, Default, Hash, Serialize, Deserialize)]
     pub struct Strafes;
-    #[derive(Copy, Clone, Eq, PartialEq, Debug, Default, Hash, Serialize, Deserialize)]
-    pub struct Tilts;
+    #[derive(Copy, Clone, PartialEq, Debug, Default, Serialize, Deserialize)]
+    pub struct Turn {
+        theta: f32,
+    }
+
+    impl Turn {
+        pub fn update(&mut self, delta: f32) {
+            self.theta += delta;
+            let tau = PI * 2.;
+            self.theta = ((self.theta % tau) + tau) % tau;
+        }
+    }
+
+    impl From<Turn> for Quat {
+        fn from(turn: Turn) -> Quat {
+            Quat::from_axis_angle(Vec3::Y, turn.theta)
+        }
+    }
+
+    #[derive(Copy, Clone, PartialEq, Debug, Default, Serialize, Deserialize)]
+    pub struct Tilt {
+        phi: f32,
+    }
+
+    impl Tilt {
+        pub fn update(&mut self, delta: f32) {
+            self.phi += delta;
+            self.phi = self.phi.min(PI / 2.).max(PI / -2.);
+        }
+    }
+
+    impl From<Tilt> for Quat {
+        fn from(tilt: Tilt) -> Quat {
+            Quat::from_axis_angle(Vec3::X, tilt.phi)
+        }
+    }
+
     #[derive(Copy, Clone, Eq, PartialEq, Debug, Default, Hash, Serialize, Deserialize)]
     pub struct Player;
 }
@@ -20,21 +57,13 @@ pub mod systems {
     use bevy::{input::mouse::MouseMotion, prelude::*};
     use heron::prelude::*;
 
-    const PI: f32 = 3.14159265;
     pub fn roaming_movement(
-        mut velocity_query: Query<(&mut Velocity, &Transform), (With<Player>, With<Strafes>)>,
+        mut velocity_query: Query<&mut Velocity, (With<Player>, With<Strafes>)>,
+        turn_query: Query<&Turn, With<Player>>,
         input: Res<Input<KeyCode>>,
         walk_speed: Res<WalkSpeed>,
-        look_sensitivity: Res<LookSensitivity>,
-        mut mouse_listener: EventReader<MouseMotion>,
     ) {
-        for (mut velocity, transform) in velocity_query.iter_mut() {
-            let mut angle = 0.;
-            for motion_event in mouse_listener.iter() {
-                angle = motion_event.delta.x * -18. * look_sensitivity.0;
-            }
-            velocity.angular = AxisAngle::new(Vec3::Y, angle);
-
+        for mut velocity in velocity_query.iter_mut() {
             let mut linear = Vec3::ZERO;
 
             if input.pressed(KeyCode::W) {
@@ -53,25 +82,42 @@ pub mod systems {
                 linear.normalize();
             }
             linear *= walk_speed.0;
-            velocity.linear = transform.rotation * linear;
+            let turn_quat = Quat::from(
+                *turn_query
+                    .iter()
+                    .next()
+                    .expect("There should exist a Player that can Turn"),
+            );
+            velocity.linear = turn_quat * linear;
         }
     }
 
     pub fn camera_tilt(
-        mut transform_query: Query<&mut Transform, (With<Player>, With<Tilts>)>,
+        mut tilt_query: Query<(&mut Transform, &mut Tilt), With<Player>>,
         time: Res<Time>,
         look_sensitivity: Res<LookSensitivity>,
         mut mouse_listener: EventReader<MouseMotion>,
     ) {
         for motion_event in mouse_listener.iter() {
-            for mut transform in transform_query.iter_mut() {
-                transform.rotate(Quat::from_rotation_x(
-                    motion_event.delta.y * -1. * look_sensitivity.0 * time.delta_seconds(),
-                ));
+            for (mut transform, mut tilt) in tilt_query.iter_mut() {
+                tilt.update(motion_event.delta.y * -1. * look_sensitivity.0 * time.delta_seconds());
 
-                let mut euler = transform.rotation.to_axis_angle();
-                euler.1 = euler.1.min(PI / 2.);
-                transform.rotation = Quat::from_axis_angle(euler.0, euler.1);
+                transform.rotation = Quat::from(*tilt);
+            }
+        }
+    }
+
+    pub fn body_turn(
+        mut turn_query: Query<(&mut Transform, &mut Turn), With<Player>>,
+        time: Res<Time>,
+        look_sensitivity: Res<LookSensitivity>,
+        mut mouse_listener: EventReader<MouseMotion>,
+    ) {
+        for motion_event in mouse_listener.iter() {
+            for (mut transform, mut turn) in turn_query.iter_mut() {
+                turn.update(motion_event.delta.x * -1. * look_sensitivity.0 * time.delta_seconds());
+
+                transform.rotation = Quat::from(*turn);
             }
         }
     }
@@ -99,13 +145,19 @@ pub mod transitions {
             .insert(Strafes)
             .with_children(|parent| {
                 parent
-                    .spawn_bundle(PerspectiveCameraBundle {
-                        transform: Transform::from_xyz(0., 1.1, 0.)
-                            .looking_at(Vec3::new(0., 0., -1.), Vec3::Y),
-                        ..Default::default()
-                    })
-                    .insert(Tilts)
-                    .insert(Player);
+                    .spawn_bundle((Transform::default(), GlobalTransform::identity()))
+                    .insert(Turn::default())
+                    .insert(Player)
+                    .with_children(|parent| {
+                        parent
+                            .spawn_bundle(PerspectiveCameraBundle {
+                                transform: Transform::from_xyz(0., 1.1, 0.)
+                                    .looking_at(Vec3::new(0., 0., -1.), Vec3::Y),
+                                ..Default::default()
+                            })
+                            .insert(Tilt::default())
+                            .insert(Player);
+                    });
             });
     }
 
@@ -150,6 +202,7 @@ impl Plugin for RoamingPlugin {
             .add_system_set(
                 SystemSet::on_update(AppState::Roaming)
                     .with_system(systems::roaming_movement.system())
+                    .with_system(systems::body_turn.system())
                     .with_system(systems::camera_tilt.system()),
             )
             .add_system_set(SystemSet::on_update(AppState::Roaming))
