@@ -100,7 +100,9 @@ pub mod systems {
                     .next()
                     .expect("There should exist a Player that can Turn"),
             );
-            velocity.linear = turn_quat * linear;
+            linear = turn_quat * linear;
+            velocity.linear.x = linear.x;
+            velocity.linear.z = linear.z;
         }
     }
 
