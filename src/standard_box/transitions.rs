@@ -28,16 +28,25 @@ pub fn black_box_setup(
     mut commands: Commands,
     server: Res<AssetServer>,
     level_num: Res<LevelNum>,
-    mut materials: ResMut<Assets<ColorMaterial>>,
+    mut color_materials: ResMut<Assets<ColorMaterial>>,
+    mut meshes: ResMut<Assets<Mesh>>,
+    mut standard_materials: ResMut<Assets<StandardMaterial>>,
 ) {
     let level_data = BoxData::try_from(LEVEL_ORDER[(level_num.0 - 1) % LEVEL_ORDER.len()])
         .unwrap_or_else(|_| panic!("Unable to load level {}", level_num.0));
-    let box_ = spawn_box(&level_data, &mut commands, &server);
+    let box_ = spawn_box(
+        &level_data,
+        Transform::from_xyz(0., 0.5, 0.),
+        &mut commands,
+        &server,
+        &mut meshes,
+        &mut standard_materials,
+    );
     spawn_box_ui(
         level_data.prompt,
         &mut commands,
         &server,
-        &mut materials,
+        &mut color_materials,
         box_,
         &level_num,
     );
@@ -45,39 +54,62 @@ pub fn black_box_setup(
 
 pub fn spawn_box(
     level_data: &BoxData,
+    base_transform: Transform,
     commands: &mut Commands,
     server: &Res<AssetServer>,
+    meshes: &mut ResMut<Assets<Mesh>>,
+    materials: &mut ResMut<Assets<StandardMaterial>>,
 ) -> Entity {
     commands
-        .spawn_bundle((Transform::default(), GlobalTransform::identity()))
-        .with_children(|parent| {
-            parent.spawn_scene(server.load("models/box.glb#Scene0"));
-
-            let box_ = parent.parent_entity();
-            for (i, button_data) in level_data.buttons.iter().enumerate() {
-                parent
-                    .spawn_bundle((
-                        Transform::from_translation(button_data.translation),
-                        GlobalTransform::identity(),
-                    ))
-                    .with_children(|parent| {
-                        parent.spawn_scene(server.load("models/button_base.glb#Scene0"));
-                        parent
-                            .spawn_bundle((Transform::default(), GlobalTransform::identity()))
-                            .insert(button_data.button.clone())
-                            .insert(Itemized {
-                                collector: box_,
-                                index: i,
-                            })
-                            .insert(Pressable::default())
-                            .with_children(|parent| {
-                                parent.spawn_scene(server.load("models/button_body.glb#Scene0"));
-                            });
-                    });
-            }
+        .spawn_bundle(PbrBundle {
+            mesh: meshes.add(Mesh::from(shape::Cube::new(1.))),
+            material: materials.add(StandardMaterial {
+                base_color: Color::WHITE,
+                ..Default::default()
+            }),
+            transform: base_transform,
+            ..Default::default()
         })
-        .insert(BoxState::default())
-        .insert(Progression::new(level_data.prompt.clone()))
+        .with_children(|parent| {
+            parent
+                .spawn_bundle((
+                    Transform::from_xyz(0., 0.625, 0.),
+                    GlobalTransform::identity(),
+                ))
+                .with_children(|parent| {
+                    parent.spawn_scene(server.load("models/box.glb#Scene0"));
+
+                    let box_ = parent.parent_entity();
+                    for (i, button_data) in level_data.buttons.iter().enumerate() {
+                        parent
+                            .spawn_bundle((
+                                Transform::from_translation(button_data.translation),
+                                GlobalTransform::identity(),
+                            ))
+                            .with_children(|parent| {
+                                parent.spawn_scene(server.load("models/button_base.glb#Scene0"));
+                                parent
+                                    .spawn_bundle((
+                                        Transform::default(),
+                                        GlobalTransform::identity(),
+                                    ))
+                                    .insert(button_data.button.clone())
+                                    .insert(Itemized {
+                                        collector: box_,
+                                        index: i,
+                                    })
+                                    .insert(Pressable::default())
+                                    .with_children(|parent| {
+                                        parent.spawn_scene(
+                                            server.load("models/button_body.glb#Scene0"),
+                                        );
+                                    });
+                            });
+                    }
+                })
+                .insert(BoxState::default())
+                .insert(Progression::new(level_data.prompt.clone()));
+        })
         .id()
 }
 
