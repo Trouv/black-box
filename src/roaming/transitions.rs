@@ -5,15 +5,12 @@ pub fn camera_setup(mut commands: Commands) {
     commands.spawn_bundle(UiCameraBundle::default());
 
     commands
-        .spawn_bundle((
-            Transform::from_xyz(0., 0., 0.8),
-            GlobalTransform::identity(),
-        ))
+        .spawn_bundle((Transform::from_xyz(0., 1., 2.), GlobalTransform::identity()))
         .insert(Body::Capsule {
             radius: 0.5,
             half_segment: 2.0,
         })
-        .insert(RotationConstraints::restrict_to_y_only())
+        .insert(RotationConstraints::lock())
         .insert(Velocity::default())
         .insert(Player)
         .insert(Strafes)
@@ -23,7 +20,7 @@ pub fn camera_setup(mut commands: Commands) {
                 .insert(Turn::default())
                 .insert(Player)
                 .with_children(|parent| {
-                    let transform = Transform::from_xyz(0., 1.1, 0.)
+                    let transform = Transform::from_xyz(0., 0.75, 0.)
                         .looking_at(Vec3::new(0., 0., -1.), Vec3::Y);
 
                     parent

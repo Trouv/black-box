@@ -9,6 +9,7 @@ use crate::{
     AppState, LEVEL_ORDER,
 };
 use bevy::prelude::*;
+use heron::prelude::*;
 use std::convert::TryFrom;
 
 pub fn into_black_box(mut state: ResMut<State<AppState>>) {
@@ -69,6 +70,10 @@ pub fn spawn_box(
             }),
             transform: base_transform,
             ..Default::default()
+        })
+        .insert(BodyType::Static)
+        .insert(Body::Cuboid {
+            half_extends: Vec3::new(0.5, 0.5, 0.5),
         })
         .with_children(|parent| {
             parent
