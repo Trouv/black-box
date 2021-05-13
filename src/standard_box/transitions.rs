@@ -1,10 +1,9 @@
 use crate::{
     box_internal::{
-        actions::BoxOut,
         components::{BoxState, Itemized, Pressable, Progression},
         BoxData,
     },
-    standard_box::components::{BoxOutDisplay, BoxReference, BoxUiRoot, ProgressionPiece},
+    standard_box::components::{Active, BoxOutDisplay, BoxReference, BoxUiRoot, ProgressionPiece},
     AppState, LEVEL_ORDER,
 };
 use bevy::prelude::*;
@@ -26,26 +25,18 @@ pub fn black_box_cleanup(mut commands: Commands, ui_query: Query<Entity, With<Bo
 pub fn black_box_setup(
     mut commands: Commands,
     server: Res<AssetServer>,
-    mut color_materials: ResMut<Assets<ColorMaterial>>,
     mut meshes: ResMut<Assets<Mesh>>,
     mut standard_materials: ResMut<Assets<StandardMaterial>>,
 ) {
     let level_data =
         BoxData::try_from(LEVEL_ORDER[0]).unwrap_or_else(|_| panic!("Unable to load level {}", 1));
-    let box_ = spawn_box(
+    spawn_box(
         &level_data,
         Transform::from_xyz(0., 0.5, 0.),
         &mut commands,
         &server,
         &mut meshes,
         &mut standard_materials,
-    );
-    spawn_box_ui(
-        level_data.prompt,
-        &mut commands,
-        &server,
-        &mut color_materials,
-        box_,
     );
 }
 
@@ -115,117 +106,117 @@ pub fn spawn_box(
 }
 
 pub fn spawn_box_ui(
-    prompt: Vec<BoxOut>,
-    commands: &mut Commands,
-    server: &Res<AssetServer>,
-    materials: &mut ResMut<Assets<ColorMaterial>>,
-    box_: Entity,
-) -> Entity {
+    mut commands: Commands,
+    active_prog_query: Query<(Entity, &Progression), (With<Active>, With<BoxState>)>,
+    server: Res<AssetServer>,
+    mut materials: ResMut<Assets<ColorMaterial>>,
+) {
     let transparent = materials.add(ColorMaterial::color(Color::NONE));
-    commands
-        .spawn_bundle(NodeBundle {
-            style: Style {
-                align_items: AlignItems::Center,
-                flex_direction: FlexDirection::ColumnReverse,
-                size: Size {
-                    height: Val::Percent(100.),
-                    width: Val::Percent(100.),
-                },
-                ..Default::default()
-            },
-            material: transparent.clone(),
-            ..Default::default()
-        })
-        .with_children(|parent| {
-            let font = server.load("fonts/rainyhearts.ttf");
-            parent
-                .spawn_bundle(NodeBundle {
-                    style: Style {
-                        justify_content: JustifyContent::Center,
-                        align_items: AlignItems::FlexEnd,
-                        size: Size {
-                            height: Val::Percent(10.),
-                            width: Val::Percent(100.),
-                        },
-                        ..Default::default()
+    for (box_entity, progression) in active_prog_query.iter() {
+        commands
+            .spawn_bundle(NodeBundle {
+                style: Style {
+                    align_items: AlignItems::Center,
+                    flex_direction: FlexDirection::ColumnReverse,
+                    size: Size {
+                        height: Val::Percent(100.),
+                        width: Val::Percent(100.),
                     },
-                    material: transparent.clone(),
                     ..Default::default()
-                })
-                .with_children(|parent| {
-                    for (i, piece) in prompt.iter().enumerate() {
-                        parent
-                            .spawn_bundle(NodeBundle {
-                                style: Style {
-                                    align_items: AlignItems::Center,
-                                    justify_content: JustifyContent::Center,
-                                    size: Size {
-                                        height: Val::Percent(100.),
-                                        width: Val::Percent(10. / 16. * 9.),
+                },
+                material: transparent.clone(),
+                ..Default::default()
+            })
+            .with_children(|parent| {
+                let font = server.load("fonts/rainyhearts.ttf");
+                parent
+                    .spawn_bundle(NodeBundle {
+                        style: Style {
+                            justify_content: JustifyContent::Center,
+                            align_items: AlignItems::FlexEnd,
+                            size: Size {
+                                height: Val::Percent(10.),
+                                width: Val::Percent(100.),
+                            },
+                            ..Default::default()
+                        },
+                        material: transparent.clone(),
+                        ..Default::default()
+                    })
+                    .with_children(|parent| {
+                        for (i, piece) in progression.get_prompt().iter().enumerate() {
+                            parent
+                                .spawn_bundle(NodeBundle {
+                                    style: Style {
+                                        align_items: AlignItems::Center,
+                                        justify_content: JustifyContent::Center,
+                                        size: Size {
+                                            height: Val::Percent(100.),
+                                            width: Val::Percent(10. / 16. * 9.),
+                                        },
+                                        ..Default::default()
                                     },
+                                    material: materials.add(Color::rgb(0.9, 0.9, 0.9).into()),
                                     ..Default::default()
-                                },
-                                material: materials.add(Color::rgb(0.9, 0.9, 0.9).into()),
+                                })
+                                .insert(ProgressionPiece)
+                                .insert(Itemized {
+                                    collector: box_entity,
+                                    index: i,
+                                })
+                                .with_children(|parent| {
+                                    parent
+                                        .spawn_bundle(TextBundle {
+                                            text: Text::with_section(
+                                                piece.to_string(),
+                                                TextStyle {
+                                                    font: font.clone(),
+                                                    font_size: 50.,
+                                                    color: Color::rgb(0.1, 0.1, 0.1),
+                                                },
+                                                TextAlignment::default(),
+                                            ),
+                                            ..Default::default()
+                                        })
+                                        .id();
+                                });
+                        }
+                    });
+
+                parent
+                    .spawn_bundle(NodeBundle {
+                        style: Style {
+                            size: Size {
+                                width: Val::Percent(100.),
+                                height: Val::Percent(30.),
+                            },
+                            justify_content: JustifyContent::Center,
+                            align_items: AlignItems::Center,
+                            ..Default::default()
+                        },
+                        material: transparent.clone(),
+                        ..Default::default()
+                    })
+                    .with_children(|parent| {
+                        parent
+                            .spawn_bundle(TextBundle {
+                                text: Text::with_section(
+                                    "".to_string(),
+                                    TextStyle {
+                                        font: font.clone(),
+                                        font_size: 200.,
+                                        color: Color::rgb(0.36, 0.63, 0.36),
+                                    },
+                                    TextAlignment::default(),
+                                ),
                                 ..Default::default()
                             })
-                            .insert(ProgressionPiece)
-                            .insert(Itemized {
-                                collector: box_,
-                                index: i,
-                            })
-                            .with_children(|parent| {
-                                parent
-                                    .spawn_bundle(TextBundle {
-                                        text: Text::with_section(
-                                            piece.to_string(),
-                                            TextStyle {
-                                                font: font.clone(),
-                                                font_size: 50.,
-                                                color: Color::rgb(0.1, 0.1, 0.1),
-                                            },
-                                            TextAlignment::default(),
-                                        ),
-                                        ..Default::default()
-                                    })
-                                    .id();
-                            });
-                    }
-                });
-
-            parent
-                .spawn_bundle(NodeBundle {
-                    style: Style {
-                        size: Size {
-                            width: Val::Percent(100.),
-                            height: Val::Percent(30.),
-                        },
-                        justify_content: JustifyContent::Center,
-                        align_items: AlignItems::Center,
-                        ..Default::default()
-                    },
-                    material: transparent.clone(),
-                    ..Default::default()
-                })
-                .with_children(|parent| {
-                    parent
-                        .spawn_bundle(TextBundle {
-                            text: Text::with_section(
-                                "".to_string(),
-                                TextStyle {
-                                    font: font.clone(),
-                                    font_size: 200.,
-                                    color: Color::rgb(0.36, 0.63, 0.36),
-                                },
-                                TextAlignment::default(),
-                            ),
-                            ..Default::default()
-                        })
-                        .insert(BoxOutDisplay)
-                        .insert(BoxReference::new(box_));
-                });
-        })
-        .insert(BoxUiRoot)
-        .id()
+                            .insert(BoxOutDisplay)
+                            .insert(BoxReference::new(box_entity));
+                    });
+            })
+            .insert(BoxUiRoot);
+    }
 }
 
 pub fn level_completion(

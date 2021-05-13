@@ -71,6 +71,10 @@ impl Progression {
     pub fn total(&self) -> usize {
         self.prompt.len()
     }
+
+    pub fn get_prompt(&self) -> Vec<BoxOut> {
+        self.prompt.clone()
+    }
 }
 
 /// Component that implies its entity is a member of an ordered list (at index), associated with

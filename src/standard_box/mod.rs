@@ -66,6 +66,9 @@ pub mod components {
     #[derive(Copy, Clone, Eq, PartialEq, Debug, Default, Hash, Serialize, Deserialize)]
     pub struct BoxOutDisplay;
 
+    #[derive(Copy, Clone, Eq, PartialEq, Debug, Default, Hash, Serialize, Deserialize)]
+    pub struct Active;
+
     #[derive(Copy, Clone, Eq, PartialEq, Debug, Hash)]
     pub struct BoxReference {
         pub box_: Entity,
