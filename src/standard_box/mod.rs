@@ -60,17 +60,20 @@ pub mod components {
     #[derive(Copy, Clone, Eq, PartialEq, Debug, Hash, Default, Serialize, Deserialize)]
     pub struct ProgressionPiece;
 
+    #[derive(Copy, Clone, Eq, PartialEq, Debug, Default, Hash, Serialize, Deserialize)]
+    pub struct BoxUiRoot;
+
+    #[derive(Copy, Clone, Eq, PartialEq, Debug, Default, Hash, Serialize, Deserialize)]
+    pub struct BoxOutDisplay;
+
     #[derive(Copy, Clone, Eq, PartialEq, Debug, Hash)]
-    pub struct BoxReader {
+    pub struct BoxReference {
         pub box_: Entity,
     }
 
-    impl BoxReader {
-        pub fn new(box_: Entity) -> BoxReader {
-            BoxReader { box_ }
+    impl BoxReference {
+        pub fn new(box_: Entity) -> BoxReference {
+            BoxReference { box_ }
         }
     }
-
-    #[derive(Copy, Clone, Eq, PartialEq, Debug, Hash)]
-    pub struct BoxUiRoot(pub Entity);
 }

@@ -4,7 +4,7 @@ use crate::{
         components::{BoxState, Itemized, Pressable, Progression},
         BoxData,
     },
-    standard_box::components::{BoxReader, BoxUiRoot, ProgressionPiece},
+    standard_box::components::{BoxOutDisplay, BoxReference, BoxUiRoot, ProgressionPiece},
     AppState, LEVEL_ORDER,
 };
 use bevy::prelude::*;
@@ -17,10 +17,9 @@ pub fn into_black_box(mut state: ResMut<State<AppState>>) {
         .expect("Current state is StandardBox state unexpectedly.");
 }
 
-pub fn black_box_cleanup(mut commands: Commands, ui_query: Query<(Entity, &BoxUiRoot)>) {
-    for (ui_entity, box_ui_root) in ui_query.iter() {
-        commands.entity(box_ui_root.0).despawn_recursive();
-        commands.entity(ui_entity).despawn_recursive();
+pub fn black_box_cleanup(mut commands: Commands, ui_query: Query<Entity, With<BoxUiRoot>>) {
+    for ui_root in ui_query.iter() {
+        commands.entity(ui_root).despawn_recursive();
     }
 }
 
@@ -221,10 +220,11 @@ pub fn spawn_box_ui(
                             ),
                             ..Default::default()
                         })
-                        .insert(BoxReader::new(box_));
+                        .insert(BoxOutDisplay)
+                        .insert(BoxReference::new(box_));
                 });
         })
-        .insert(BoxUiRoot(box_))
+        .insert(BoxUiRoot)
         .id()
 }
 

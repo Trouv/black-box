@@ -5,7 +5,7 @@ use crate::{
     },
     resources::ColorHandles,
     standard_box::{
-        components::{BoxReader, ProgressionPiece},
+        components::{BoxReference, ProgressionPiece},
         BUTTON_NUMS,
     },
 };
@@ -38,7 +38,7 @@ pub fn render_button(
 }
 
 pub fn render_display(
-    mut reader_query: Query<(&mut BoxReader, &mut Text)>,
+    mut reader_query: Query<(&mut BoxReference, &mut Text), With<Display>>,
     mut event_reader: EventReader<OutputEvent>,
     time: Res<Time>,
 ) {
