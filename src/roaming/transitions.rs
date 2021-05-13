@@ -41,10 +41,12 @@ pub fn camera_setup(mut commands: Commands) {
 }
 
 pub fn light_setup(mut commands: Commands) {
-    commands.spawn_bundle(LightBundle {
-        transform: Transform::from_xyz(-2., 10., 2.),
-        ..Default::default()
-    });
+    for i in 0..(LEVEL_ORDER.len() / 3) {
+        commands.spawn_bundle(LightBundle {
+            transform: Transform::from_xyz(i as f32 * 6., 10., 0.),
+            ..Default::default()
+        });
+    }
 }
 
 pub fn floor_setup(
@@ -80,16 +82,18 @@ pub fn black_box_setup(
     mut meshes: ResMut<Assets<Mesh>>,
     mut standard_materials: ResMut<Assets<StandardMaterial>>,
 ) {
-    let level_data =
-        BoxData::try_from(LEVEL_ORDER[0]).unwrap_or_else(|_| panic!("Unable to load level {}", 1));
-    spawn_box(
-        &level_data,
-        Transform::from_xyz(0., 0.5, 0.),
-        &mut commands,
-        &server,
-        &mut meshes,
-        &mut standard_materials,
-    );
+    for (i, level) in LEVEL_ORDER.iter().enumerate() {
+        let level_data =
+            BoxData::try_from(*level).unwrap_or_else(|_| panic!("Unable to load level {}", 1));
+        spawn_box(
+            &level_data,
+            Transform::from_xyz(i as f32 * 2., 0.5, 0.),
+            &mut commands,
+            &server,
+            &mut meshes,
+            &mut standard_materials,
+        );
+    }
 }
 
 pub fn spawn_box(

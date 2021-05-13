@@ -21,7 +21,7 @@ pub struct RoamingPlugin;
 
 impl Plugin for RoamingPlugin {
     fn build(&self, app: &mut AppBuilder) {
-        app.insert_resource(resources::WalkSpeed(2.))
+        app.insert_resource(resources::WalkSpeed(3.))
             .insert_resource(resources::LookSensitivity(0.06))
             .insert_resource(Gravity::from(Vec3::new(0.0, -9.81, 0.0)))
             .add_system_set(
