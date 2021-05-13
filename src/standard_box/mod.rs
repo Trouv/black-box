@@ -48,7 +48,8 @@ impl Plugin for StandardBoxPlugin {
         )
         .add_system_set(
             SystemSet::on_exit(AppState::StandardBox)
-                .with_system(transitions::black_box_cleanup.system()),
+                .with_system(transitions::despawn_box_ui.system())
+                .with_system(transitions::deactivate_box.system()),
         );
     }
 }

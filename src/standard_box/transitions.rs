@@ -10,15 +10,18 @@ use bevy::prelude::*;
 use heron::prelude::*;
 use std::convert::TryFrom;
 
-pub fn into_black_box(mut state: ResMut<State<AppState>>) {
-    state
-        .overwrite_set(AppState::StandardBox)
-        .expect("Current state is StandardBox state unexpectedly.");
-}
-
-pub fn black_box_cleanup(mut commands: Commands, ui_query: Query<Entity, With<BoxUiRoot>>) {
+pub fn despawn_box_ui(mut commands: Commands, ui_query: Query<Entity, With<BoxUiRoot>>) {
     for ui_root in ui_query.iter() {
         commands.entity(ui_root).despawn_recursive();
+    }
+}
+
+pub fn deactivate_box(
+    mut commands: Commands,
+    active_box_query: Query<Entity, (With<Active>, Or<(With<BoxState>, With<Progression>)>)>,
+) {
+    for entity in active_box_query.iter() {
+        commands.entity(entity).remove::<Active>();
     }
 }
 
