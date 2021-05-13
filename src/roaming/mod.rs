@@ -25,7 +25,8 @@ impl Plugin for RoamingPlugin {
             .add_system_set(
                 SystemSet::on_enter(AppState::Roaming)
                     .with_system(transitions::camera_setup.system())
-                    .with_system(transitions::world_setup.system())
+                    .with_system(transitions::light_setup.system())
+                    .with_system(transitions::floor_setup.system())
                     .with_system(transitions::grab_cursor.system())
                     .with_system(crate::standard_box::transitions::black_box_setup.system()),
             )
