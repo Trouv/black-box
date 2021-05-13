@@ -39,11 +39,6 @@ pub fn roaming_movement(
         linear = turn_quat * linear;
         velocity.linear.x = linear.x;
         velocity.linear.z = linear.z;
-
-        // Jumping
-        if input.pressed(KeyCode::Space) {
-            velocity.linear.y = 3.0;
-        }
     }
 }
 
