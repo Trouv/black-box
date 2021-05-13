@@ -49,10 +49,6 @@ impl Plugin for StandardBoxPlugin {
         .add_system_set(
             SystemSet::on_exit(AppState::StandardBox)
                 .with_system(transitions::black_box_cleanup.system()),
-        )
-        .add_system_set(
-            SystemSet::on_enter(AppState::StandardBoxTransition)
-                .with_system(transitions::into_black_box.system()),
         );
     }
 }

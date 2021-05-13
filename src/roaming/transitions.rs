@@ -36,7 +36,7 @@ pub fn camera_setup(mut commands: Commands) {
 
 pub fn light_setup(mut commands: Commands) {
     commands.spawn_bundle(LightBundle {
-        transform: Transform::from_xyz(-2., 2., 2.),
+        transform: Transform::from_xyz(-2., 10., 2.),
         ..Default::default()
     });
 }

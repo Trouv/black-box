@@ -4,7 +4,6 @@ use crate::{
         components::{BoxState, Itemized, Pressable, Progression},
         BoxData,
     },
-    resources::LevelNum,
     standard_box::components::{BoxReader, BoxUiRoot, ProgressionPiece},
     AppState, LEVEL_ORDER,
 };
@@ -28,13 +27,12 @@ pub fn black_box_cleanup(mut commands: Commands, ui_query: Query<(Entity, &BoxUi
 pub fn black_box_setup(
     mut commands: Commands,
     server: Res<AssetServer>,
-    level_num: Res<LevelNum>,
     mut color_materials: ResMut<Assets<ColorMaterial>>,
     mut meshes: ResMut<Assets<Mesh>>,
     mut standard_materials: ResMut<Assets<StandardMaterial>>,
 ) {
-    let level_data = BoxData::try_from(LEVEL_ORDER[(level_num.0 - 1) % LEVEL_ORDER.len()])
-        .unwrap_or_else(|_| panic!("Unable to load level {}", level_num.0));
+    let level_data =
+        BoxData::try_from(LEVEL_ORDER[0]).unwrap_or_else(|_| panic!("Unable to load level {}", 1));
     let box_ = spawn_box(
         &level_data,
         Transform::from_xyz(0., 0.5, 0.),
@@ -49,7 +47,6 @@ pub fn black_box_setup(
         &server,
         &mut color_materials,
         box_,
-        &level_num,
     );
 }
 
@@ -124,7 +121,6 @@ pub fn spawn_box_ui(
     server: &Res<AssetServer>,
     materials: &mut ResMut<Assets<ColorMaterial>>,
     box_: Entity,
-    level_num: &Res<LevelNum>,
 ) -> Entity {
     let transparent = materials.add(ColorMaterial::color(Color::NONE));
     commands
@@ -195,27 +191,6 @@ pub fn spawn_box_ui(
                                     .id();
                             });
                     }
-                    parent.spawn_bundle(TextBundle {
-                        style: Style {
-                            position_type: PositionType::Absolute,
-                            position: Rect {
-                                top: Val::Px(10.),
-                                right: Val::Px(10.),
-                                ..Default::default()
-                            },
-                            ..Default::default()
-                        },
-                        text: Text::with_section(
-                            format!("{}/{}", ((level_num.0 - 1) % 10) + 1, LEVEL_ORDER.len()),
-                            TextStyle {
-                                font: font.clone(),
-                                font_size: 50.,
-                                color: Color::rgb(0.1, 0.1, 0.1),
-                            },
-                            TextAlignment::default(),
-                        ),
-                        ..Default::default()
-                    });
                 });
 
             parent
@@ -256,14 +231,12 @@ pub fn spawn_box_ui(
 pub fn level_completion(
     progress_query: Query<&Progression, Changed<Progression>>,
     mut state: ResMut<State<AppState>>,
-    mut level_num: ResMut<LevelNum>,
 ) {
     for progress in progress_query.iter() {
         if progress.progress() >= progress.total() {
             state
-                .overwrite_set(AppState::StandardBoxTransition)
-                .expect("Current state is StandardBoxTransition unexpectedly.");
-            level_num.0 += 1;
+                .overwrite_set(AppState::Roaming)
+                .expect("Current state is Roaming unexpectedly.");
         }
     }
 }
