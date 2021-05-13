@@ -1,6 +1,12 @@
-use crate::roaming::components::*;
+use crate::{
+    box_internal::{components::*, BoxData},
+    roaming::components::*,
+    LEVEL_ORDER,
+};
 use bevy::prelude::*;
 use heron::prelude::*;
+use std::convert::TryFrom;
+
 pub fn camera_setup(mut commands: Commands) {
     commands.spawn_bundle(UiCameraBundle::default());
 
@@ -66,4 +72,87 @@ pub fn grab_cursor(mut windows: ResMut<Windows>) {
 
     window.set_cursor_lock_mode(true);
     window.set_cursor_visibility(false);
+}
+
+pub fn black_box_setup(
+    mut commands: Commands,
+    server: Res<AssetServer>,
+    mut meshes: ResMut<Assets<Mesh>>,
+    mut standard_materials: ResMut<Assets<StandardMaterial>>,
+) {
+    let level_data =
+        BoxData::try_from(LEVEL_ORDER[0]).unwrap_or_else(|_| panic!("Unable to load level {}", 1));
+    spawn_box(
+        &level_data,
+        Transform::from_xyz(0., 0.5, 0.),
+        &mut commands,
+        &server,
+        &mut meshes,
+        &mut standard_materials,
+    );
+}
+
+pub fn spawn_box(
+    level_data: &BoxData,
+    base_transform: Transform,
+    commands: &mut Commands,
+    server: &Res<AssetServer>,
+    meshes: &mut ResMut<Assets<Mesh>>,
+    materials: &mut ResMut<Assets<StandardMaterial>>,
+) -> Entity {
+    commands
+        .spawn_bundle(PbrBundle {
+            mesh: meshes.add(Mesh::from(shape::Cube::new(1.))),
+            material: materials.add(StandardMaterial {
+                base_color: Color::WHITE,
+                ..Default::default()
+            }),
+            transform: base_transform,
+            ..Default::default()
+        })
+        .insert(BodyType::Static)
+        .insert(Body::Cuboid {
+            half_extends: Vec3::new(0.5, 0.5, 0.5),
+        })
+        .with_children(|parent| {
+            parent
+                .spawn_bundle((
+                    Transform::from_xyz(0., 0.625, 0.),
+                    GlobalTransform::identity(),
+                ))
+                .with_children(|parent| {
+                    parent.spawn_scene(server.load("models/box.glb#Scene0"));
+
+                    let box_ = parent.parent_entity();
+                    for (i, button_data) in level_data.buttons.iter().enumerate() {
+                        parent
+                            .spawn_bundle((
+                                Transform::from_translation(button_data.translation),
+                                GlobalTransform::identity(),
+                            ))
+                            .with_children(|parent| {
+                                parent.spawn_scene(server.load("models/button_base.glb#Scene0"));
+                                parent
+                                    .spawn_bundle((
+                                        Transform::default(),
+                                        GlobalTransform::identity(),
+                                    ))
+                                    .insert(button_data.button.clone())
+                                    .insert(Itemized {
+                                        collector: box_,
+                                        index: i,
+                                    })
+                                    .insert(Pressable::default())
+                                    .with_children(|parent| {
+                                        parent.spawn_scene(
+                                            server.load("models/button_body.glb#Scene0"),
+                                        );
+                                    });
+                            });
+                    }
+                })
+                .insert(BoxState::default())
+                .insert(Progression::new(level_data.prompt.clone()));
+        })
+        .id()
 }

@@ -30,7 +30,7 @@ impl Plugin for RoamingPlugin {
                     .with_system(transitions::light_setup.system())
                     .with_system(transitions::floor_setup.system())
                     .with_system(transitions::grab_cursor.system())
-                    .with_system(crate::standard_box::transitions::black_box_setup.system()),
+                    .with_system(transitions::black_box_setup.system()),
             )
             .add_system_set(
                 SystemSet::on_update(AppState::Roaming)

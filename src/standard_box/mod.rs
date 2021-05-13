@@ -27,7 +27,7 @@ impl Plugin for StandardBoxPlugin {
     fn build(&self, app: &mut AppBuilder) {
         app.add_system_set(
             SystemSet::on_enter(AppState::StandardBox)
-                .with_system(transitions::black_box_setup.system()),
+                .with_system(transitions::spawn_box_ui.system()),
         )
         .add_system_set(
             SystemSet::on_update(AppState::StandardBox)
