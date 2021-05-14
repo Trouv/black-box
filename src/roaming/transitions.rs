@@ -49,7 +49,8 @@ pub fn floor_setup(
         .spawn_bundle(PbrBundle {
             mesh: meshes.add(Mesh::from(shape::Plane { size: 100. })),
             material: materials.add(StandardMaterial {
-                base_color: Color::GRAY,
+                base_color: Color::DARK_GRAY,
+                roughness: 0.8,
                 ..Default::default()
             }),
             ..Default::default()
