@@ -40,15 +40,6 @@ pub fn camera_setup(mut commands: Commands) {
         });
 }
 
-pub fn light_setup(mut commands: Commands) {
-    for i in 0..(LEVEL_ORDER.len() / 3) {
-        commands.spawn_bundle(LightBundle {
-            transform: Transform::from_xyz(i as f32 * 6., 10., 0.),
-            ..Default::default()
-        });
-    }
-}
-
 pub fn floor_setup(
     mut commands: Commands,
     mut meshes: ResMut<Assets<Mesh>>,
@@ -76,6 +67,20 @@ pub fn grab_cursor(mut windows: ResMut<Windows>) {
     window.set_cursor_visibility(false);
 }
 
+const BOX_DISTANCE: f32 = 2.;
+
+pub fn light_setup(mut commands: Commands) {
+    let num_lights = LEVEL_ORDER.len() / 3;
+    let total_length = (LEVEL_ORDER.len() - 1) as f32 * BOX_DISTANCE;
+    let light_distance = total_length / (num_lights - 1) as f32;
+    for i in 0..num_lights {
+        commands.spawn_bundle(LightBundle {
+            transform: Transform::from_xyz(i as f32 * light_distance, 10., 0.),
+            ..Default::default()
+        });
+    }
+}
+
 pub fn black_box_setup(
     mut commands: Commands,
     server: Res<AssetServer>,
@@ -87,7 +92,7 @@ pub fn black_box_setup(
             BoxData::try_from(*level).unwrap_or_else(|_| panic!("Unable to load level {}", 1));
         spawn_box(
             &level_data,
-            Transform::from_xyz(i as f32 * 2., 0.5, 0.),
+            Transform::from_xyz(i as f32 * BOX_DISTANCE, 0.5, 0.),
             &mut commands,
             &server,
             &mut meshes,
