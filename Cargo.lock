@@ -799,6 +799,7 @@ version = "0.2.0"
 dependencies = [
  "bevy",
  "bevy_mod_picking",
+ "bevy_mod_raycast",
  "heron",
  "log",
  "ron",

@@ -54,3 +54,6 @@ impl From<Tilt> for Quat {
 
 #[derive(Copy, Clone, Eq, PartialEq, Debug, Default, Hash, Serialize, Deserialize)]
 pub struct Player;
+
+#[derive(Copy, Clone, Eq, PartialEq, Debug, Default, Hash, Serialize, Deserialize)]
+pub struct BoxRayCastSet;

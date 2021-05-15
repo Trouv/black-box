@@ -4,7 +4,7 @@ use crate::{
     LEVEL_ORDER,
 };
 use bevy::prelude::*;
-use bevy_mod_picking::{BoundVol, PickableBundle, PickingCameraBundle};
+use bevy_mod_raycast::{BoundVol, RayCastMesh, RayCastSource};
 use heron::prelude::*;
 use std::convert::TryFrom;
 
@@ -37,7 +37,7 @@ pub fn camera_setup(mut commands: Commands) {
                         })
                         .insert(Player)
                         .insert(Tilt::new(transform.rotation.to_axis_angle().1 * -1.))
-                        .insert_bundle(PickingCameraBundle::default());
+                        .insert(RayCastSource::<BoxRayCastSet>::new_transform_empty());
                 });
         });
 }
@@ -139,7 +139,7 @@ pub fn spawn_box(
                 })
                 .insert(BoxState::default())
                 .insert(Progression::new(level_data.prompt.clone()))
-                .insert_bundle(PickableBundle::default())
+                .insert(RayCastMesh::<BoxRayCastSet>::default())
                 .insert(BoundVol::default())
                 .with_children(|parent| {
                     parent.spawn_scene(server.load("models/box.glb#Scene0"));

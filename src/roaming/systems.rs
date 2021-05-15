@@ -8,7 +8,7 @@ use crate::{
     AppState,
 };
 use bevy::{input::mouse::MouseMotion, prelude::*};
-use bevy_mod_picking::{PickableMesh, PickingCamera};
+use bevy_mod_raycast::{RayCastMesh, RayCastSource};
 use heron::prelude::*;
 
 pub fn roaming_movement(
@@ -80,14 +80,14 @@ pub fn body_turn(
 
 pub fn box_interaction(
     mut commands: Commands,
-    picking_query: Query<&PickingCamera, With<Player>>,
-    box_query: Query<Entity, (With<BoxState>, With<PickableMesh>)>,
+    picking_query: Query<&RayCastSource<BoxRayCastSet>, With<Player>>,
+    box_query: Query<Entity, (With<BoxState>, With<RayCastMesh<BoxRayCastSet>>)>,
     input: Res<Input<KeyCode>>,
     mut state: ResMut<State<AppState>>,
 ) {
     for picking_camera in picking_query.iter() {
         if let Some((picked_entity, intersection)) = picking_camera.intersect_top() {
-            if box_query.get(picked_entity).is_ok() && intersection.distance() <= 2. {
+            if box_query.get(picked_entity).is_ok() && intersection.distance() <= 4.5 {
                 if input.just_pressed(KeyCode::E) {
                     commands.entity(picked_entity).insert(Active);
                     state.push(AppState::StandardBox).unwrap();

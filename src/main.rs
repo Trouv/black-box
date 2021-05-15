@@ -14,7 +14,7 @@ pub mod standard_box;
 pub mod transitions;
 
 use bevy::prelude::*;
-use bevy_mod_picking::PickingPlugin;
+use bevy_mod_raycast::DefaultRaycastingPlugin;
 use heron::prelude::*;
 use std::num::ParseIntError;
 
@@ -47,7 +47,7 @@ fn main() -> Result<(), ParseIntError> {
     App::build()
         .add_plugins(DefaultPlugins)
         .add_plugin(PhysicsPlugin::default())
-        .add_plugin(PickingPlugin)
+        .add_plugin(DefaultRaycastingPlugin::<roaming::components::BoxRayCastSet>::default())
         .insert_resource(Msaa { samples: 1 })
         .add_state(AppState::Roaming)
         .add_event::<box_internal::OutputEvent>()
