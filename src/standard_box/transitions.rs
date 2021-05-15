@@ -140,9 +140,7 @@ pub fn level_completion(
 ) {
     for progress in progress_query.iter() {
         if progress.progress() >= progress.total() {
-            state
-                .overwrite_set(AppState::Roaming)
-                .expect("Current state is Roaming unexpectedly.");
+            state.pop().expect("Current state is Roaming unexpectedly.");
         }
     }
 }

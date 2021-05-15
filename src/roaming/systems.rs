@@ -1,8 +1,14 @@
-use crate::roaming::{
-    components::*,
-    resources::{LookSensitivity, WalkSpeed},
+use crate::{
+    box_internal::components::BoxState,
+    roaming::{
+        components::*,
+        resources::{LookSensitivity, WalkSpeed},
+    },
+    standard_box::components::Active,
+    AppState,
 };
 use bevy::{input::mouse::MouseMotion, prelude::*};
+use bevy_mod_picking::{PickableMesh, PickingCamera};
 use heron::prelude::*;
 
 pub fn roaming_movement(
@@ -68,6 +74,25 @@ pub fn body_turn(
             turn.update(motion_event.delta.x * -1. * look_sensitivity.0 * time.delta_seconds());
 
             transform.rotation = Quat::from(*turn);
+        }
+    }
+}
+
+pub fn box_interaction(
+    mut commands: Commands,
+    picking_query: Query<&PickingCamera, With<Player>>,
+    box_query: Query<Entity, (With<BoxState>, With<PickableMesh>)>,
+    input: Res<Input<KeyCode>>,
+    mut state: ResMut<State<AppState>>,
+) {
+    for picking_camera in picking_query.iter() {
+        if let Some((picked_entity, intersection)) = picking_camera.intersect_top() {
+            if box_query.get(picked_entity).is_ok() && intersection.distance() <= 2. {
+                if input.just_pressed(KeyCode::E) {
+                    commands.entity(picked_entity).insert(Active);
+                    state.push(AppState::StandardBox).unwrap();
+                }
+            }
         }
     }
 }

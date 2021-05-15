@@ -128,10 +128,19 @@ pub fn spawn_box(
         })
         .with_children(|parent| {
             parent
-                .spawn_bundle((
-                    Transform::from_xyz(0., 0.625, 0.),
-                    GlobalTransform::identity(),
-                ))
+                .spawn_bundle(PbrBundle {
+                    mesh: meshes.add(Mesh::from(shape::Box::new(0.4, 0.2, 0.4))),
+                    material: materials.add(StandardMaterial {
+                        base_color: Color::NONE,
+                        ..Default::default()
+                    }),
+                    transform: Transform::from_xyz(0., 0.625, 0.),
+                    ..Default::default()
+                })
+                .insert(BoxState::default())
+                .insert(Progression::new(level_data.prompt.clone()))
+                .insert_bundle(PickableBundle::default())
+                .insert(BoundVol::default())
                 .with_children(|parent| {
                     parent.spawn_scene(server.load("models/box.glb#Scene0"));
 
@@ -162,11 +171,7 @@ pub fn spawn_box(
                                     });
                             });
                     }
-                })
-                .insert(BoxState::default())
-                .insert_bundle(PickableBundle::default())
-                .insert(BoundVol::default())
-                .insert(Progression::new(level_data.prompt.clone()));
+                });
         })
         .id()
 }

@@ -36,7 +36,8 @@ impl Plugin for RoamingPlugin {
                 SystemSet::on_update(AppState::Roaming)
                     .with_system(systems::roaming_movement.system())
                     .with_system(systems::body_turn.system())
-                    .with_system(systems::camera_tilt.system()),
+                    .with_system(systems::camera_tilt.system())
+                    .with_system(systems::box_interaction.system()),
             )
             .add_system_set(SystemSet::on_update(AppState::Roaming))
             .add_system_set(SystemSet::on_exit(AppState::Roaming));
