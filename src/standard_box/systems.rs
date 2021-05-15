@@ -5,7 +5,7 @@ use crate::{
     },
     resources::ColorHandles,
     standard_box::{
-        components::{BoxReference, ProgressionPiece},
+        components::{Active, BoxReference, ProgressionPiece},
         BUTTON_NUMS,
     },
 };
@@ -13,12 +13,15 @@ use bevy::prelude::*;
 
 pub fn button_input(
     mut button_query: Query<(&mut Pressable, &Itemized), With<ActionScript>>,
+    active_entities: Query<Entity, With<Active>>,
     input: Res<Input<KeyCode>>,
 ) {
     if input.is_changed() {
         for (mut pressable, itemized) in button_query.iter_mut() {
             let pressed = input.pressed(BUTTON_NUMS[itemized.index]);
-            if pressable.update_necessary(pressed) {
+            if pressable.update_necessary(pressed)
+                && active_entities.get(itemized.collector).is_ok()
+            {
                 pressable.update(input.pressed(BUTTON_NUMS[itemized.index]));
             }
         }
