@@ -4,6 +4,7 @@ use crate::{
     LEVEL_ORDER,
 };
 use bevy::prelude::*;
+use bevy_mod_picking::{BoundVol, PickableBundle, PickingCameraBundle};
 use heron::prelude::*;
 use std::convert::TryFrom;
 
@@ -35,7 +36,8 @@ pub fn camera_setup(mut commands: Commands) {
                             ..Default::default()
                         })
                         .insert(Player)
-                        .insert(Tilt::new(transform.rotation.to_axis_angle().1 * -1.));
+                        .insert(Tilt::new(transform.rotation.to_axis_angle().1 * -1.))
+                        .insert_bundle(PickingCameraBundle::default());
                 });
         });
 }
@@ -162,6 +164,8 @@ pub fn spawn_box(
                     }
                 })
                 .insert(BoxState::default())
+                .insert_bundle(PickableBundle::default())
+                .insert(BoundVol::default())
                 .insert(Progression::new(level_data.prompt.clone()));
         })
         .id()

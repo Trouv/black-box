@@ -14,6 +14,7 @@ pub mod standard_box;
 pub mod transitions;
 
 use bevy::prelude::*;
+use bevy_mod_picking::PickingPlugin;
 use heron::prelude::*;
 use std::num::ParseIntError;
 
@@ -46,6 +47,7 @@ fn main() -> Result<(), ParseIntError> {
     App::build()
         .add_plugins(DefaultPlugins)
         .add_plugin(PhysicsPlugin::default())
+        .add_plugin(PickingPlugin)
         .insert_resource(Msaa { samples: 1 })
         .add_state(AppState::Roaming)
         .add_event::<box_internal::OutputEvent>()
