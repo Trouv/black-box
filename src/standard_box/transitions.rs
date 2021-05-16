@@ -1,6 +1,12 @@
 use crate::{
-    box_internal::components::{BoxState, Itemized, Progression},
-    standard_box::components::{Active, BoxOutDisplay, BoxReference, BoxUiRoot, ProgressionPiece},
+    box_internal::{
+        components::{BoxState, Itemized, Progression},
+        BoxCompletedEvent,
+    },
+    standard_box::{
+        components::{Active, BoxOutDisplay, BoxReference, BoxUiRoot, ProgressionPiece},
+        StandardBoxEvent,
+    },
     AppState,
 };
 use bevy::prelude::*;
@@ -134,27 +140,41 @@ pub fn spawn_box_ui(
     }
 }
 
-pub fn level_completion(
-    progress_query: Query<&Progression, Changed<Progression>>,
-    mut state: ResMut<State<AppState>>,
+pub fn exit_on_level_completion(
+    mut completion_reader: EventReader<BoxCompletedEvent>,
+    mut standard_writer: EventWriter<StandardBoxEvent>,
 ) {
-    for progress in progress_query.iter() {
-        if progress.progress() >= progress.total() {
-            state
-                .overwrite_pop()
-                .expect("State stack unexpectedly empty.");
-        }
+    for event in completion_reader.iter() {
+        standard_writer.send(StandardBoxEvent::Exit(event.box_));
     }
 }
 
-pub fn walk_away(input: Res<Input<KeyCode>>, mut state: ResMut<State<AppState>>) {
+pub fn exit_on_walk_away(
+    active_box_query: Query<Entity, (With<BoxState>, With<Active>)>,
+    input: Res<Input<KeyCode>>,
+    mut standard_writer: EventWriter<StandardBoxEvent>,
+) {
     if input.just_pressed(KeyCode::W)
         || input.just_pressed(KeyCode::A)
         || input.just_pressed(KeyCode::S)
         || input.just_pressed(KeyCode::D)
     {
-        state
-            .overwrite_pop()
-            .expect("State stack unexpectedly empty.")
+        for active_box in active_box_query.iter() {
+            standard_writer.send(StandardBoxEvent::Exit(active_box));
+        }
+    }
+}
+
+pub fn pop_out_on_exit(
+    mut standard_reader: EventReader<StandardBoxEvent>,
+    mut state: ResMut<State<AppState>>,
+) {
+    for event in standard_reader.iter() {
+        if let StandardBoxEvent::Exit(_) = event {
+            state
+                .overwrite_pop()
+                .expect("State stack unexpectedly empty.");
+            break;
+        }
     }
 }

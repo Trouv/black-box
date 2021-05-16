@@ -20,6 +20,10 @@ pub struct OutputEvent {
     pub output: BoxOut,
 }
 
+pub struct BoxCompletedEvent {
+    pub box_: Entity,
+}
+
 #[derive(Clone, PartialEq, Debug, Default, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct ButtonData {
@@ -47,14 +51,15 @@ impl TryFrom<&str> for BoxData {
 pub mod systems {
     use crate::box_internal::{
         components::{ActionScript, BoxState, Itemized, Pressable, Progression},
-        OutputEvent,
+        BoxCompletedEvent, OutputEvent,
     };
     use bevy::prelude::*;
 
     pub fn update(
         mut box_query: Query<(&mut BoxState, &mut Progression)>,
         button_query: Query<(&Pressable, &ActionScript, &Itemized), Changed<Pressable>>,
-        mut event_writer: EventWriter<OutputEvent>,
+        mut output_writer: EventWriter<OutputEvent>,
+        mut completed_writer: EventWriter<BoxCompletedEvent>,
     ) {
         for (pressable, action_script, itemized) in button_query.iter() {
             if pressable.just_unpressed() {
@@ -64,11 +69,16 @@ pub mod systems {
                 for action in action_script {
                     let out = action.evaluate(&mut box_);
                     if let Some(o) = out {
-                        progression.update(o.clone());
-                        event_writer.send(OutputEvent {
+                        output_writer.send(OutputEvent {
                             box_: itemized.collector,
                             output: o.clone(),
                         });
+                        progression.update(o.clone());
+                        if progression.progress() >= progression.total() {
+                            completed_writer.send(BoxCompletedEvent {
+                                box_: itemized.collector,
+                            });
+                        }
                     }
                 }
             }

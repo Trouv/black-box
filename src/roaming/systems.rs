@@ -37,9 +37,8 @@ pub fn roaming_movement(
         linear *= walk_speed.0;
         let turn_quat = Quat::from(
             *turn_query
-                .iter()
-                .next()
-                .expect("There should exist a Player that can Turn"),
+                .single()
+                .expect("There should be exactly one Player that can Turn"),
         );
         linear = turn_quat * linear;
         velocity.linear.x = linear.x;

@@ -21,7 +21,6 @@ pub const BUTTON_NUMS: [KeyCode; 6] = [
 ];
 
 pub enum StandardBoxEvent {
-    Completed(Entity),
     Enter(Entity),
     Exit(Entity),
 }
@@ -47,8 +46,9 @@ impl Plugin for StandardBoxPlugin {
         )
         .add_system_set(
             SystemSet::on_update(AppState::StandardBox)
-                .with_system(transitions::level_completion.system())
-                .with_system(transitions::walk_away.system())
+                .with_system(transitions::exit_on_level_completion.system())
+                .with_system(transitions::exit_on_walk_away.system())
+                .with_system(transitions::pop_out_on_exit.system())
                 .with_system(systems::render_button.system())
                 .with_system(systems::render_display.system())
                 .with_system(systems::render_progression.system()),
