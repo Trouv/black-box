@@ -179,6 +179,7 @@ pub fn spawn_box(
 
 pub fn enter_box(
     mut commands: Commands,
+    mut velocity_query: Query<&mut Velocity, (With<Player>, With<Strafes>)>,
     mut state: ResMut<State<AppState>>,
     mut reader: EventReader<StandardBoxEvent>,
 ) {
@@ -188,6 +189,10 @@ pub fn enter_box(
             state
                 .overwrite_push(AppState::StandardBox)
                 .expect("State is already StandardBox");
+            for mut velocity in velocity_query.iter_mut() {
+                velocity.linear.x = 0.;
+                velocity.linear.z = 0.;
+            }
         }
     }
 }
