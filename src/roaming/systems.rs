@@ -90,7 +90,9 @@ pub fn box_interaction(
             if box_query.get(picked_entity).is_ok() && intersection.distance() <= 4.5 {
                 if input.just_pressed(KeyCode::E) {
                     commands.entity(picked_entity).insert(Active);
-                    state.push(AppState::StandardBox).unwrap();
+                    state
+                        .overwrite_push(AppState::StandardBox)
+                        .expect("State is already StandardBox");
                 }
             }
         }

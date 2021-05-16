@@ -140,7 +140,21 @@ pub fn level_completion(
 ) {
     for progress in progress_query.iter() {
         if progress.progress() >= progress.total() {
-            state.pop().expect("Current state is Roaming unexpectedly.");
+            state
+                .overwrite_pop()
+                .expect("State stack unexpectedly empty.");
         }
+    }
+}
+
+pub fn walk_away(input: Res<Input<KeyCode>>, mut state: ResMut<State<AppState>>) {
+    if input.just_pressed(KeyCode::W)
+        || input.just_pressed(KeyCode::A)
+        || input.just_pressed(KeyCode::S)
+        || input.just_pressed(KeyCode::D)
+    {
+        state
+            .overwrite_pop()
+            .expect("State stack unexpectedly empty.")
     }
 }
