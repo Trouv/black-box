@@ -1,8 +1,10 @@
 const PI: f32 = 3.14159265;
 use bevy::prelude::*;
 use serde::{Deserialize, Serialize};
+
 #[derive(Copy, Clone, Eq, PartialEq, Debug, Default, Hash, Serialize, Deserialize)]
 pub struct Strafes;
+
 #[derive(Copy, Clone, PartialEq, Debug, Default, Serialize, Deserialize)]
 pub struct Turn {
     theta: f32,
@@ -52,8 +54,11 @@ impl From<Tilt> for Quat {
     }
 }
 
+/// Component that implies its entity is controlled by the player somehow.
+/// In the current design, there are many entities at a given time that are Player, not just one.
 #[derive(Copy, Clone, Eq, PartialEq, Debug, Default, Hash, Serialize, Deserialize)]
 pub struct Player;
 
+/// Not a component, but rather a type for flagging the generic RayCast components/plugins
 #[derive(Copy, Clone, Eq, PartialEq, Debug, Default, Hash, Serialize, Deserialize)]
 pub struct BoxRayCastSet;

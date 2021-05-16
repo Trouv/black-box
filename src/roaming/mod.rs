@@ -1,3 +1,7 @@
+//! Systems, components, resources, and plugins for the Roaming state.
+//!
+//! The Roaming state allows you to walk around and interact with various objects in the world
+//! FPS-style.
 pub mod components;
 pub mod systems;
 pub mod transitions;
@@ -36,7 +40,7 @@ impl Plugin for RoamingPlugin {
             )
             .add_system_set(
                 SystemSet::on_update(AppState::Roaming)
-                    .with_system(systems::roaming_movement.system())
+                    .with_system(systems::walk.system())
                     .label(SystemLabels::InputLabel),
             )
             .add_system_set(
@@ -53,6 +57,8 @@ impl Plugin for RoamingPlugin {
     }
 }
 
+/// Quick and dirty plugin that is basically bevy_mod_raycast::DefaultRaycastingPlugin without the
+/// debug cursor.
 pub struct RaycastingPluginNoDebug<T: 'static + Send + Sync>(pub PhantomData<T>);
 
 impl<T: 'static + Send + Sync> Plugin for RaycastingPluginNoDebug<T> {
@@ -71,6 +77,7 @@ impl<T: 'static + Send + Sync> Plugin for RaycastingPluginNoDebug<T> {
             );
     }
 }
+
 impl<T: 'static + Send + Sync> Default for RaycastingPluginNoDebug<T> {
     fn default() -> Self {
         RaycastingPluginNoDebug(PhantomData::<T>)

@@ -10,7 +10,7 @@ use bevy::{input::mouse::MouseMotion, prelude::*};
 use bevy_mod_raycast::{RayCastMesh, RayCastSource};
 use heron::prelude::*;
 
-pub fn roaming_movement(
+pub fn walk(
     mut velocity_query: Query<&mut Velocity, (With<Player>, With<Strafes>)>,
     turn_query: Query<&Turn, With<Player>>,
     input: Res<Input<KeyCode>>,
