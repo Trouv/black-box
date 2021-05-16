@@ -29,9 +29,5 @@ this repository, `cd` into the directory, and run:
 cargo run --release
 ```
 
-To play, use the number-keys to press buttons and... that's it!
-If you want to select a specific level, run the application from the console
-and provide a level number. So, to play level 7: 
-```
-black-box.exe 7
-```
+To play, use WASD/mouse to walk around, E to interact with a box, then use the
+number-keys to press buttons and... that's it!

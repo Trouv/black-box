@@ -468,16 +468,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "bevy_mod_picking"
-version = "0.4.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a6ca8417890d52798eba3f6ff7c272173933ce7303c7e9f38585dde6756c059c"
-dependencies = [
- "bevy",
- "bevy_mod_raycast",
-]
-
-[[package]]
 name = "bevy_mod_raycast"
 version = "0.2.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -798,7 +788,6 @@ name = "black-box"
 version = "0.2.0"
 dependencies = [
  "bevy",
- "bevy_mod_picking",
  "bevy_mod_raycast",
  "heron",
  "log",
