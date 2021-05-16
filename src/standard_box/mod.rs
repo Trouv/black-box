@@ -20,6 +20,12 @@ pub const BUTTON_NUMS: [KeyCode; 6] = [
     KeyCode::Key6,
 ];
 
+pub enum StandardBoxEvent {
+    Completed(Entity),
+    Enter(Entity),
+    Exit(Entity),
+}
+
 #[derive(Copy, Clone, Eq, PartialEq, Debug, Default, Hash, Serialize, Deserialize)]
 pub struct StandardBoxPlugin;
 

@@ -4,8 +4,7 @@ use crate::{
         components::*,
         resources::{LookSensitivity, WalkSpeed},
     },
-    standard_box::components::Active,
-    AppState,
+    standard_box::StandardBoxEvent,
 };
 use bevy::{input::mouse::MouseMotion, prelude::*};
 use bevy_mod_raycast::{RayCastMesh, RayCastSource};
@@ -79,20 +78,16 @@ pub fn body_turn(
 }
 
 pub fn box_interaction(
-    mut commands: Commands,
     picking_query: Query<&RayCastSource<BoxRayCastSet>, With<Player>>,
     box_query: Query<Entity, (With<BoxState>, With<RayCastMesh<BoxRayCastSet>>)>,
     input: Res<Input<KeyCode>>,
-    mut state: ResMut<State<AppState>>,
+    mut writer: EventWriter<StandardBoxEvent>,
 ) {
     for picking_camera in picking_query.iter() {
         if let Some((picked_entity, intersection)) = picking_camera.intersect_top() {
             if box_query.get(picked_entity).is_ok() && intersection.distance() <= 4.5 {
                 if input.just_pressed(KeyCode::E) {
-                    commands.entity(picked_entity).insert(Active);
-                    state
-                        .overwrite_push(AppState::StandardBox)
-                        .expect("State is already StandardBox");
+                    writer.send(StandardBoxEvent::Enter(picked_entity))
                 }
             }
         }

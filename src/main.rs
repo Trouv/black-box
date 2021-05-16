@@ -52,6 +52,7 @@ fn main() -> Result<(), ParseIntError> {
         .insert_resource(Msaa { samples: 1 })
         .add_state(AppState::Roaming)
         .add_event::<box_internal::OutputEvent>()
+        .add_event::<standard_box::StandardBoxEvent>()
         .add_startup_system(transitions::add_colors.system())
         .add_plugin(standard_box::StandardBoxPlugin)
         .add_plugin(roaming::RoamingPlugin)

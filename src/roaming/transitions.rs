@@ -1,7 +1,8 @@
 use crate::{
     box_internal::{components::*, BoxData},
     roaming::components::*,
-    LEVEL_ORDER,
+    standard_box::{components::Active, StandardBoxEvent},
+    AppState, LEVEL_ORDER,
 };
 use bevy::prelude::*;
 use bevy_mod_raycast::{BoundVol, RayCastMesh, RayCastSource};
@@ -174,4 +175,19 @@ pub fn spawn_box(
                 });
         })
         .id()
+}
+
+pub fn enter_box(
+    mut commands: Commands,
+    mut state: ResMut<State<AppState>>,
+    mut reader: EventReader<StandardBoxEvent>,
+) {
+    for event in reader.iter() {
+        if let StandardBoxEvent::Enter(box_) = event {
+            commands.entity(*box_).insert(Active);
+            state
+                .overwrite_push(AppState::StandardBox)
+                .expect("State is already StandardBox");
+        }
+    }
 }
