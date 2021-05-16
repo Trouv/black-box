@@ -4,8 +4,10 @@ pub mod transitions;
 
 use crate::AppState;
 use bevy::prelude::*;
+use bevy_mod_raycast::{build_rays, update_raycast, PluginState, RaycastSystem};
 use heron::prelude::*;
 use serde::{Deserialize, Serialize};
+use std::marker::PhantomData;
 
 pub mod resources {
     use serde::{Deserialize, Serialize};
@@ -41,5 +43,29 @@ impl Plugin for RoamingPlugin {
             )
             .add_system_set(SystemSet::on_update(AppState::Roaming))
             .add_system_set(SystemSet::on_exit(AppState::Roaming));
+    }
+}
+
+pub struct RaycastingPluginNoDebug<T: 'static + Send + Sync>(pub PhantomData<T>);
+
+impl<T: 'static + Send + Sync> Plugin for RaycastingPluginNoDebug<T> {
+    fn build(&self, app: &mut AppBuilder) {
+        app.init_resource::<PluginState<T>>()
+            .add_system_to_stage(
+                CoreStage::PostUpdate,
+                build_rays::<T>.system().label(RaycastSystem::BuildRays),
+            )
+            .add_system_to_stage(
+                CoreStage::PostUpdate,
+                update_raycast::<T>
+                    .system()
+                    .label(RaycastSystem::UpdateRaycast)
+                    .after(RaycastSystem::BuildRays),
+            );
+    }
+}
+impl<T: 'static + Send + Sync> Default for RaycastingPluginNoDebug<T> {
+    fn default() -> Self {
+        RaycastingPluginNoDebug(PhantomData::<T>)
     }
 }
