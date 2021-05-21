@@ -87,4 +87,7 @@ pub mod components {
             BoxReference { box_ }
         }
     }
+
+    #[derive(Copy, Clone, Eq, PartialEq, Debug, Default, Hash, Serialize, Deserialize)]
+    pub struct ButtonRayCastSet;
 }

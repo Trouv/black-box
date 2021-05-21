@@ -130,11 +130,8 @@ pub fn spawn_box(
         .with_children(|parent| {
             parent
                 .spawn_bundle(PbrBundle {
-                    mesh: meshes.add(Mesh::from(shape::Box::new(0.4, 0.2, 0.4))),
-                    material: materials.add(StandardMaterial {
-                        base_color: Color::NONE,
-                        ..Default::default()
-                    }),
+                    mesh: server.load("models/box.glb#Mesh0/Primitive0"),
+                    material: server.load("models/box.glb#Material0"),
                     transform: Transform::from_xyz(0., 0.625, 0.),
                     ..Default::default()
                 })
@@ -143,33 +140,34 @@ pub fn spawn_box(
                 .insert(RayCastMesh::<BoxRayCastSet>::default())
                 .insert(BoundVol::default())
                 .with_children(|parent| {
-                    parent.spawn_scene(server.load("models/box.glb#Scene0"));
-
                     let box_ = parent.parent_entity();
                     for (i, button_data) in level_data.buttons.iter().enumerate() {
                         parent
                             .spawn_bundle((
-                                Transform::from_translation(button_data.translation),
+                                Transform::from_translation(
+                                    button_data.translation + Vec3::new(0., 0.125, 0.),
+                                ),
                                 GlobalTransform::identity(),
                             ))
                             .with_children(|parent| {
-                                parent.spawn_scene(server.load("models/button_base.glb#Scene0"));
+                                parent.spawn_bundle(PbrBundle {
+                                    mesh: server.load("models/button.glb#Mesh0/Primitive0"),
+                                    material: server.load("models/button.glb#Material0"),
+                                    ..Default::default()
+                                });
+
                                 parent
-                                    .spawn_bundle((
-                                        Transform::default(),
-                                        GlobalTransform::identity(),
-                                    ))
+                                    .spawn_bundle(PbrBundle {
+                                        mesh: server.load("models/button.glb#Mesh1/Primitive0"),
+                                        material: server.load("models/button.glb#Material1"),
+                                        ..Default::default()
+                                    })
                                     .insert(button_data.button.clone())
                                     .insert(Itemized {
                                         collector: box_,
                                         index: i,
                                     })
-                                    .insert(Pressable::default())
-                                    .with_children(|parent| {
-                                        parent.spawn_scene(
-                                            server.load("models/button_body.glb#Scene0"),
-                                        );
-                                    });
+                                    .insert(Pressable::default());
                             });
                     }
                 });
