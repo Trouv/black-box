@@ -6,7 +6,7 @@ pub mod components;
 pub mod systems;
 pub mod transitions;
 
-use crate::{AppState, SystemLabels};
+use crate::{standard_box, AppState, SystemLabels};
 use bevy::prelude::*;
 use bevy_mod_raycast::{build_rays, update_raycast, PluginState, RaycastSystem};
 use heron::prelude::*;
@@ -52,7 +52,8 @@ impl Plugin for RoamingPlugin {
                 SystemSet::on_update(AppState::Roaming)
                     .with_system(systems::body_turn.system())
                     .with_system(systems::camera_tilt.system())
-                    .with_system(systems::box_interaction.system()),
+                    .with_system(systems::box_interaction.system())
+                    .with_system(standard_box::systems::render_display.system()),
             );
     }
 }

@@ -41,18 +41,22 @@ pub fn render_button(
 }
 
 pub fn render_display(
-    mut reader_query: Query<(&mut BoxReference, &mut Text), With<BoxOutDisplay>>,
+    mut box_ref_query: Query<(&mut BoxReference, &mut Text), With<BoxOutDisplay>>,
     mut event_reader: EventReader<OutputEvent>,
     time: Res<Time>,
 ) {
-    for (reader, mut text) in reader_query.iter_mut() {
-        for output_event in event_reader.iter() {
-            if output_event.box_ == reader.box_ {
+    // Change value
+    for output_event in event_reader.iter() {
+        for (box_ref, mut text) in box_ref_query.iter_mut() {
+            if output_event.box_ == box_ref.box_ {
                 text.sections[0].value = output_event.output.to_string();
                 text.sections[0].style.color.set_a(1.);
             }
         }
-        let alpha = (text.sections[0].style.color.a() - (2. * time.delta_seconds())).max(0.4);
+    }
+    // Fade out
+    for (_, mut text) in box_ref_query.iter_mut() {
+        let alpha = (text.sections[0].style.color.a() - (1. * time.delta_seconds())).max(0.0);
         text.sections[0].style.color.set_a(alpha);
     }
 }

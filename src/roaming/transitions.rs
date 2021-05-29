@@ -202,7 +202,7 @@ pub fn spawn_box(
                     right: Val::Percent(0.),
                     ..Default::default()
                 },
-                size: Size::new(Val::Percent(100.), Val::Percent(40.)),
+                size: Size::new(Val::Percent(100.), Val::Percent(30.)),
                 align_items: AlignItems::Center,
                 justify_content: JustifyContent::Center,
                 ..Default::default()
@@ -214,7 +214,7 @@ pub fn spawn_box(
             parent
                 .spawn_bundle(TextBundle {
                     text: Text::with_section(
-                        "TEST".to_string(),
+                        "".to_string(),
                         TextStyle {
                             font: server.load("fonts/rainyhearts.ttf"),
                             font_size: 200.,
