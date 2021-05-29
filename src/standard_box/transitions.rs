@@ -4,7 +4,7 @@ use crate::{
         BoxCompletedEvent,
     },
     standard_box::{
-        components::{Active, BoxOutDisplay, BoxReference, BoxUiRoot, ProgressionPiece},
+        components::{Active, BoxUiRoot, ProgressionPiece},
         StandardBoxEvent,
     },
     AppState,
@@ -104,37 +104,19 @@ pub fn spawn_box_ui(
                         }
                     });
 
-                parent
-                    .spawn_bundle(NodeBundle {
-                        style: Style {
-                            size: Size {
-                                width: Val::Percent(100.),
-                                height: Val::Percent(30.),
-                            },
-                            justify_content: JustifyContent::Center,
-                            align_items: AlignItems::Center,
-                            ..Default::default()
+                parent.spawn_bundle(NodeBundle {
+                    style: Style {
+                        size: Size {
+                            width: Val::Percent(100.),
+                            height: Val::Percent(30.),
                         },
-                        material: transparent.clone(),
+                        justify_content: JustifyContent::Center,
+                        align_items: AlignItems::Center,
                         ..Default::default()
-                    })
-                    .with_children(|parent| {
-                        parent
-                            .spawn_bundle(TextBundle {
-                                text: Text::with_section(
-                                    "".to_string(),
-                                    TextStyle {
-                                        font: font.clone(),
-                                        font_size: 200.,
-                                        color: Color::rgb(0.36, 0.63, 0.36),
-                                    },
-                                    TextAlignment::default(),
-                                ),
-                                ..Default::default()
-                            })
-                            .insert(BoxOutDisplay)
-                            .insert(BoxReference::new(box_entity));
-                    });
+                    },
+                    material: transparent.clone(),
+                    ..Default::default()
+                });
             })
             .insert(BoxUiRoot);
     }

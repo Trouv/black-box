@@ -1,7 +1,11 @@
 use crate::{
     box_internal::{components::*, BoxData},
+    resources::ColorHandles,
     roaming::components::*,
-    standard_box::{components::Active, StandardBoxEvent},
+    standard_box::{
+        components::{Active, BoxOutDisplay, BoxReference},
+        StandardBoxEvent,
+    },
     AppState, LEVEL_ORDER,
 };
 use bevy::prelude::*;
@@ -90,6 +94,7 @@ pub fn black_box_setup(
     server: Res<AssetServer>,
     mut meshes: ResMut<Assets<Mesh>>,
     mut standard_materials: ResMut<Assets<StandardMaterial>>,
+    color_handles: Res<ColorHandles>,
 ) {
     for (i, level) in LEVEL_ORDER.iter().enumerate() {
         let level_data =
@@ -101,6 +106,7 @@ pub fn black_box_setup(
             &server,
             &mut meshes,
             &mut standard_materials,
+            &color_handles,
         );
     }
 }
@@ -112,6 +118,7 @@ pub fn spawn_box(
     server: &Res<AssetServer>,
     meshes: &mut ResMut<Assets<Mesh>>,
     materials: &mut ResMut<Assets<StandardMaterial>>,
+    color_handles: &Res<ColorHandles>,
 ) {
     // Spawn desk
     commands
@@ -131,7 +138,7 @@ pub fn spawn_box(
             half_extends: Vec3::new(0.5, 0.5, 0.75),
         });
     // Spawn box
-    commands
+    let box_entity = commands
         .spawn_bundle(PbrBundle {
             mesh: server.load("models/box.glb#Mesh0/Primitive0"),
             material: server.load("models/box.glb#Material0"),
@@ -175,16 +182,51 @@ pub fn spawn_box(
                             .insert(Pressable::default());
                     });
             }
-        });
+        })
+        .id();
     // Spawn display
     commands.spawn_bundle(PbrBundle {
         mesh: server.load("models/display.glb#Mesh0/Primitive0"),
-        material: materials.add(StandardMaterial::from(Color::WHITE)),
+        material: server.load("models/display.glb#Material0"),
         transform: Transform::from_translation(
             base_transform.translation + Vec3::new(0., 0.625, -0.5),
         ),
         ..Default::default()
     });
+    commands
+        .spawn_bundle(NodeBundle {
+            style: Style {
+                position_type: PositionType::Absolute,
+                position: Rect {
+                    top: Val::Percent(10.),
+                    right: Val::Percent(0.),
+                    ..Default::default()
+                },
+                size: Size::new(Val::Percent(100.), Val::Percent(40.)),
+                align_items: AlignItems::Center,
+                justify_content: JustifyContent::Center,
+                ..Default::default()
+            },
+            material: color_handles.none.clone_weak(),
+            ..Default::default()
+        })
+        .with_children(|parent| {
+            parent
+                .spawn_bundle(TextBundle {
+                    text: Text::with_section(
+                        "TEST".to_string(),
+                        TextStyle {
+                            font: server.load("fonts/rainyhearts.ttf"),
+                            font_size: 200.,
+                            color: Color::rgb(0.36, 0.63, 0.36),
+                        },
+                        TextAlignment::default(),
+                    ),
+                    ..Default::default()
+                })
+                .insert(BoxOutDisplay)
+                .insert(BoxReference::new(box_entity));
+        });
 }
 
 pub fn enter_box(

@@ -69,5 +69,6 @@ pub mod resources {
     pub struct ColorHandles {
         pub white: Handle<ColorMaterial>,
         pub green: Handle<ColorMaterial>,
+        pub none: Handle<ColorMaterial>,
     }
 }
