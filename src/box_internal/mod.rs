@@ -60,7 +60,11 @@ impl Plugin for BoxInternalPlugin {
                 .system()
                 .after(SystemLabels::InputLabel),
         )
-        .add_system(systems::pipe_pass.system())
+        .add_system(
+            systems::pipe_pass_in
+                .system()
+                .chain(systems::pipe_pass_out.system()),
+        )
         .add_system(systems::progression.system());
     }
 }

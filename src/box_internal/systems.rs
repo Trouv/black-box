@@ -46,21 +46,28 @@ pub fn progression(
     }
 }
 
-pub fn pipe_pass(
+pub fn pipe_pass_in(
     pass_query: Query<(Entity, &PipeIn), With<PipePass>>,
     mut output_reader: EventReader<OutputEvent>,
-    mut output_writer: EventWriter<OutputEvent>,
-) {
+) -> Vec<OutputEvent> {
+    let mut output_events = Vec::new();
     for output in output_reader.iter() {
         for (entity, pipe_in) in pass_query.iter() {
             if let Some(e) = pipe_in.out_entity {
                 if e == output.box_ {
-                    output_writer.send(OutputEvent {
+                    output_events.push(OutputEvent {
                         box_: entity,
                         ..output.clone()
                     });
                 }
             }
         }
+    }
+    output_events
+}
+
+pub fn pipe_pass_out(In(data): In<Vec<OutputEvent>>, mut output_writer: EventWriter<OutputEvent>) {
+    for output in data {
+        output_writer.send(output);
     }
 }
