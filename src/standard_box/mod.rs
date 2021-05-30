@@ -42,7 +42,7 @@ impl Plugin for StandardBoxPlugin {
         .add_system_set(
             SystemSet::on_update(AppState::StandardBox)
                 .after(SystemLabels::InputLabel)
-                .with_system(box_internal::systems::update.system()),
+                .with_system(box_internal::systems::button_output.system()),
         )
         .add_system_set(
             SystemSet::on_update(AppState::StandardBox)

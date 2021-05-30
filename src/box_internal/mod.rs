@@ -55,15 +55,14 @@ pub mod systems {
     };
     use bevy::prelude::*;
 
-    pub fn update(
-        mut box_query: Query<(&mut BoxState, &mut Progression)>,
+    pub fn button_output(
+        mut box_query: Query<&mut BoxState>,
         button_query: Query<(&Pressable, &ActionScript, &Itemized), Changed<Pressable>>,
         mut output_writer: EventWriter<OutputEvent>,
-        mut completed_writer: EventWriter<BoxCompletedEvent>,
     ) {
         for (pressable, action_script, itemized) in button_query.iter() {
             if pressable.just_unpressed() {
-                let (mut box_, mut progression) = box_query
+                let mut box_ = box_query
                     .get_mut(itemized.collector)
                     .expect("Itemized component on button isn't pointing to a Box!");
                 for action in action_script {
@@ -73,12 +72,25 @@ pub mod systems {
                             box_: itemized.collector,
                             output: o.clone(),
                         });
-                        progression.update(o.clone());
-                        if progression.progress() >= progression.total() {
-                            completed_writer.send(BoxCompletedEvent {
-                                box_: itemized.collector,
-                            });
-                        }
+                    }
+                }
+            }
+        }
+    }
+
+    pub fn progression(
+        mut prog_query: Query<(Entity, &mut Progression, &PipeIn)>,
+        mut output_reader: EventReader<OutputEvent>,
+        mut completed_writer: EventWriter<BoxCompletedEvent>,
+    ) {
+        for output in output_reader.iter() {
+            for (entity, mut progression, pipe_in) in prog_query.iter_mut() {
+                if let Some(e) = pipe_in.out_entity {
+                    if e == output.box_ {
+                        progression.update(output.output.clone());
+                    }
+                    if progression.progress() >= progression.total() {
+                        completed_writer.send(BoxCompletedEvent { box_: entity });
                     }
                 }
             }
