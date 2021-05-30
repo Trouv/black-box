@@ -30,34 +30,30 @@ pub struct StandardBoxPlugin;
 
 impl Plugin for StandardBoxPlugin {
     fn build(&self, app: &mut AppBuilder) {
-        app.add_system_set(
-            SystemSet::on_enter(AppState::StandardBox)
-                .with_system(transitions::spawn_box_ui.system()),
-        )
-        .add_system_set(
-            SystemSet::on_update(AppState::StandardBox)
-                .label(SystemLabels::InputLabel)
-                .with_system(systems::button_input.system()),
-        )
-        .add_system_set(
-            SystemSet::on_update(AppState::StandardBox)
-                .after(SystemLabels::InputLabel)
-                .with_system(box_internal::systems::button_output.system()),
-        )
-        .add_system_set(
-            SystemSet::on_update(AppState::StandardBox)
-                .with_system(transitions::exit_on_level_completion.system())
-                .with_system(transitions::exit_on_walk_away.system())
-                .with_system(transitions::pop_out_on_exit.system())
-                .with_system(systems::render_button.system())
-                .with_system(systems::render_display.system())
-                .with_system(systems::render_progression.system()),
-        )
-        .add_system_set(
-            SystemSet::on_exit(AppState::StandardBox)
-                .with_system(transitions::despawn_box_ui.system())
-                .with_system(transitions::deactivate_box.system()),
-        );
+        app.add_plugin(box_internal::BoxInternalPlugin)
+            .add_system_set(
+                SystemSet::on_enter(AppState::StandardBox)
+                    .with_system(transitions::spawn_box_ui.system()),
+            )
+            .add_system_set(
+                SystemSet::on_update(AppState::StandardBox)
+                    .label(SystemLabels::InputLabel)
+                    .with_system(systems::button_input.system()),
+            )
+            .add_system_set(
+                SystemSet::on_update(AppState::StandardBox)
+                    .with_system(transitions::exit_on_level_completion.system())
+                    .with_system(transitions::exit_on_walk_away.system())
+                    .with_system(transitions::pop_out_on_exit.system())
+                    .with_system(systems::render_button.system())
+                    .with_system(systems::render_display.system())
+                    .with_system(systems::render_progression.system()),
+            )
+            .add_system_set(
+                SystemSet::on_exit(AppState::StandardBox)
+                    .with_system(transitions::despawn_box_ui.system())
+                    .with_system(transitions::deactivate_box.system()),
+            );
     }
 }
 

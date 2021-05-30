@@ -8,6 +8,7 @@ pub mod actions;
 pub mod components;
 pub mod systems;
 
+use crate::SystemLabels;
 use actions::BoxOut;
 use bevy::prelude::*;
 use components::ActionScript;
@@ -46,5 +47,20 @@ impl TryFrom<&str> for BoxData {
         let input_path = Path::new("assets/levels").join(path);
         let f = std::fs::File::open(&input_path)?;
         from_reader(f)
+    }
+}
+
+#[derive(Copy, Clone, Eq, PartialEq, Debug, Default, Hash, Serialize, Deserialize)]
+pub struct BoxInternalPlugin;
+
+impl Plugin for BoxInternalPlugin {
+    fn build(&self, app: &mut AppBuilder) {
+        app.add_system(
+            systems::button_output
+                .system()
+                .after(SystemLabels::InputLabel),
+        )
+        .add_system(systems::pipe_pass.system())
+        .add_system(systems::progression.system());
     }
 }
