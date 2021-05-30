@@ -28,7 +28,7 @@ pub fn deactivate_box(
 
 pub fn spawn_box_ui(
     mut commands: Commands,
-    active_prog_query: Query<(Entity, &Progression), (With<Active>, With<BoxState>)>,
+    active_prog_query: Query<(Entity, &Progression), With<Active>>,
     server: Res<AssetServer>,
     mut materials: ResMut<Assets<ColorMaterial>>,
 ) {

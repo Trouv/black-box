@@ -3,7 +3,7 @@ use crate::{
     resources::ColorHandles,
     roaming::components::*,
     standard_box::{
-        components::{Active, BoxOutDisplay, BoxReference},
+        components::{Active, BoxOutDisplay},
         StandardBoxEvent,
     },
     AppState, LEVEL_ORDER,
@@ -148,7 +148,6 @@ pub fn spawn_box(
             ..Default::default()
         })
         .insert(BoxState::default())
-        .insert(Progression::new(level_data.prompt.clone()))
         .insert(RayCastMesh::<BoxRayCastSet>::default())
         .insert(BoundVol::default())
         .with_children(|parent| {
@@ -210,7 +209,12 @@ pub fn spawn_box(
             material: color_handles.none.clone_weak(),
             ..Default::default()
         })
+        .insert(PipeIn {
+            out_entity: Some(box_entity),
+        })
+        .insert(PipePass)
         .with_children(|parent| {
+            let parent_entity = parent.parent_entity();
             parent
                 .spawn_bundle(TextBundle {
                     text: Text::with_section(
@@ -225,7 +229,10 @@ pub fn spawn_box(
                     ..Default::default()
                 })
                 .insert(BoxOutDisplay)
-                .insert(BoxReference::new(box_entity));
+                .insert(PipeIn {
+                    out_entity: Some(parent_entity),
+                })
+                .insert(Progression::new(level_data.prompt.clone()));
         });
 }
 

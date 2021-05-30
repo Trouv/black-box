@@ -58,7 +58,6 @@ impl Plugin for StandardBoxPlugin {
 }
 
 pub mod components {
-    use bevy::prelude::*;
     use serde::{Deserialize, Serialize};
 
     #[derive(Copy, Clone, Eq, PartialEq, Debug, Hash, Default, Serialize, Deserialize)]
@@ -72,17 +71,6 @@ pub mod components {
 
     #[derive(Copy, Clone, Eq, PartialEq, Debug, Default, Hash, Serialize, Deserialize)]
     pub struct Active;
-
-    #[derive(Copy, Clone, Eq, PartialEq, Debug, Hash)]
-    pub struct BoxReference {
-        pub box_: Entity,
-    }
-
-    impl BoxReference {
-        pub fn new(box_: Entity) -> BoxReference {
-            BoxReference { box_ }
-        }
-    }
 
     #[derive(Copy, Clone, Eq, PartialEq, Debug, Default, Hash, Serialize, Deserialize)]
     pub struct ButtonRayCastSet;

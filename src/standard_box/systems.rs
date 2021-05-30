@@ -1,11 +1,11 @@
 use crate::{
     box_internal::{
-        components::{ActionScript, Itemized, Pressable, Progression},
+        components::{ActionScript, Itemized, PipeIn, Pressable, Progression},
         OutputEvent,
     },
     resources::ColorHandles,
     standard_box::{
-        components::{Active, BoxOutDisplay, BoxReference, ProgressionPiece},
+        components::{Active, BoxOutDisplay, ProgressionPiece},
         BUTTON_NUMS,
     },
 };
@@ -41,14 +41,14 @@ pub fn render_button(
 }
 
 pub fn render_display(
-    mut box_ref_query: Query<(&mut BoxReference, &mut Text), With<BoxOutDisplay>>,
+    mut box_ref_query: Query<(&PipeIn, &mut Text), With<BoxOutDisplay>>,
     mut event_reader: EventReader<OutputEvent>,
     time: Res<Time>,
 ) {
     // Change value
     for output_event in event_reader.iter() {
-        for (box_ref, mut text) in box_ref_query.iter_mut() {
-            if output_event.box_ == box_ref.box_ {
+        for (pipe_in, mut text) in box_ref_query.iter_mut() {
+            if Some(output_event.box_) == pipe_in.out_entity {
                 text.sections[0].value = output_event.output.to_string();
                 text.sections[0].style.color.set_a(1.);
             }
