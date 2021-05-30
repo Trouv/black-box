@@ -50,7 +50,7 @@ impl TryFrom<&str> for BoxData {
 
 pub mod systems {
     use crate::box_internal::{
-        components::{ActionScript, BoxState, Itemized, Pressable, Progression},
+        components::{ActionScript, BoxState, Itemized, PipeIn, PipePass, Pressable, Progression},
         BoxCompletedEvent, OutputEvent,
     };
     use bevy::prelude::*;
@@ -79,6 +79,25 @@ pub mod systems {
                                 box_: itemized.collector,
                             });
                         }
+                    }
+                }
+            }
+        }
+    }
+
+    pub fn pipe_pass(
+        pass_query: Query<(Entity, &PipeIn), With<PipePass>>,
+        mut output_reader: EventReader<OutputEvent>,
+        mut output_writer: EventWriter<OutputEvent>,
+    ) {
+        for output in output_reader.iter() {
+            for (entity, pipe_in) in pass_query.iter() {
+                if let Some(e) = pipe_in.out_entity {
+                    if e == output.box_ {
+                        output_writer.send(OutputEvent {
+                            box_: entity,
+                            ..output.clone()
+                        });
                     }
                 }
             }

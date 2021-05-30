@@ -86,3 +86,11 @@ pub struct Itemized {
     pub collector: Entity,
     pub index: usize,
 }
+
+#[derive(Copy, Clone, Eq, PartialEq, Debug, Default, Hash, Serialize, Deserialize)]
+pub struct PipeIn {
+    pub out_entity: Option<Entity>,
+}
+
+#[derive(Copy, Clone, Eq, PartialEq, Debug, Default, Hash, Serialize, Deserialize)]
+pub struct PipePass;
